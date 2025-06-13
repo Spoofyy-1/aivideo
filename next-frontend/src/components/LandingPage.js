@@ -15,7 +15,7 @@ function LandingPage() {
           <div className="hero-visual">
             {/* Ad Preview Video - larger */}
             <video controls poster="https://placehold.co/700x340?text=Ad+Preview+GIF" style={{borderRadius: '20px', boxShadow: '0 2px 24px #18333a55', marginTop: '2rem', width: '100%', maxWidth: 700, height: 340, objectFit: 'cover', background: '#222'}}>
-              <source src="http://127.0.0.1:5000/static/generated/replicate-prediction-j9qzxv3hmdrme0cq934sp9sxer_1_2.mp4" type="video/mp4" />
+              <source src="http://127.0.0.1:5001/static/generated/replicate-prediction-j9qzxv3hmdrme0cq934sp9sxer_1_2.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </div>
@@ -58,7 +58,7 @@ function LandingPage() {
         </div>
         {/* Main CTA at the bottom */}
         <div className="secondary-cta">
-          <button className="cta-secondary" onClick={() => router.push('/chat')}>Generate Ad</button>
+          <button className="cta-button" onClick={() => router.push('/chat')}>Generate Ad</button>
         </div>
       </div>
     </div>
