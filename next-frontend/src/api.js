@@ -31,38 +31,91 @@ console.log('Final API_BASE_URL:', API_BASE_URL);
 
 export async function generateAd(answers) {
     console.log('Making API call to:', `${API_BASE_URL}/generate`);
-    const res = await fetch(`${API_BASE_URL}/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(answers)
-    });
-    if (!res.ok) {
-      console.error('API call failed:', res.status, res.statusText);
-      throw new Error('Failed to generate ad');
+    console.log('Request payload:', answers);
+    
+    try {
+      const res = await fetch(`${API_BASE_URL}/generate`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(answers)
+      });
+      
+      console.log('Response status:', res.status);
+      console.log('Response headers:', res.headers);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('API call failed:', res.status, res.statusText, errorText);
+        throw new Error(`Failed to generate ad: ${res.status} ${res.statusText}`);
+      }
+      
+      const data = await res.json();
+      console.log('API response:', data);
+      return data;
+    } catch (error) {
+      console.error('Generate ad error:', error);
+      throw error;
     }
-    return await res.json();
 }
 
 export async function researchCompany(companyUrl) {
     console.log('Making API call to:', `${API_BASE_URL}/research`);
-    const res = await fetch(`${API_BASE_URL}/research`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ company_url: companyUrl })
-    });
-    if (!res.ok) {
-      console.error('API call failed:', res.status, res.statusText);
-      throw new Error('Failed to research company');
+    console.log('Company URL:', companyUrl);
+    
+    try {
+      const res = await fetch(`${API_BASE_URL}/research`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ company_url: companyUrl })
+      });
+      
+      console.log('Research response status:', res.status);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Research API call failed:', res.status, res.statusText, errorText);
+        throw new Error(`Failed to research company: ${res.status} ${res.statusText}`);
+      }
+      
+      const data = await res.json();
+      console.log('Research API response:', data);
+      return data;
+    } catch (error) {
+      console.error('Research company error:', error);
+      throw error;
     }
-    return await res.json();
 }
 
 export async function testAPI() {
     console.log('Making API call to:', `${API_BASE_URL}/test`);
-    const res = await fetch(`${API_BASE_URL}/test`);
-    if (!res.ok) {
-      console.error('API call failed:', res.status, res.statusText);
-      throw new Error('API test failed');
+    
+    try {
+      const res = await fetch(`${API_BASE_URL}/test`, {
+        method: 'GET',
+        headers: { 
+          'Accept': 'text/plain'
+        }
+      });
+      
+      console.log('Test response status:', res.status);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Test API call failed:', res.status, res.statusText, errorText);
+        throw new Error(`API test failed: ${res.status} ${res.statusText}`);
+      }
+      
+      const data = await res.text();
+      console.log('Test API response:', data);
+      return data;
+    } catch (error) {
+      console.error('Test API error:', error);
+      throw error;
     }
-    return await res.text();
 } 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { generateAd, researchCompany } from '../api';
+import { generateAd, researchCompany, testAPI } from '../api';
 
 const adTypeOptions = [
   'Unhinged',
@@ -72,6 +72,25 @@ function Chatbot() {
 
   const chatRef = useRef(null);
 
+  // Test API connectivity on component mount
+  useEffect(() => {
+    const testConnection = async () => {
+      try {
+        console.log('Testing API connectivity...');
+        const response = await testAPI();
+        console.log('API test successful:', response);
+      } catch (error) {
+        console.error('API test failed:', error);
+        setMessages(msgs => [ 
+          ...msgs,
+          { sender: 'bot', text: 'Warning: Having trouble connecting to our servers. Please check your internet connection.' }
+        ]);
+      }
+    };
+    
+    testConnection();
+  }, []);
+
   useEffect(() => {
     if (chatRef.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
@@ -111,18 +130,27 @@ function Chatbot() {
       
       // Research the company
       try {
+        console.log('Starting company research for:', input);
         const research = await researchCompany(input);
+        console.log('Research completed successfully:', research);
+        
         setProductsList(research.products_services || []);
         setResearchDone(true);
         setMessages(msgs => [
           ...msgs,
-          { sender: 'bot', text: 'What industry is your company in?' }
+          { sender: 'bot', text: 'Research completed! What industry is your company in?' }
         ]);
       } catch (error) {
-        console.error('Research failed:', error);
+        console.error('Research failed with error:', error);
+        console.error('Error details:', {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        });
+        
         setMessages(msgs => [
           ...msgs,
-          { sender: 'bot', text: 'Research failed, but we can continue. What industry is your company in?' }
+          { sender: 'bot', text: `Research failed: ${error.message}. We can continue without it. What industry is your company in?` }
         ]);
         setResearchDone(true);
       }
