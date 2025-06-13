@@ -63,6 +63,38 @@ except Exception as e:
 
 # Configure OpenAI client
 client = None
+
+def get_openai_client():
+    """Get a fresh OpenAI client instance to avoid environment interference."""
+    try:
+        openai_key = os.getenv("OPENAI_API_KEY")
+        if not openai_key:
+            print("WARNING: OPENAI_API_KEY not found in environment")
+            return None
+        
+        # Create a fresh client with minimal parameters to avoid proxy issues
+        from openai import OpenAI
+        
+        # Try the most basic initialization first
+        try:
+            return OpenAI(api_key=openai_key)
+        except Exception as e:
+            print(f"DEBUG: Basic OpenAI client creation failed: {e}")
+            
+            # Try with explicit base_url to avoid proxy issues
+            try:
+                return OpenAI(
+                    api_key=openai_key,
+                    base_url="https://api.openai.com/v1"
+                )
+            except Exception as e2:
+                print(f"DEBUG: OpenAI client with base_url failed: {e2}")
+                return None
+                
+    except Exception as e:
+        print(f"ERROR in get_openai_client: {e}")
+        return None
+
 try:
     openai_key = os.getenv("OPENAI_API_KEY")
     if not openai_key:
@@ -70,41 +102,12 @@ try:
         client = None
     else:
         print("DEBUG: OPENAI_API_KEY found")
-    
-    # Try different initialization methods for compatibility
-    try:
-        # First try the most basic method without any extra parameters
-        client = OpenAI(api_key=openai_key)
-        print("DEBUG: OpenAI client created successfully with basic method")
-    except Exception as e:
-        print(f"DEBUG: Basic OpenAI init failed: {e}")
-        try:
-            # Try with explicit parameters that are known to work
-            client = OpenAI(
-                api_key=openai_key,
-                timeout=30.0,
-                max_retries=3
-            )
-            print("DEBUG: OpenAI client created successfully with explicit parameters")
-        except Exception as e2:
-            print(f"DEBUG: Explicit parameters OpenAI init failed: {e2}")
-            try:
-                # Try setting the API key via environment and using default constructor
-                import os
-                os.environ["OPENAI_API_KEY"] = openai_key
-                client = OpenAI()
-                print("DEBUG: OpenAI client created successfully with environment variable method")
-            except Exception as e3:
-                print(f"DEBUG: Environment variable OpenAI init failed: {e3}")
-                try:
-                    # Last resort: try importing and setting the old way
-                    import openai
-                    openai.api_key = openai_key
-                    client = OpenAI(api_key=openai_key)
-                    print("DEBUG: OpenAI client created successfully with legacy method")
-                except Exception as e4:
-                    print(f"DEBUG: All OpenAI init methods failed: {e4}")
-                    client = None
+        # Test if we can create a client
+        client = get_openai_client()
+        if client:
+            print("DEBUG: OpenAI client test successful")
+        else:
+            print("DEBUG: OpenAI client test failed")
                 
 except Exception as e:
     print(f"ERROR creating OpenAI client: {e}")
@@ -125,6 +128,7 @@ def normalize_na(val):
 def research_company(url):
     """Research company using ChatGPT and web scraping."""
     try:
+        client = get_openai_client()
         if client is None:
             return "Error: OpenAI client not available. Please check API key configuration."
             
@@ -158,6 +162,7 @@ def research_company(url):
 
 def extract_products_services(research_text):
     """Extract a list of products/services from the research_company output using OpenAI."""
+    client = get_openai_client()
     if client is None:
         return []
         
@@ -180,6 +185,7 @@ def extract_products_services(research_text):
         return []
 
 def extract_avoid_topics(research_text):
+    client = get_openai_client()
     if client is None:
         return []
         
@@ -823,11 +829,13 @@ def debug_openai():
             'key_prefix': openai_key[:10] + '...' if len(openai_key) > 10 else openai_key
         }
         
-        # Test 2: Try to create client
+        # Test 2: Try to create client using new function
         try:
-            from openai import OpenAI
-            test_client = OpenAI(api_key=openai_key)
-            client_info = {'client_created': True, 'error': None}
+            test_client = get_openai_client()
+            if test_client:
+                client_info = {'client_created': True, 'error': None}
+            else:
+                client_info = {'client_created': False, 'error': 'get_openai_client returned None'}
         except Exception as e:
             client_info = {'client_created': False, 'error': str(e)}
         
