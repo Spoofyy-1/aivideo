@@ -577,8 +577,14 @@ def generate_ad():
         # Generate company report
         output_dir = 'static/generated'
         os.makedirs(output_dir, exist_ok=True)
+        
+        # Add timestamp to make files unique and prevent overwriting
+        import time
+        timestamp = str(int(time.time()))
         company_name = slugify(company_url.split('//')[-1].split('/')[0])
-        report_path = os.path.join(output_dir, f'{company_name}_report.txt')
+        unique_name = f"{company_name}_{timestamp}"
+        
+        report_path = os.path.join(output_dir, f'{unique_name}_report.txt')
         generate_company_report(company_info, report_path)
         report_url = f'/static/generated/{os.path.basename(report_path)}'
         print(f"Returning report_url: {report_url}")
@@ -717,7 +723,7 @@ def generate_ad():
         video_paths = [video_path1, video_path2]
         
         # Combine videos
-        output_path = os.path.join(output_dir, f'{company_name}_ad.mp4')
+        output_path = os.path.join(output_dir, f'{unique_name}_ad.mp4')
         final_video_path = combine_videos(video_paths, output_path)
         print("Final video path:", final_video_path)
         # Check if file exists
