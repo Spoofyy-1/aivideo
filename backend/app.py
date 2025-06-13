@@ -1,29 +1,85 @@
 import os
 import json
-from flask import Flask, request, jsonify, send_from_directory
-from dotenv import load_dotenv
-from openai import OpenAI
-import replicate
-import requests
-from bs4 import BeautifulSoup
-from slugify import slugify
-import moviepy.editor as mp
-import tempfile
-import shutil
-import concurrent.futures
-import numpy as np
-from flask_cors import CORS
+print("DEBUG: Starting imports...")
+try:
+    from flask import Flask, request, jsonify, send_from_directory
+    print("DEBUG: Flask imported successfully")
+except Exception as e:
+    print(f"ERROR importing Flask: {e}")
+    raise
+
+try:
+    from dotenv import load_dotenv
+    print("DEBUG: dotenv imported successfully")
+except Exception as e:
+    print(f"ERROR importing dotenv: {e}")
+    raise
+
+try:
+    from openai import OpenAI
+    print("DEBUG: OpenAI imported successfully")
+except Exception as e:
+    print(f"ERROR importing OpenAI: {e}")
+    raise
+
+try:
+    import replicate
+    print("DEBUG: replicate imported successfully")
+except Exception as e:
+    print(f"ERROR importing replicate: {e}")
+    raise
+
+try:
+    import requests
+    from bs4 import BeautifulSoup
+    from slugify import slugify
+    import moviepy.editor as mp
+    import tempfile
+    import shutil
+    import concurrent.futures
+    import numpy as np
+    from flask_cors import CORS
+    print("DEBUG: All other imports successful")
+except Exception as e:
+    print(f"ERROR importing other modules: {e}")
+    raise
+
+print("DEBUG: All imports completed successfully")
 
 # Load environment variables
-load_dotenv()
+try:
+    load_dotenv()
+    print("DEBUG: Environment variables loaded")
+except Exception as e:
+    print(f"ERROR loading environment variables: {e}")
 
-app = Flask(__name__, static_folder='static')
-CORS(app)
+try:
+    app = Flask(__name__, static_folder='static')
+    CORS(app)
+    print("DEBUG: Flask app created successfully")
+except Exception as e:
+    print(f"ERROR creating Flask app: {e}")
+    raise
 
 # Configure OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+try:
+    openai_key = os.getenv("OPENAI_API_KEY")
+    if not openai_key:
+        print("WARNING: OPENAI_API_KEY not found in environment")
+    else:
+        print("DEBUG: OPENAI_API_KEY found")
+    
+    client = OpenAI(api_key=openai_key)
+    print("DEBUG: OpenAI client created successfully")
+except Exception as e:
+    print(f"ERROR creating OpenAI client: {e}")
+    raise
 
-GEMINI_API_KEY = "AIzaSyABk6wdtiL7JHhpVsTM-criOeDyzr29lwk"
+try:
+    GEMINI_API_KEY = "AIzaSyABk6wdtiL7JHhpVsTM-criOeDyzr29lwk"
+    print("DEBUG: Gemini API key set")
+except Exception as e:
+    print(f"ERROR setting Gemini API key: {e}")
 
 def normalize_na(val):
     if not val:
@@ -380,56 +436,99 @@ def improve_script_with_gemini(company_info, user_answers, gpt_script):
     return improved_script
 
 def ensure_best_ads_embedded():
-    import time
-    best_ads_path = "best_ads.json"
-    embedded_path = "best_ads_embedded.json"
-    needs_embedding = False
-    if not os.path.exists(embedded_path):
-        needs_embedding = True
-    else:
-        if os.path.getmtime(best_ads_path) > os.path.getmtime(embedded_path):
+    try:
+        print("DEBUG: Starting ensure_best_ads_embedded()")
+        import time
+        best_ads_path = "best_ads.json"
+        embedded_path = "best_ads_embedded.json"
+        
+        print(f"DEBUG: Checking if {best_ads_path} exists...")
+        if not os.path.exists(best_ads_path):
+            print(f"ERROR: {best_ads_path} does not exist!")
+            return
+        else:
+            print(f"DEBUG: {best_ads_path} exists")
+        
+        needs_embedding = False
+        if not os.path.exists(embedded_path):
+            print(f"DEBUG: {embedded_path} does not exist, needs embedding")
             needs_embedding = True
-    if needs_embedding:
-        print("Embedding best ads for retrieval...")
-        with open(best_ads_path, "r") as f:
-            best_ads = json.load(f)
-        embedded_ads = []
-        for ad in best_ads:
-            text = f"{ad['title']}\n{ad['script']}\nPrinciple: {ad['principle']}"
-            embedding = client.embeddings.create(
-                model="text-embedding-ada-002",
-                input=text
-            ).data[0].embedding
-            embedded_ads.append({
-                "title": ad["title"],
-                "script": ad["script"],
-                "principle": ad["principle"],
-                "embedding": embedding
-            })
-        with open(embedded_path, "w") as f:
-            json.dump(embedded_ads, f)
-        print("Embedded ads saved to best_ads_embedded.json")
-    else:
-        print("best_ads_embedded.json is up to date.")
+        else:
+            print(f"DEBUG: {embedded_path} exists, checking timestamps")
+            if os.path.getmtime(best_ads_path) > os.path.getmtime(embedded_path):
+                print("DEBUG: best_ads.json is newer, needs re-embedding")
+                needs_embedding = True
+            else:
+                print("DEBUG: embedded file is up to date")
+        
+        if needs_embedding:
+            print("DEBUG: Embedding best ads for retrieval...")
+            try:
+                with open(best_ads_path, "r") as f:
+                    best_ads = json.load(f)
+                print(f"DEBUG: Loaded {len(best_ads)} ads from {best_ads_path}")
+            except Exception as e:
+                print(f"ERROR loading {best_ads_path}: {e}")
+                return
+            
+            embedded_ads = []
+            for i, ad in enumerate(best_ads):
+                try:
+                    print(f"DEBUG: Processing ad {i+1}/{len(best_ads)}")
+                    text = f"{ad['title']}\n{ad['script']}\nPrinciple: {ad['principle']}"
+                    embedding = client.embeddings.create(
+                        model="text-embedding-ada-002",
+                        input=text
+                    ).data[0].embedding
+                    embedded_ads.append({
+                        "title": ad["title"],
+                        "script": ad["script"],
+                        "principle": ad["principle"],
+                        "embedding": embedding
+                    })
+                except Exception as e:
+                    print(f"ERROR processing ad {i+1}: {e}")
+                    continue
+            
+            try:
+                with open(embedded_path, "w") as f:
+                    json.dump(embedded_ads, f)
+                print(f"DEBUG: Embedded ads saved to {embedded_path}")
+            except Exception as e:
+                print(f"ERROR saving embedded ads: {e}")
+        else:
+            print("DEBUG: best_ads_embedded.json is up to date.")
+    except Exception as e:
+        print(f"ERROR in ensure_best_ads_embedded(): {e}")
+        import traceback
+        traceback.print_exc()
 
 @app.route('/')
 def index():
-    return jsonify({
-        'status': 'success',
-        'message': 'AI Video Ad Generator API is running',
-        'version': '1.0.0',
-        'endpoints': {
-            'POST /generate': 'Generate AI video advertisement',
-            'POST /research': 'Research product information',
-            'GET /test': 'Test API connectivity',
-            'GET /download/video/<filename>': 'Download generated video files',
-            'GET /download/report/<filename>': 'Download research reports'
-        }
-    })
+    try:
+        print("DEBUG: Index route called")
+        return jsonify({
+            'status': 'success',
+            'message': 'AI Video Ad Generator API is running',
+            'version': '1.0.0',
+            'endpoints': {
+                'POST /generate': 'Generate AI video advertisement',
+                'POST /research': 'Research product information',
+                'GET /test': 'Test API connectivity',
+                'GET /download/video/<filename>': 'Download generated video files',
+                'GET /download/report/<filename>': 'Download research reports'
+            }
+        })
+    except Exception as e:
+        print(f"ERROR in index route: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/generate', methods=['POST'])
 def generate_ad():
     try:
+        print("DEBUG: Generate route called")
         print("Received request to /generate")
         user_answers = request.json
         company_url = user_answers.get('company_url')
@@ -605,12 +704,21 @@ def generate_ad():
         })
         
     except Exception as e:
-        print("Exception occurred:", str(e))
+        print(f"ERROR in generate route: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 @app.route('/test')
 def test():
-    return "Test OK"
+    try:
+        print("DEBUG: Test route called")
+        return "Test OK"
+    except Exception as e:
+        print(f"ERROR in test route: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/research', methods=['POST'])
 def research_endpoint():
@@ -624,13 +732,34 @@ def research_endpoint():
 
 @app.route('/download/video/<filename>')
 def download_video(filename):
-    return send_from_directory('static/generated', filename, as_attachment=True)
+    try:
+        print(f"DEBUG: Download video route called for {filename}")
+        return send_from_directory('static/generated', filename, as_attachment=True)
+    except Exception as e:
+        print(f"ERROR in download_video route: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/download/report/<filename>')
 def download_report(filename):
     return send_from_directory('static/generated', filename, as_attachment=True)
 
 if __name__ == '__main__':
-    ensure_best_ads_embedded()
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False) 
+    try:
+        print("DEBUG: Starting main execution...")
+        print("DEBUG: About to call ensure_best_ads_embedded()")
+        ensure_best_ads_embedded()
+        print("DEBUG: ensure_best_ads_embedded() completed")
+        
+        print("DEBUG: Getting port from environment...")
+        port = int(os.environ.get('PORT', 5000))
+        print(f"DEBUG: Using port {port}")
+        
+        print("DEBUG: Starting Flask app...")
+        app.run(host='0.0.0.0', port=port, debug=False)
+    except Exception as e:
+        print(f"FATAL ERROR in main: {e}")
+        import traceback
+        traceback.print_exc()
+        raise 
