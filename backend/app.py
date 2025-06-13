@@ -798,42 +798,76 @@ def debug_openai():
             'key_prefix': openai_key[:10] + '...' if len(openai_key) > 10 else openai_key
         }
         
-        # Test 2: Try to create client using new function
+        # Test 2: Try to create client step by step
+        client_info = {'steps': []}
+        
         try:
-            test_client = get_openai_client()
-            if test_client:
-                client_info = {'client_created': True, 'error': None}
-            else:
-                client_info = {'client_created': False, 'error': 'get_openai_client returned None'}
+            client_info['steps'].append('Attempting to create OpenAI client...')
+            test_client = OpenAI(api_key=openai_key)
+            client_info['steps'].append('OpenAI client created successfully')
+            client_info['client_created'] = True
+            client_info['error'] = None
         except Exception as e:
-            client_info = {'client_created': False, 'error': str(e)}
+            client_info['steps'].append(f'OpenAI client creation failed: {str(e)}')
+            try:
+                client_info['steps'].append('Trying with explicit base_url...')
+                test_client = OpenAI(api_key=openai_key, base_url="https://api.openai.com/v1")
+                client_info['steps'].append('OpenAI client with base_url created successfully')
+                client_info['client_created'] = True
+                client_info['error'] = None
+            except Exception as e2:
+                client_info['steps'].append(f'OpenAI client with base_url failed: {str(e2)}')
+                client_info['client_created'] = False
+                client_info['error'] = str(e2)
+                test_client = None
         
         # Test 3: Try to make API call if client was created
-        api_call_info = {'attempted': False, 'success': False, 'error': None, 'response': None}
-        if client_info['client_created']:
+        api_call_info = {'attempted': False, 'success': False, 'error': None, 'response': None, 'steps': []}
+        if client_info['client_created'] and test_client:
             try:
                 api_call_info['attempted'] = True
+                api_call_info['steps'].append('Attempting API call...')
                 response = test_client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[{"role": "user", "content": "Say 'OpenAI test successful'"}]
                 )
+                api_call_info['steps'].append('API call completed successfully')
                 api_call_info['success'] = True
                 api_call_info['response'] = response.choices[0].message.content
             except Exception as e:
+                api_call_info['steps'].append(f'API call failed: {str(e)}')
                 api_call_info['error'] = str(e)
+        
+        # Test 4: Test our get_openai_client function
+        function_test = {'steps': []}
+        try:
+            function_test['steps'].append('Testing get_openai_client function...')
+            func_client = get_openai_client()
+            if func_client:
+                function_test['steps'].append('get_openai_client returned a client')
+                function_test['success'] = True
+            else:
+                function_test['steps'].append('get_openai_client returned None')
+                function_test['success'] = False
+        except Exception as e:
+            function_test['steps'].append(f'get_openai_client threw exception: {str(e)}')
+            function_test['success'] = False
+            function_test['error'] = str(e)
         
         return jsonify({
             'key_info': key_info,
             'client_info': client_info,
             'api_call_info': api_call_info,
-            'global_client_status': 'initialized' if client else 'failed'
+            'function_test': function_test,
+            'global_client_status': 'initialized' if client else 'failed',
+            'openai_version': 'latest (1.54.3)'
         })
         
     except Exception as e:
         print(f"ERROR in debug_openai: {e}")
         import traceback
         traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
 
 if __name__ == '__main__':
     try:
