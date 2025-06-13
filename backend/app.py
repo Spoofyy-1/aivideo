@@ -239,6 +239,10 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
         creative_notes.append(f"Main product/service to promote: {user_answers['product']}")
     if user_answers.get('mood'):
         creative_notes.append(f"Desired mood/vibe: {user_answers['mood']}")
+    # Add main character if specified
+    main_character = user_answers.get('main_character')
+    if main_character and not normalize_na(main_character):
+        creative_notes.append(f"Main character for the ad: {main_character}")
     # Only use slogan if it's not 'N/A', 'na', etc.
     slogan_val = user_answers.get('slogan')
     if slogan_val and not normalize_na(slogan_val):
