@@ -38,22 +38,35 @@ def get_openai_client():
             print("WARNING: OPENAI_API_KEY not found in environment")
             return None
         
-        # Use modern OpenAI client
+        # Use modern OpenAI client with explicit parameters to avoid proxy issues
         try:
-            client = OpenAI(api_key=openai_key)
+            # Clear any proxy-related environment variables that might interfere
+            import os
+            proxy_vars = ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy', 'ALL_PROXY', 'all_proxy']
+            original_values = {}
+            for var in proxy_vars:
+                if var in os.environ:
+                    original_values[var] = os.environ[var]
+                    client_info['steps'].append(f'Found proxy var {var}: {os.environ[var][:20]}...')
+                    del os.environ[var]
+            
+            client_info['steps'].append('Cleared proxy environment variables')
+            
+            # Create client with minimal parameters
+            client = OpenAI(
+                api_key=openai_key,
+                timeout=30.0,
+                max_retries=2
+            )
+            
+            # Restore original proxy values
+            for var, value in original_values.items():
+                os.environ[var] = value
+                
             return client
         except Exception as e:
             print(f"DEBUG: OpenAI client creation failed: {e}")
-            try:
-                # Try with explicit base URL to bypass proxy issues
-                client = OpenAI(
-                    api_key=openai_key,
-                    base_url="https://api.openai.com/v1"
-                )
-                return client
-            except Exception as e2:
-                print(f"DEBUG: OpenAI client with base_url failed: {e2}")
-                return None
+            return None
                 
     except Exception as e:
         print(f"ERROR in get_openai_client: {e}")
@@ -803,23 +816,36 @@ def debug_openai():
         
         try:
             client_info['steps'].append('Attempting to create OpenAI client...')
-            test_client = OpenAI(api_key=openai_key)
+            
+            # Clear proxy environment variables
+            proxy_vars = ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy', 'ALL_PROXY', 'all_proxy']
+            original_values = {}
+            for var in proxy_vars:
+                if var in os.environ:
+                    original_values[var] = os.environ[var]
+                    client_info['steps'].append(f'Found proxy var {var}: {os.environ[var][:20]}...')
+                    del os.environ[var]
+            
+            client_info['steps'].append('Cleared proxy environment variables')
+            
+            test_client = OpenAI(
+                api_key=openai_key,
+                timeout=30.0,
+                max_retries=2
+            )
+            
+            # Restore proxy values
+            for var, value in original_values.items():
+                os.environ[var] = value
+            
             client_info['steps'].append('OpenAI client created successfully')
             client_info['client_created'] = True
             client_info['error'] = None
         except Exception as e:
             client_info['steps'].append(f'OpenAI client creation failed: {str(e)}')
-            try:
-                client_info['steps'].append('Trying with explicit base_url...')
-                test_client = OpenAI(api_key=openai_key, base_url="https://api.openai.com/v1")
-                client_info['steps'].append('OpenAI client with base_url created successfully')
-                client_info['client_created'] = True
-                client_info['error'] = None
-            except Exception as e2:
-                client_info['steps'].append(f'OpenAI client with base_url failed: {str(e2)}')
-                client_info['client_created'] = False
-                client_info['error'] = str(e2)
-                test_client = None
+            client_info['client_created'] = False
+            client_info['error'] = str(e)
+            test_client = None
         
         # Test 3: Try to make API call if client was created
         api_call_info = {'attempted': False, 'success': False, 'error': None, 'response': None, 'steps': []}
