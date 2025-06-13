@@ -12,9 +12,15 @@ RUN apt-get update && apt-get install -y \
 # Copy everything first
 COPY . .
 
-# Move to backend directory and install dependencies
-WORKDIR /app/backend
-RUN pip install --no-cache-dir -r requirements.txt
+# Debug: List files to see what we have
+RUN ls -la /app
+RUN ls -la /app/backend
+
+# Install dependencies from the backend directory
+RUN pip install --no-cache-dir -r /app/backend/requirements.txt
+
+# Copy backend files to app root for easier execution
+RUN cp -r /app/backend/* /app/
 
 # Create static directory for generated files
 RUN mkdir -p static/generated
