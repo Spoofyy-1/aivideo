@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy only the backend directory contents to the app root
-COPY backend/ ./
+# Copy all files from current directory (which will be backend/ when Railway builds)
+COPY . ./
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
