@@ -443,12 +443,20 @@ def generate_company_report(company_info, output_path):
     except Exception as e:
         raise Exception(f"Error generating company report: {str(e)}")
 
-def improve_script_with_gemini(company_info, user_answers, gpt_script):
+def improve_script_with_gemini(company_info, user_answers, gpt_script, best_ads=None):
     """Send each segment to Gemini separately to improve for Veo3."""
     import copy
     improved_script = copy.deepcopy(gpt_script)
+    
+    # Build best ads inspiration string for Gemini improvements
+    best_ads_str = ""
+    if best_ads:
+        best_ads_str = "\n\nHere are some of the best, most creative, and viral ad scripts to use as inspiration for improvements:\n"
+        for ad in best_ads:
+            best_ads_str += f"- {ad['title']}: {ad['script']} (Principle: {ad['principle']})\n"
+    
     for seg in ['segment1', 'segment2']:
-        prompt = f"Can you improve this current script to be better fit for Veo3 generation for an Ad?\n\nSegment script:\n{json.dumps(gpt_script[seg], indent=2)}"
+        prompt = f"Can you improve this current script to be better fit for Veo3 generation for an Ad? Make it more engaging, cinematic, and effective.{best_ads_str}\n\nCurrent segment script:\n{json.dumps(gpt_script[seg], indent=2)}\n\nImprove this script while maintaining the JSON format. Focus on making it more visually compelling and better suited for video generation."
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-06-05:generateContent?key=" + GEMINI_API_KEY
         headers = {"Content-Type": "application/json"}
         data = {"contents": [{"parts": [{"text": prompt}]}]}
@@ -678,13 +686,22 @@ def generate_ad():
                 ad_type_instructions = (
                     "Make this ad packed with pop culture references, memes, and trending topics. Make it feel current, relevant, and shareable."
                 )
-            # For brevity, you can refactor ad_type_instructions logic into a function and reuse here
-            # For now, just call generate_ad_script to get the prompt structure, but don't use GPT-4
-            prompt_template = generate_ad_script(company_info, user_answers, best_ads=best_ads)
             # For Gemini, we want to generate each segment separately
             gemini_script = {}
+            
+            # Build best ads inspiration string for Gemini
+            best_ads_str = ""
+            if best_ads:
+                best_ads_str = "Here are some of the best, most creative, and viral ad scripts and creative principles in history to use as inspiration (be bold, surprising, and memorable!):\n"
+                for ad in best_ads:
+                    scene_desc = ""
+                    if 'scene_descriptions' in ad:
+                        scene_desc = f"\nScene 1: {ad['scene_descriptions']['segment1']['visual']} (Mood: {ad['scene_descriptions']['segment1']['mood']}, Camera: {ad['scene_descriptions']['segment1']['camera']})\n"
+                        scene_desc += f"Scene 2: {ad['scene_descriptions']['segment2']['visual']} (Mood: {ad['scene_descriptions']['segment2']['mood']}, Camera: {ad['scene_descriptions']['segment2']['camera']})"
+                    best_ads_str += f"- {ad['title']}: {ad['script']} (Principle: {ad['principle']}, Slogan: {ad.get('slogan', '')}, Call to Action: {ad.get('call_to_action', '')}){scene_desc}\n"
+            
             for seg in ['segment1', 'segment2']:
-                segment_prompt = f"{ad_type_instructions}\nBased on this company information (from their website):\n{company_info}\n\nAnd the following creative direction from the user:\n{user_answers}\n\nIMPORTANT: For this segment, provide:\n- 'scene_description': a cinematic visual description for Veo-3 (do NOT mention or describe any logos)\n- 'prompt': a concise Veo-3 prompt that includes a simple voiceover instruction, e.g., [voiceover: ...] (do NOT mention or describe any logos)\n- 'voiceover_script': a short, compelling line to be spoken as a voiceover\n- 'mood': the emotional tone and atmosphere of the scene\n- 'camera': specific camera movements and techniques to use\n\nFormat your response as valid JSON. Only return the JSON object."
+                segment_prompt = f"{ad_type_instructions}\n{best_ads_str}\nBased on this company information (from their website):\n{company_info}\n\nAnd the following creative direction from the user:\n{user_answers}\n\nIMPORTANT: For this segment, provide:\n- 'scene_description': a cinematic visual description for Veo-3 (do NOT mention or describe any logos)\n- 'prompt': a concise Veo-3 prompt that includes a simple voiceover instruction, e.g., [voiceover: ...] (do NOT mention or describe any logos)\n- 'voiceover_script': a short, compelling line to be spoken as a voiceover\n- 'mood': the emotional tone and atmosphere of the scene\n- 'camera': specific camera movements and techniques to use\n\nFormat your response as valid JSON. Only return the JSON object."
                 gemini_script[seg] = gemini_generate_segment(segment_prompt)
             # Slogan and CTA: generate with Gemini as well
             slogan_cta_prompt = f"Based on the above, generate a creative, memorable slogan and a bold, actionable call-to-action for this ad. Format as JSON: {{'slogan': '...', 'call_to_action': '...'}}. Only return the JSON object."
@@ -697,7 +714,7 @@ def generate_ad():
             ad_script = generate_ad_script(company_info, user_answers, best_ads=best_ads)
             print("Ad script (GPT):", ad_script)
             try:
-                ad_script = improve_script_with_gemini(company_info, user_answers, ad_script)
+                ad_script = improve_script_with_gemini(company_info, user_answers, ad_script, best_ads=best_ads)
                 print("Ad script (Gemini improved):", ad_script)
             except Exception as e:
                 print("Gemini improvement failed, using GPT script. Error:", e)
