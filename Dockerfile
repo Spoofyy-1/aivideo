@@ -9,23 +9,16 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy everything first
-COPY . .
+# Copy only the backend directory contents to the app root
+COPY backend/ ./
 
-# Debug: List files to see what we have
-RUN ls -la /app
-RUN ls -la /app/backend
-
-# Install dependencies from the backend directory
-RUN pip install --no-cache-dir -r /app/backend/requirements.txt
-
-# Copy backend files to app root for easier execution
-RUN cp -r /app/backend/* /app/
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Create static directory for generated files
 RUN mkdir -p static/generated
 
-# Expose port (Railway will set PORT env var)
+# Expose port
 EXPOSE 8080
 
 # Run the application
