@@ -13,10 +13,10 @@ function LandingPage() {
         <div className="hero">
           <h1 className="hero-title">Create AI-Powered Ad Videos in Minutes</h1>
           <div className="hero-visual">
-            {/* Video Player - matching the original design */}
+            {/* Video Player - using Railway backend URL */}
             <video 
               controls 
-              poster="https://placehold.co/700x340/2a3f47/b6d6e0?text=Ad+Preview+GIF"
+              poster="https://placehold.co/700x340/2a3f47/b6d6e0?text=AI+Generated+Ad+Preview"
               style={{
                 borderRadius: '20px', 
                 boxShadow: '0 2px 24px #18333a55', 
@@ -28,18 +28,18 @@ function LandingPage() {
                 background: '#2a3f47'
               }}
             >
-              <source src="http://127.0.0.1:5001/static/generated/replicate-prediction-j9qzxv3hmdrme0cq934sp9sxer_1_2.mp4" type="video/mp4" />
+              <source src="https://aivideo-production.up.railway.app/static/generated/replicate-prediction-j9qzxv3hmdrme0cq934sp9sxer_1_2.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </div>
         </div>
         
-        {/* Features 3x2 grid - matching original design */}
+        {/* Features 3x2 grid - uniform sizing */}
         <div className="features-grid">
           <div className="feature-card">
             <div className="feature-icon">🔎</div>
             <div className="feature-title">Company Research & Report</div>
-            <div className="feature-desc">We research your company and generate a detailed report on your products, services, and brand voice. Download the report for insights and transparency.</div>
+            <div className="feature-desc">We research your company and generate a detailed report on your products, services, and brand voice.</div>
           </div>
           <div className="feature-card">
             <div className="feature-icon">📝</div>
@@ -54,24 +54,21 @@ function LandingPage() {
           <div className="feature-card">
             <div className="feature-icon">⭐</div>
             <div className="feature-title">Inspired by the Best</div>
-            <div className="feature-desc">Your ad is inspired by the most effective ads in history.</div>
+            <div className="feature-desc">Your ad is inspired by the most effective ads in history for maximum impact.</div>
           </div>
           <div className="feature-card">
             <div className="feature-icon">⚡</div>
             <div className="feature-title">Instant Download</div>
-            <div className="feature-desc">Download your video and report instantly, no waiting.</div>
+            <div className="feature-desc">Download your video and report instantly, no waiting required.</div>
           </div>
           <div className="feature-card">
             <div className="feature-icon">💸</div>
             <div className="feature-title">Unbeatable Value</div>
-            <div className="feature-desc">
-              Creating a professional 15 second ad can cost $1,500 or more.<br />
-              With us, you get a cinematic, AI-powered 16-second ad for just <strong>$16</strong> a fraction of the industry price.
-            </div>
+            <div className="feature-desc">Get a cinematic, AI-powered 16-second ad for just <strong>$16</strong> - a fraction of the industry price.</div>
           </div>
         </div>
         
-        {/* Generate Ad Button - matching original design */}
+        {/* Generate Ad Button */}
         <div className="cta-section">
           <button className="generate-ad-btn" onClick={() => router.push('/chat')}>
             Generate Ad
