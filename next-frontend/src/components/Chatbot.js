@@ -147,6 +147,8 @@ function Chatbot() {
     if (!answers.company_url) {
       setAnswers(ans => ({ ...ans, company_url: input }));
       setInput('');
+      setLoading(true);
+      setLoadingMessage('Researching your company...');
       setMessages(msgs => [
         ...msgs,
         { sender: 'bot', text: 'Researching your company...' }
@@ -160,6 +162,8 @@ function Chatbot() {
         
         setProductsList(research.products_services || []);
         setResearchDone(true);
+        setLoading(false);
+        setLoadingMessage('');
         setMessages(msgs => [
           ...msgs,
           { sender: 'bot', text: 'Research completed! What industry is your company in?' }
@@ -172,6 +176,8 @@ function Chatbot() {
           name: error.name
         });
         
+        setLoading(false);
+        setLoadingMessage('');
         setMessages(msgs => [
           ...msgs,
           { sender: 'bot', text: `Research failed: ${error.message}. We can continue without it. What industry is your company in?` }
