@@ -2,14 +2,14 @@
 const getApiBaseUrl = () => {
   // If we're in the browser and on localhost, use local backend
   if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return 'http://127.0.0.1:5001';
+    return 'http://localhost:5000';
   }
   // If we have a Railway URL set in environment, use it
   if (process.env.NEXT_PUBLIC_API_URL) {
     return process.env.NEXT_PUBLIC_API_URL;
   }
-  // Default fallback (you'll need to replace this with your actual Railway URL)
-  return 'https://your-railway-app.railway.app';
+  // Production Railway URL
+  return 'https://aivideo-production.up.railway.app';
 };
 
 const API_BASE_URL = getApiBaseUrl();
