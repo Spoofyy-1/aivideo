@@ -598,7 +598,7 @@ def generate_ad():
         
         report_path = os.path.join(output_dir, f'{unique_name}_report.txt')
         generate_company_report(company_info, report_path)
-        report_url = f'/static/generated/{os.path.basename(report_path)}'
+        report_url = f'/download/report/{os.path.basename(report_path)}'
         print(f"Returning report_url: {report_url}")
         
         # Retrieve top best ads for inspiration
@@ -753,7 +753,7 @@ def generate_ad():
             return jsonify({'error': 'Video file was not created.'}), 500
         else:
             print(f"Video file exists at {final_video_path}")
-        video_url = f'/static/generated/{os.path.basename(final_video_path)}'
+        video_url = f'/download/video/{os.path.basename(final_video_path)}'
         print(f"Returning video_url: {video_url}")
         return jsonify({
             'status': 'success',
