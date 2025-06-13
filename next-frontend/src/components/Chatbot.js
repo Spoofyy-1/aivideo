@@ -79,6 +79,12 @@ function Chatbot() {
         console.log('Testing API connectivity...');
         const response = await testAPI();
         console.log('API test successful:', response);
+        
+        // Also test the root endpoint
+        const rootResponse = await fetch('https://aivideo-production.up.railway.app/');
+        const rootData = await rootResponse.json();
+        console.log('Root endpoint test:', rootData);
+        
       } catch (error) {
         console.error('API test failed:', error);
         setMessages(msgs => [ 
