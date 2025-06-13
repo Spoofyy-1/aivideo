@@ -16,10 +16,10 @@ except Exception as e:
     raise
 
 try:
-    from openai import OpenAI
-    print("DEBUG: OpenAI imported successfully")
+    import openai
+    print("DEBUG: openai imported successfully")
 except Exception as e:
-    print(f"ERROR importing OpenAI: {e}")
+    print(f"ERROR importing openai: {e}")
     raise
 
 try:
