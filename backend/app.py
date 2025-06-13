@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 from openai import OpenAI
 import replicate
@@ -414,7 +414,18 @@ def ensure_best_ads_embedded():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return jsonify({
+        'status': 'success',
+        'message': 'AI Video Ad Generator API is running',
+        'version': '1.0.0',
+        'endpoints': {
+            'POST /generate': 'Generate AI video advertisement',
+            'POST /research': 'Research product information',
+            'GET /test': 'Test API connectivity',
+            'GET /download/video/<filename>': 'Download generated video files',
+            'GET /download/report/<filename>': 'Download research reports'
+        }
+    })
 
 @app.route('/generate', methods=['POST'])
 def generate_ad():
