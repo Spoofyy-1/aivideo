@@ -1,65 +1,31 @@
 import os
 import json
-print("DEBUG: Starting imports...")
-try:
-    from flask import Flask, request, jsonify, send_from_directory
-    print("DEBUG: Flask imported successfully")
-except Exception as e:
-    print(f"ERROR importing Flask: {e}")
-    raise
-
-try:
-    from dotenv import load_dotenv
-    print("DEBUG: dotenv imported successfully")
-except Exception as e:
-    print(f"ERROR importing dotenv: {e}")
-    raise
-
-try:
-    from openai import OpenAI
-    print("DEBUG: OpenAI imported successfully")
-except Exception as e:
-    print(f"ERROR importing OpenAI: {e}")
-    raise
-
-try:
-    import replicate
-    print("DEBUG: replicate imported successfully")
-except Exception as e:
-    print(f"ERROR importing replicate: {e}")
-    raise
-
-try:
-    import requests
-    from bs4 import BeautifulSoup
-    from slugify import slugify
-    import moviepy.editor as mp
-    import tempfile
-    import shutil
-    import concurrent.futures
-    import numpy as np
-    from flask_cors import CORS
-    print("DEBUG: All other imports successful")
-except Exception as e:
-    print(f"ERROR importing other modules: {e}")
-    raise
+import requests
+import tempfile
+import shutil
+import concurrent.futures
+import numpy as np
+from flask import Flask, request, jsonify, send_from_directory
+from dotenv import load_dotenv
+from bs4 import BeautifulSoup
+from slugify import slugify
+import moviepy.editor as mp
+from flask_cors import CORS
+import replicate
+from openai import OpenAI
 
 print("DEBUG: All imports completed successfully")
 
 # Load environment variables
-try:
-    load_dotenv()
-    print("DEBUG: Environment variables loaded")
-except Exception as e:
-    print(f"ERROR loading environment variables: {e}")
+load_dotenv()
+print("DEBUG: Environment variables loaded")
 
-try:
-    app = Flask(__name__, static_folder='static')
-    CORS(app)
-    print("DEBUG: Flask app created successfully")
-except Exception as e:
-    print(f"ERROR creating Flask app: {e}")
-    raise
+app = Flask(__name__, static_folder='static')
+CORS(app)
+print("DEBUG: Flask app created successfully")
+
+GEMINI_API_KEY = "AIzaSyABk6wdtiL7JHhpVsTM-criOeDyzr29lwk"
+print("DEBUG: Gemini API key set")
 
 # Configure OpenAI client
 client = None
@@ -72,13 +38,12 @@ def get_openai_client():
             print("WARNING: OPENAI_API_KEY not found in environment")
             return None
         
-        # Create modern OpenAI client with explicit parameters to avoid proxy issues
+        # Use modern OpenAI client
         try:
-            # Try with minimal parameters first
             client = OpenAI(api_key=openai_key)
             return client
         except Exception as e:
-            print(f"DEBUG: Basic OpenAI client creation failed: {e}")
+            print(f"DEBUG: OpenAI client creation failed: {e}")
             try:
                 # Try with explicit base URL to bypass proxy issues
                 client = OpenAI(
@@ -94,30 +59,18 @@ def get_openai_client():
         print(f"ERROR in get_openai_client: {e}")
         return None
 
-try:
-    openai_key = os.getenv("OPENAI_API_KEY")
-    if not openai_key:
-        print("WARNING: OPENAI_API_KEY not found in environment")
-        client = None
-    else:
-        print("DEBUG: OPENAI_API_KEY found")
-        # Test if we can create a client
-        client = get_openai_client()
-        if client:
-            print("DEBUG: OpenAI client test successful")
-        else:
-            print("DEBUG: OpenAI client test failed")
-                
-except Exception as e:
-    print(f"ERROR creating OpenAI client: {e}")
-    print("DEBUG: Continuing without OpenAI client - some features may not work")
+openai_key = os.getenv("OPENAI_API_KEY")
+if not openai_key:
+    print("WARNING: OPENAI_API_KEY not found in environment")
     client = None
-
-try:
-    GEMINI_API_KEY = "AIzaSyABk6wdtiL7JHhpVsTM-criOeDyzr29lwk"
-    print("DEBUG: Gemini API key set")
-except Exception as e:
-    print(f"ERROR setting Gemini API key: {e}")
+else:
+    print("DEBUG: OPENAI_API_KEY found")
+    # Test if we can create a client
+    client = get_openai_client()
+    if client:
+        print("DEBUG: OpenAI client test successful")
+    else:
+        print("DEBUG: OpenAI client test failed")
 
 def normalize_na(val):
     if not val:
