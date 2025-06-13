@@ -62,6 +62,7 @@ except Exception as e:
     raise
 
 # Configure OpenAI client
+client = None
 try:
     openai_key = os.getenv("OPENAI_API_KEY")
     if not openai_key:
@@ -72,18 +73,27 @@ try:
     
     # Try different initialization methods for compatibility
     try:
+        # First try the standard method
         client = OpenAI(api_key=openai_key)
         print("DEBUG: OpenAI client created successfully with standard method")
-    except TypeError as te:
-        if "proxies" in str(te):
-            print("DEBUG: Trying alternative OpenAI client initialization...")
-            # Try without any extra parameters that might cause issues
-            import openai
-            openai.api_key = openai_key
+    except Exception as e:
+        print(f"DEBUG: Standard OpenAI init failed: {e}")
+        try:
+            # Try alternative method
+            import openai as openai_module
+            openai_module.api_key = openai_key
             client = OpenAI()
             print("DEBUG: OpenAI client created successfully with alternative method")
-        else:
-            raise te
+        except Exception as e2:
+            print(f"DEBUG: Alternative OpenAI init failed: {e2}")
+            try:
+                # Try with minimal parameters
+                client = OpenAI(api_key=openai_key, timeout=30)
+                print("DEBUG: OpenAI client created successfully with timeout parameter")
+            except Exception as e3:
+                print(f"DEBUG: All OpenAI init methods failed: {e3}")
+                client = None
+                
 except Exception as e:
     print(f"ERROR creating OpenAI client: {e}")
     print("DEBUG: Continuing without OpenAI client - some features may not work")
@@ -103,6 +113,9 @@ def normalize_na(val):
 def research_company(url):
     """Research company using ChatGPT and web scraping."""
     try:
+        if client is None:
+            return "Error: OpenAI client not available. Please check API key configuration."
+            
         # Scrape website content
         response = requests.get(url)
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -133,6 +146,9 @@ def research_company(url):
 
 def extract_products_services(research_text):
     """Extract a list of products/services from the research_company output using OpenAI."""
+    if client is None:
+        return []
+        
     prompt = f"""Extract up to 5 main products or services from the following company research. Return only a JSON array of strings. If none are found, return an empty array.\n\n{research_text}"""
     response = client.chat.completions.create(
         model="gpt-4o",
@@ -152,6 +168,9 @@ def extract_products_services(research_text):
         return []
 
 def extract_avoid_topics(research_text):
+    if client is None:
+        return []
+        
     prompt = f"""Extract a JSON array of topics, themes, or words that should be avoided in marketing or advertising for this company, based on the following research. If none are found, return an empty array.\n\n{research_text}"""
     response = client.chat.completions.create(
         model="gpt-4o",
