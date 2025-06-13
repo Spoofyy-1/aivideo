@@ -65,6 +65,7 @@ const creativeQuestions = [
   { key: 'ai_model', text: "Which AI model would you like to use for ad generation?", options: aiModelOptions },
   { key: 'ad_type', text: "What type of ad do you want? (e.g., Unhinged, Informative, Emotional, Cinematic, Funny, Heartwarming, Aspirational, Testimonial, Product Demo, Viral/Meme, Story-Driven, Minimalist, High-Energy, Social Proof, Pop Culture Reference, etc.)", options: adTypeOptions },
   { key: 'mood', text: 'What is the mood or vibe you want for your ad? (e.g., energetic, trustworthy, fun, etc.)' },
+  { key: 'main_character', text: "Who should be the main character in your ad? (e.g., CEO, satisfied customer, everyday person, celebrity, animated character, etc. Type 'N/A' if no specific preference)" },
   { key: 'slogan', text: "Do you have a specific slogan you want to use? (Type 'N/A' if you want us to create one)" },
   { key: 'cta', text: "Is there a specific call to action you want viewers to hear? (Type 'N/A' if you want us to create one)" },
   { key: 'features', text: 'Any features or benefits you want to highlight?' }
