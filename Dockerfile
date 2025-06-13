@@ -1,16 +1,17 @@
-# Use Python 3.11 slim image
+# Multi-stage build to get ffmpeg
+FROM jrottenberg/ffmpeg:4.4-ubuntu2004 as ffmpeg
+
+# Main Python image
 FROM python:3.11-slim
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*
+# Copy ffmpeg binaries from the ffmpeg stage
+COPY --from=ffmpeg /usr/local/bin/ffmpeg /usr/local/bin/ffmpeg
+COPY --from=ffmpeg /usr/local/bin/ffprobe /usr/local/bin/ffprobe
 
-# Copy requirements first for better caching
-COPY backend/requirements.txt requirements.txt
-
-# Install Python dependencies
+# Install Python dependencies directly
 RUN pip install --no-cache-dir \
     replicate==0.22.0 \
     python-dotenv==1.0.1 \
