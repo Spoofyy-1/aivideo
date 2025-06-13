@@ -14,10 +14,49 @@ function LandingPage() {
           <h1 className="hero-title">Create AI-Powered Ad Videos in Minutes</h1>
           <div className="hero-visual">
             {/* Ad Preview Video - larger */}
-            <video controls poster="https://placehold.co/700x340?text=Ad+Preview+GIF" style={{borderRadius: '20px', boxShadow: '0 2px 24px #18333a55', marginTop: '2rem', width: '100%', maxWidth: 700, height: 340, objectFit: 'cover', background: '#222'}}>
-              <source src="http://127.0.0.1:5001/static/generated/replicate-prediction-j9qzxv3hmdrme0cq934sp9sxer_1_2.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
+            <div style={{
+              borderRadius: '20px', 
+              boxShadow: '0 2px 24px #18333a55', 
+              marginTop: '2rem', 
+              width: '100%', 
+              maxWidth: 700, 
+              height: 340, 
+              background: 'linear-gradient(135deg, #223c44 0%, #18333a 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                color: '#b6d6e0',
+                fontSize: '1.2rem',
+                fontWeight: '600',
+                textAlign: 'center',
+                padding: '2rem'
+              }}>
+                🎬 AI-Generated Ad Preview<br />
+                <span style={{fontSize: '0.9rem', opacity: 0.8}}>
+                  Your custom video will appear here
+                </span>
+              </div>
+              <div style={{
+                position: 'absolute',
+                bottom: '1rem',
+                left: '1rem',
+                right: '1rem',
+                height: '4px',
+                background: 'rgba(60, 161, 181, 0.3)',
+                borderRadius: '2px'
+              }}>
+                <div style={{
+                  width: '30%',
+                  height: '100%',
+                  background: '#3ca1b5',
+                  borderRadius: '2px'
+                }}></div>
+              </div>
+            </div>
           </div>
         </div>
         {/* Features 3x2 grid */}
