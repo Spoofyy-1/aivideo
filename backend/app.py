@@ -894,6 +894,42 @@ def debug_openai():
         traceback.print_exc()
         return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
 
+@app.route('/test-chatgpt')
+def test_chatgpt():
+    """Simple test endpoint to check if ChatGPT is working"""
+    try:
+        # Get API key
+        openai_key = os.getenv("OPENAI_API_KEY")
+        if not openai_key:
+            return jsonify({'error': 'No OpenAI API key found'}), 500
+        
+        # Create a simple client without any proxy handling
+        try:
+            from openai import OpenAI
+            client = OpenAI(api_key=openai_key)
+            
+            # Make a simple API call
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": "Say 'Hello! ChatGPT is working through Railway!' in exactly those words."}],
+                max_tokens=50
+            )
+            
+            return jsonify({
+                'success': True,
+                'response': response.choices[0].message.content,
+                'message': 'ChatGPT is accessible through Railway!'
+            })
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': str(e),
+                'message': 'ChatGPT is not accessible'
+            }), 500
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     try:
         print("DEBUG: Starting main execution...")
