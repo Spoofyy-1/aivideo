@@ -6,23 +6,22 @@ const getApiBaseUrl = () => {
   console.log('hostname:', typeof window !== 'undefined' ? window.location.hostname : 'server-side');
   console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
   
-  // If we're in the browser and on localhost, use local backend
-  if (typeof window !== 'undefined' && (
-    window.location.hostname === 'localhost' || 
-    window.location.hostname === '127.0.0.1' ||
-    window.location.hostname.includes('localhost')
-  )) {
-    console.log('Using local backend');
-    return 'http://localhost:5000';
-  }
-  
-  // If we have a Railway URL set in environment, use it
+  // If we have a Railway URL set in environment, use it first
   if (process.env.NEXT_PUBLIC_API_URL) {
     console.log('Using environment API URL:', process.env.NEXT_PUBLIC_API_URL);
     return process.env.NEXT_PUBLIC_API_URL;
   }
   
-  // Production Railway URL
+  // Only use localhost if we're actually on localhost (not Vercel)
+  if (typeof window !== 'undefined' && (
+    window.location.hostname === 'localhost' || 
+    window.location.hostname === '127.0.0.1'
+  )) {
+    console.log('Using local backend');
+    return 'http://localhost:5000';
+  }
+  
+  // For all other cases (including Vercel), use production Railway URL
   console.log('Using production Railway URL');
   return 'https://aivideo-production.up.railway.app';
 };
