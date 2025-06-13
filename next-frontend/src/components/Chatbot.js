@@ -313,63 +313,56 @@ function Chatbot() {
             </div>
           )}
           {result && (
-            <>
-              <div className="msg bot">
-                <div className="bubble">Here is your generated ad!</div>
-              </div>
-              <div className="video-container">
-                <video controls src={`${API_BASE_URL}${result.video_url}`} style={{ width: '100%' }} />
-                <div id="video-error" style={{ display: 'none', color: '#fff', background: '#c00', padding: '1em', borderRadius: '8px', marginTop: '1em' }}>
-                  Video could not be loaded. Please check your server logs or try again.
+            <div>
+              <div style={{ margin: '1em 0', padding: '1em', background: '#f0f0f0', borderRadius: '8px' }}>
+                <h3 style={{ color: '#333', marginBottom: '1em' }}>Your AI Video Ad is Ready!</h3>
+                
+                <div style={{ margin: '1em 0' }}>
+                  <a
+                    href={`${API_BASE_URL}${result.video_url}`}
+                    download
+                    style={{ 
+                      color: '#fff', 
+                      backgroundColor: '#007bff', 
+                      padding: '12px 24px', 
+                      textDecoration: 'none', 
+                      borderRadius: '8px',
+                      display: 'inline-block',
+                      marginRight: '1em',
+                      fontSize: '16px',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    📹 Download Video
+                  </a>
+                  
+                  <a
+                    href={`${API_BASE_URL}${result.report_url}`}
+                    download
+                    style={{ 
+                      color: '#fff', 
+                      backgroundColor: '#28a745', 
+                      padding: '12px 24px', 
+                      textDecoration: 'none', 
+                      borderRadius: '8px',
+                      display: 'inline-block',
+                      fontSize: '16px',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    📄 Download Report
+                  </a>
                 </div>
+                
+                <p style={{ color: '#666', fontSize: '14px', marginTop: '1em' }}>
+                  Click the buttons above to download your AI-generated video ad and detailed report.
+                </p>
               </div>
-              <div style={{ margin: '1em 0' }}>
-                <a
-                  href={`${API_BASE_URL}${result.video_url}`}
-                  download
-                  style={{ color: '#3ca1b5', fontWeight: 'bold', marginRight: '1.5em' }}
-                  onClick={e => {
-                    if (!result.video_url.endsWith('.mp4')) {
-                      e.preventDefault();
-                      alert('Video file is not available for download. Please try again later.');
-                    }
-                  }}
-                >
-                  ⬇️ Download Video
-                </a>
-                <a
-                  href={`${API_BASE_URL}${result.report_url}`}
-                  download
-                  style={{ color: '#3ca1b5', fontWeight: 'bold' }}
-                  onClick={e => {
-                    if (!result.report_url.endsWith('.txt')) {
-                      e.preventDefault();
-                      alert('Report file is not available for download. Please try again later.');
-                    }
-                  }}
-                >
-                  ⬇️ Download Report
-                </a>
+              
+              <div id="video-error" style={{ display: 'none', color: '#fff', background: '#c00', padding: '1em', borderRadius: '8px', marginTop: '1em' }}>
+                Video could not be loaded. Please check your server logs or try again.
               </div>
-              <div className="script-container">
-                <h3>Generated Script</h3>
-                {['segment1', 'segment2'].map((seg, idx) => (
-                  result.script[seg] && (
-                    <div key={seg} style={{ marginBottom: '1.2rem' }}>
-                      <strong>Scene {idx + 1}:</strong><br />
-                      <span style={{ color: '#b6d6e0' }}><em>{result.script[seg].scene_description}</em></span><br />
-                      <strong>Voiceover Script:</strong> <span style={{ color: '#eaf6f8' }}>{result.script[seg].voiceover_script}</span><br />
-                      <strong>Mood:</strong> <span style={{ color: '#eaf6f8' }}>{result.script[seg].mood}</span><br />
-                      <strong>Camera:</strong> <span style={{ color: '#eaf6f8' }}>{result.script[seg].camera}</span>
-                    </div>
-                  )
-                ))}
-                <div style={{ marginTop: '1.2rem' }}>
-                  <strong>Slogan:</strong> <span style={{ color: '#eaf6f8', fontSize: '1.1em' }}>{result.script.slogan}</span><br />
-                  <strong>Call to Action:</strong> <span style={{ color: '#eaf6f8', fontSize: '1.1em' }}>{result.script.call_to_action}</span>
-                </div>
-              </div>
-            </>
+            </div>
           )}
         </div>
         {/* Input form */}
