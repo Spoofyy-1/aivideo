@@ -39,32 +39,32 @@ function LandingPage() {
           <div className="feature-card">
             <div className="feature-icon">🔎</div>
             <div className="feature-title">Company Research & Report</div>
-            <div className="feature-desc">We research your company and generate a detailed report on your products, services, and brand voice.</div>
+            <div className="feature-desc">Research your company and generate detailed reports on products and brand voice.</div>
           </div>
           <div className="feature-card">
             <div className="feature-icon">📝</div>
             <div className="feature-title">Scripted by GPT-4 & Gemini</div>
-            <div className="feature-desc">Get creative, on-brand scripts powered by the latest AI models for each ad.</div>
+            <div className="feature-desc">Creative, on-brand scripts powered by the latest AI models.</div>
           </div>
           <div className="feature-card">
             <div className="feature-icon">🎬</div>
             <div className="feature-title">Video Generated with Veo-3</div>
-            <div className="feature-desc">Your ad video is created using Google's Veo-3 for cinematic, story-driven visuals.</div>
+            <div className="feature-desc">Cinematic, story-driven visuals created using Google's Veo-3.</div>
           </div>
           <div className="feature-card">
             <div className="feature-icon">⭐</div>
             <div className="feature-title">Inspired by the Best</div>
-            <div className="feature-desc">Your ad is inspired by the most effective ads in history for maximum impact.</div>
+            <div className="feature-desc">Ads inspired by the most effective campaigns in history.</div>
           </div>
           <div className="feature-card">
             <div className="feature-icon">⚡</div>
             <div className="feature-title">Instant Download</div>
-            <div className="feature-desc">Download your video and report instantly, no waiting required.</div>
+            <div className="feature-desc">Download your video and report instantly, no waiting.</div>
           </div>
           <div className="feature-card">
             <div className="feature-icon">💸</div>
             <div className="feature-title">Unbeatable Value</div>
-            <div className="feature-desc">Get a cinematic, AI-powered 16-second ad for just <strong>$16</strong> - a fraction of the industry price.</div>
+            <div className="feature-desc">Professional 16-second ad for just <strong>$16</strong> - fraction of industry price.</div>
           </div>
         </div>
         
