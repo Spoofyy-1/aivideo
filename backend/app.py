@@ -41,16 +41,15 @@ def get_openai_client():
         # Use modern OpenAI client with explicit parameters to avoid proxy issues
         try:
             # Clear any proxy-related environment variables that might interfere
-            import os
             proxy_vars = ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy', 'ALL_PROXY', 'all_proxy']
             original_values = {}
             for var in proxy_vars:
                 if var in os.environ:
                     original_values[var] = os.environ[var]
-                    client_info['steps'].append(f'Found proxy var {var}: {os.environ[var][:20]}...')
+                    print(f'DEBUG: Found proxy var {var}: {os.environ[var][:20]}...')
                     del os.environ[var]
             
-            client_info['steps'].append('Cleared proxy environment variables')
+            print('DEBUG: Cleared proxy environment variables')
             
             # Create client with minimal parameters
             client = OpenAI(
