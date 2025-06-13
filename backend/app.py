@@ -759,6 +759,23 @@ def download_video(filename):
 def download_report(filename):
     return send_from_directory('static/generated', filename, as_attachment=True)
 
+@app.route('/health')
+def health():
+    try:
+        print("DEBUG: Health check called")
+        return jsonify({
+            'status': 'healthy',
+            'message': 'Backend is running',
+            'openai_key_set': bool(os.getenv("OPENAI_API_KEY")),
+            'replicate_key_set': bool(os.getenv("REPLICATE_API_TOKEN")),
+            'client_status': 'initialized' if client else 'failed'
+        })
+    except Exception as e:
+        print(f"ERROR in health check: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     try:
         print("DEBUG: Starting main execution...")
