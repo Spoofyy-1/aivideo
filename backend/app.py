@@ -72,24 +72,10 @@ def get_openai_client():
             print("WARNING: OPENAI_API_KEY not found in environment")
             return None
         
-        # Create a fresh client with minimal parameters to avoid proxy issues
-        from openai import OpenAI
-        
-        # Try the most basic initialization first
-        try:
-            return OpenAI(api_key=openai_key)
-        except Exception as e:
-            print(f"DEBUG: Basic OpenAI client creation failed: {e}")
-            
-            # Try with explicit base_url to avoid proxy issues
-            try:
-                return OpenAI(
-                    api_key=openai_key,
-                    base_url="https://api.openai.com/v1"
-                )
-            except Exception as e2:
-                print(f"DEBUG: OpenAI client with base_url failed: {e2}")
-                return None
+        # For OpenAI v0.28.1, we just set the API key and return True
+        import openai
+        openai.api_key = openai_key
+        return True  # Return True to indicate success
                 
     except Exception as e:
         print(f"ERROR in get_openai_client: {e}")
@@ -151,8 +137,10 @@ def research_company(url):
         7. List any topics, themes, or words that should be avoided in marketing or advertising for this company (as a JSON array of strings, or an empty array if not found)
         """
         
-        response = client.chat.completions.create(
-            model="gpt-4o",
+        # Use older OpenAI API syntax
+        import openai
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
         
@@ -167,8 +155,10 @@ def extract_products_services(research_text):
         return []
         
     prompt = f"""Extract up to 5 main products or services from the following company research. Return only a JSON array of strings. If none are found, return an empty array.\n\n{research_text}"""
-    response = client.chat.completions.create(
-        model="gpt-4o",
+    
+    import openai
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
         messages=[{"role": "user", "content": prompt}]
     )
     content = response.choices[0].message.content.strip()
@@ -190,8 +180,10 @@ def extract_avoid_topics(research_text):
         return []
         
     prompt = f"""Extract a JSON array of topics, themes, or words that should be avoided in marketing or advertising for this company, based on the following research. If none are found, return an empty array.\n\n{research_text}"""
-    response = client.chat.completions.create(
-        model="gpt-4o",
+    
+    import openai
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
         messages=[{"role": "user", "content": prompt}]
     )
     content = response.choices[0].message.content.strip()
@@ -844,8 +836,9 @@ def debug_openai():
         if client_info['client_created']:
             try:
                 api_call_info['attempted'] = True
-                response = test_client.chat.completions.create(
-                    model="gpt-4o-mini",
+                import openai
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
                     messages=[{"role": "user", "content": "Say 'OpenAI test successful'"}]
                 )
                 api_call_info['success'] = True
