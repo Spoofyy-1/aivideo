@@ -1,0 +1,648 @@
+[
+  {
+    "title": "Apple - Think Different",
+    "script": "Here's to the crazy ones. The misfits. The rebels. The troublemakers. The round pegs in the square holes...",
+    "principle": "Emotional storytelling, celebrating the user, minimal product focus",
+    "slogan": "Think Different",
+    "call_to_action": "Join the revolution.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "Black and white portraits of iconic figures like Einstein, Gandhi, and others who changed the world, slowly revealed with dramatic lighting",
+        "mood": "Reverent, inspiring, cinematic",
+        "camera": "Slow, deliberate movements, close-ups transitioning to wide shots"
+      },
+      "segment2": {
+        "visual": "Modern innovators and creators using Apple products, shown in dynamic, creative environments",
+        "mood": "Empowering, forward-looking",
+        "camera": "Dynamic movements, creative angles, showing both intimate moments and grand achievements"
+      }
+    }
+  },
+  {
+    "title": "Nike - Just Do It",
+    "script": "If you have a body, you are an athlete. Just Do It.",
+    "principle": "Empowerment, universal appeal, strong call to action",
+    "slogan": "Just Do It",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "Everyday people pushing their limits - a runner at dawn, a basketball player practicing alone, a dancer in a studio",
+        "mood": "Determined, focused, inspiring",
+        "camera": "Intimate close-ups of faces showing determination, dynamic tracking shots of movement"
+      },
+      "segment2": {
+        "visual": "The same people achieving their goals, with Nike products supporting their journey",
+        "mood": "Triumphant, empowering",
+        "camera": "Heroic angles, slow-motion captures of key moments, wide shots showing achievement"
+      }
+    }
+  },
+  {
+    "title": "Old Spice - The Man Your Man Could Smell Like",
+    "script": "Hello, ladies. Look at your man, now back to me...",
+    "principle": "Humor, surprise, breaking the fourth wall, memorable character",
+    "slogan": "The Man Your Man Could Smell Like",
+    "call_to_action": "Smell like a man, man.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A confident, shirtless man on a horse, speaking directly to camera in a luxurious bathroom setting",
+        "mood": "Confident, humorous, over-the-top",
+        "camera": "Static shots with quick cuts, maintaining eye contact with viewer"
+      },
+      "segment2": {
+        "visual": "Rapid scene changes showing the man in increasingly absurd situations, all while maintaining his composure",
+        "mood": "Playful, surprising, memorable",
+        "camera": "Quick cuts, smooth transitions between scenes, maintaining the character's presence"
+      }
+    }
+  },
+  {
+    "title": "Dove - Real Beauty Sketches",
+    "script": "You are more beautiful than you think.",
+    "principle": "Emotional, social impact, real people, authenticity",
+    "slogan": "Real Beauty",
+    "call_to_action": "Discover your beauty.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A forensic artist drawing women based on their own descriptions, showing self-doubt and insecurity",
+        "mood": "Intimate, emotional, authentic",
+        "camera": "Close-ups of faces, intimate shots of the drawing process"
+      },
+      "segment2": {
+        "visual": "The same women seeing their portraits drawn by strangers, revealing their true beauty",
+        "mood": "Revelatory, emotional, empowering",
+        "camera": "Reaction shots, emotional close-ups, revealing wide shots of the portraits"
+      }
+    }
+  },
+  {
+    "title": "Dos Equis - The Most Interesting Man in the World",
+    "script": "I don't always drink beer, but when I do, I prefer Dos Equis.",
+    "principle": "Character-driven, humor, aspirational, memorable tagline",
+    "slogan": "Stay thirsty, my friends",
+    "call_to_action": "Stay thirsty, my friends.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "The Most Interesting Man in various extraordinary situations - wrestling a bear, piloting a plane, etc.",
+        "mood": "Adventurous, humorous, aspirational",
+        "camera": "Cinematic wide shots, dramatic lighting, slow-motion action sequences"
+      },
+      "segment2": {
+        "visual": "The character in a bar, sharing his wisdom while enjoying a Dos Equis",
+        "mood": "Sophisticated, witty, memorable",
+        "camera": "Close-ups of the character, dramatic lighting, smooth transitions"
+      }
+    }
+  },
+  {
+    "title": "Fun Topic: Bigfoot Sighting",
+    "script": "Imagine your product is so good, even Bigfoot comes out of hiding to get it!",
+    "principle": "Mythical, playful, unexpected, viral potential",
+    "slogan": "Even Bigfoot Can't Hide",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A mysterious forest scene with subtle hints of movement in the shadows, twigs snapping, and leaves rustling",
+        "mood": "Mysterious, playful, suspenseful",
+        "camera": "Slow tracking shots through the forest, close-ups of disturbed foliage, dramatic lighting"
+      },
+      "segment2": {
+        "visual": "Bigfoot emerging from the shadows, carefully examining and then enthusiastically using the product",
+        "mood": "Surprising, humorous, delightful",
+        "camera": "Revealing wide shot of Bigfoot, comedic close-ups of product interaction, dynamic movement"
+      }
+    }
+  },
+  {
+    "title": "Fun Topic: Alien Encounter",
+    "script": "Aliens land on Earth, but they're only interested in your product.",
+    "principle": "Abnormal, sci-fi, humor, universal appeal",
+    "slogan": "Out of This World",
+    "call_to_action": "Join the invasion.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A massive UFO descending dramatically over a city, causing chaos and panic among humans",
+        "mood": "Dramatic, suspenseful, cinematic",
+        "camera": "Epic wide shots of the UFO, chaotic crowd scenes, dramatic lighting from the ship"
+      },
+      "segment2": {
+        "visual": "Aliens emerging from the ship, ignoring everything else as they make a beeline for the product",
+        "mood": "Humorous, surprising, playful",
+        "camera": "Close-ups of alien reactions, tracking shots following their focused movement, comedic timing"
+      }
+    }
+  },
+  {
+    "title": "Fun Topic: Time Travel",
+    "script": "A time traveler from the future comes back just to use your product.",
+    "principle": "Imagination, adventure, future-forward",
+    "slogan": "Future-Proof",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A futuristic time machine materializing in a modern setting, with dramatic energy effects",
+        "mood": "Futuristic, exciting, mysterious",
+        "camera": "Dynamic tracking shots of the time machine, dramatic lighting effects, smooth transitions"
+      },
+      "segment2": {
+        "visual": "The time traveler, dressed in advanced future clothing, eagerly using the product with childlike wonder",
+        "mood": "Playful, nostalgic, heartwarming",
+        "camera": "Close-ups of the traveler's reactions, dynamic movement showing excitement, emotional moments"
+      }
+    }
+  },
+  {
+    "title": "Fun Topic: Parallel Universe",
+    "script": "In every universe, your product is a hit—even with superheroes and villains.",
+    "principle": "Multiverse, pop culture, limitless creativity",
+    "slogan": "Every Universe Loves It",
+    "call_to_action": "Join the multiverse.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "Multiple portals opening to different universes, each showing a unique version of reality",
+        "mood": "Epic, fantastical, mind-bending",
+        "camera": "Dynamic portal transitions, wide shots showing multiple realities, creative visual effects"
+      },
+      "segment2": {
+        "visual": "Heroes and villains from different universes putting aside their differences to enjoy the product together",
+        "mood": "Unifying, humorous, heartwarming",
+        "camera": "Split-screen showing different universes, comedic group shots, emotional moments of unity"
+      }
+    }
+  },
+  {
+    "title": "Fun Topic: Talking Animals",
+    "script": "A wisecracking animal becomes the spokesperson for your brand.",
+    "principle": "Whimsy, humor, family-friendly",
+    "slogan": "Listen to the Wild",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A sophisticated animal in a business setting, confidently addressing the camera with human-like mannerisms",
+        "mood": "Humorous, charming, professional",
+        "camera": "Close-ups of the animal's expressions, dynamic movement showing personality, professional framing"
+      },
+      "segment2": {
+        "visual": "The animal demonstrating the product with witty commentary and perfect timing",
+        "mood": "Playful, engaging, memorable",
+        "camera": "Comedic reaction shots, dynamic product demonstrations, perfect comedic timing"
+      }
+    }
+  },
+  {
+    "title": "Creative Principle: The Unexpected Twist",
+    "script": "Start with a familiar scene, then surprise the viewer with an unexpected turn.",
+    "principle": "Surprise, delight, memorability",
+    "slogan": "Expect the Unexpected",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A seemingly ordinary situation that viewers can easily relate to, shot in a familiar style",
+        "mood": "Relatable, familiar, engaging",
+        "camera": "Standard framing, natural lighting, comfortable viewing angles"
+      },
+      "segment2": {
+        "visual": "A sudden, unexpected twist that completely changes the context and meaning of the scene",
+        "mood": "Surprising, delightful, memorable",
+        "camera": "Dynamic camera movement, dramatic lighting changes, impactful reveal shots"
+      }
+    }
+  },
+  {
+    "title": "Creative Principle: Visual Metaphor",
+    "script": "Use a strong visual metaphor to represent the product's benefit (e.g., a rocket for speed, a shield for protection).",
+    "principle": "Visual storytelling, symbolism",
+    "slogan": "See the Magic",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A powerful visual metaphor representing the product's core benefit, shown in a dramatic, cinematic way",
+        "mood": "Symbolic, powerful, meaningful",
+        "camera": "Cinematic wide shots, dramatic lighting, symbolic framing"
+      },
+      "segment2": {
+        "visual": "The metaphor seamlessly transforming into the actual product, showing the connection between the symbol and the benefit",
+        "mood": "Revelatory, satisfying, impactful",
+        "camera": "Smooth transitions, creative visual effects, impactful reveals"
+      }
+    }
+  },
+  {
+    "title": "Tip: Make it Fun",
+    "script": "Inject humor, playfulness, or a sense of adventure to make your ad memorable.",
+    "principle": "Entertainment, engagement",
+    "slogan": "Fun Everywhere",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A playful, energetic scene showing people having fun with the product in unexpected ways",
+        "mood": "Joyful, energetic, entertaining",
+        "camera": "Dynamic movement, playful angles, vibrant lighting"
+      },
+      "segment2": {
+        "visual": "The fun escalating into a delightful, shareable moment that captures the product's appeal",
+        "mood": "Delightful, memorable, shareable",
+        "camera": "Wide shots showing the fun, close-ups of reactions, dynamic action sequences"
+      }
+    }
+  },
+  {
+    "title": "Tip: Use Pop Culture References",
+    "script": "Reference trending topics, memes, or cultural moments to make your ad feel current.",
+    "principle": "Relevance, shareability",
+    "slogan": "Trending Now",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A scene that cleverly references current pop culture trends or memes, shot in a modern style",
+        "mood": "Current, relatable, trendy",
+        "camera": "Modern framing, dynamic movement, contemporary visual style"
+      },
+      "segment2": {
+        "visual": "The product seamlessly integrated into the pop culture reference, creating a shareable moment",
+        "mood": "Shareable, clever, memorable",
+        "camera": "Social media-friendly framing, meme-worthy moments, perfect timing"
+      }
+    }
+  },
+  {
+    "title": "Do: Focus on Transformation",
+    "script": "Show how the product changes the user's life for the better.",
+    "principle": "Before/after, benefit-driven storytelling",
+    "slogan": "Transform Your Life",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A person facing a challenge or problem, shown in a relatable, authentic way",
+        "mood": "Relatable, authentic, emotional",
+        "camera": "Intimate close-ups, natural lighting, authentic framing"
+      },
+      "segment2": {
+        "visual": "The same person transformed by the product, showing the dramatic positive change",
+        "mood": "Empowering, inspiring, triumphant",
+        "camera": "Dynamic movement, uplifting lighting, impactful reveals"
+      }
+    }
+  },
+  {
+    "title": "Don't: Overwhelm with Information",
+    "script": "Keep the message simple and focused. One big idea per ad.",
+    "principle": "Clarity, memorability",
+    "slogan": "Keep It Simple",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A clean, focused scene that clearly communicates the single most important benefit",
+        "mood": "Clear, focused, impactful",
+        "camera": "Simple framing, clean composition, focused lighting"
+      },
+      "segment2": {
+        "visual": "The message reinforced in a memorable, straightforward way without any distractions",
+        "mood": "Memorable, clear, effective",
+        "camera": "Direct framing, minimal movement, strong visual focus"
+      }
+    }
+  },
+  {
+    "title": "Fun Topic: The Future",
+    "script": "Imagine a world where your product shapes the future.",
+    "principle": "Aspirational, visionary",
+    "slogan": "Shape Tomorrow",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A futuristic cityscape showing a world transformed by technology and innovation",
+        "mood": "Futuristic, inspiring, visionary",
+        "camera": "Epic wide shots, dynamic movement, futuristic lighting"
+      },
+      "segment2": {
+        "visual": "The product seamlessly integrated into this future world, showing its role in shaping tomorrow",
+        "mood": "Aspirational, forward-looking, exciting",
+        "camera": "Smooth transitions, creative visual effects, impactful reveals"
+      }
+    }
+  },
+  {
+    "title": "Fun Topic: Everyday Heroes",
+    "script": "Celebrate ordinary people doing extraordinary things with your product.",
+    "principle": "Relatability, inspiration",
+    "slogan": "Everyday Extraordinary",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "Everyday people in their regular lives, shown in an authentic, relatable way",
+        "mood": "Authentic, relatable, real",
+        "camera": "Natural lighting, documentary-style shots, authentic framing"
+      },
+      "segment2": {
+        "visual": "These same people achieving extraordinary things with the help of the product",
+        "mood": "Inspiring, empowering, triumphant",
+        "camera": "Dynamic movement, uplifting lighting, heroic angles"
+      }
+    }
+  },
+  {
+    "title": "Volkswagen - Think Small",
+    "script": "Think small.",
+    "principle": "Simplicity, honesty, counter-intuitive messaging",
+    "slogan": "Think Small",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A minimalist scene showing the compact Volkswagen in a world of oversized cars",
+        "mood": "Clever, counter-intuitive, confident",
+        "camera": "Clean framing, simple composition, focused lighting"
+      },
+      "segment2": {
+        "visual": "The small car's advantages becoming clear through clever visual storytelling",
+        "mood": "Smart, satisfying, memorable",
+        "camera": "Creative angles showing benefits, smooth transitions, impactful reveals"
+      }
+    }
+  },
+  {
+    "title": "Coca-Cola - Share a Coke",
+    "script": "Share a Coke with...",
+    "principle": "Personalization, social connection, shareability",
+    "slogan": "Share a Coke",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "People discovering Coke bottles with their names, showing genuine surprise and delight",
+        "mood": "Personal, delightful, connecting",
+        "camera": "Close-ups of reactions, intimate moments, warm lighting"
+      },
+      "segment2": {
+        "visual": "People sharing their personalized Cokes, creating moments of connection and joy",
+        "mood": "Joyful, connecting, memorable",
+        "camera": "Group shots showing connection, dynamic movement, warm lighting"
+      }
+    }
+  },
+  {
+    "title": "Guinness - Surfer",
+    "script": "He waits. The waves crash. The white horses charge. Victory comes to those who wait.",
+    "principle": "Epic storytelling, patience, visual metaphor, cinematic",
+    "slogan": "Good Things Come to Those Who Wait",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A lone surfer waiting for the perfect wave, shown in dramatic black and white cinematography",
+        "mood": "Epic, patient, dramatic",
+        "camera": "Cinematic wide shots, dramatic lighting, slow-motion sequences"
+      },
+      "segment2": {
+        "visual": "The surfer finally catching the perfect wave, with the wave forming the shape of a pint of Guinness",
+        "mood": "Triumphant, satisfying, iconic",
+        "camera": "Epic wide shots, dramatic reveals, perfect timing"
+      }
+    }
+  },
+  {
+    "title": "Cadbury - Gorilla",
+    "script": "A gorilla drums to Phil Collins' 'In the Air Tonight.' Unexpected, joyful, unforgettable.",
+    "principle": "Surprise, music, humor, viral potential",
+    "slogan": "Joy Everywhere",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A gorilla sitting at a drum kit in a studio, shown in dramatic lighting",
+        "mood": "Unexpected, dramatic, intriguing",
+        "camera": "Close-ups of the gorilla, dramatic lighting, slow reveals"
+      },
+      "segment2": {
+        "visual": "The gorilla playing the drums with perfect timing and passion, creating an unforgettable moment",
+        "mood": "Joyful, surprising, memorable",
+        "camera": "Dynamic movement, perfect timing with music, emotional close-ups"
+      }
+    }
+  },
+  {
+    "title": "John Lewis - Christmas Ad",
+    "script": "A little boy impatiently waits for Christmas—not to receive, but to give.",
+    "principle": "Emotional storytelling, twist ending, heartwarming",
+    "slogan": "Give a Little Love",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A young boy counting down the days to Christmas with growing excitement",
+        "mood": "Anticipatory, sweet, emotional",
+        "camera": "Close-ups of the boy's expressions, warm lighting, intimate moments"
+      },
+      "segment2": {
+        "visual": "The twist reveal showing the boy's excitement was about giving a gift to his parents",
+        "mood": "Heartwarming, emotional, touching",
+        "camera": "Emotional close-ups, perfect timing, warm lighting"
+      }
+    }
+  },
+  {
+    "title": "Budweiser - Whassup?",
+    "script": "\"Whassup?!\" Friends greet each other in a way that becomes a cultural catchphrase.",
+    "principle": "Catchphrase, humor, cultural impact",
+    "slogan": "Whassup?!",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "Friends in different locations answering the phone with the iconic greeting",
+        "mood": "Fun, relatable, infectious",
+        "camera": "Quick cuts between locations, close-ups of reactions, dynamic movement"
+      },
+      "segment2": {
+        "visual": "The friends coming together to enjoy Budweiser, making the catchphrase even more memorable",
+        "mood": "Celebratory, fun, memorable",
+        "camera": "Group shots, dynamic movement, warm lighting"
+      }
+    }
+  },
+  {
+    "title": "Creative Principle: The Power of Emotion",
+    "script": "Make the audience laugh, cry, or feel inspired. Emotion drives sharing and memory.",
+    "principle": "Emotion, connection, virality",
+    "slogan": "Feel It",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A powerful emotional setup that connects with viewers on a deep level",
+        "mood": "Emotional, connecting, authentic",
+        "camera": "Intimate close-ups, emotional lighting, authentic framing"
+      },
+      "segment2": {
+        "visual": "The emotional payoff that makes the message unforgettable and shareable",
+        "mood": "Impactful, memorable, moving",
+        "camera": "Dynamic movement, emotional lighting, perfect timing"
+      }
+    }
+  },
+  {
+    "title": "Creative Principle: Simplicity Wins",
+    "script": "Focus on one big idea. Remove anything that doesn't support it.",
+    "principle": "Clarity, focus, memorability",
+    "slogan": "Simplicity Wins",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A clean, focused scene that clearly communicates the single most important message",
+        "mood": "Clear, focused, impactful",
+        "camera": "Simple framing, clean composition, focused lighting"
+      },
+      "segment2": {
+        "visual": "The message reinforced in a memorable, straightforward way without any distractions",
+        "mood": "Memorable, clear, effective",
+        "camera": "Direct framing, minimal movement, strong visual focus"
+      }
+    }
+  },
+  {
+    "title": "Tip: Use a Relatable Hero",
+    "script": "Feature an everyday person overcoming a challenge with your product.",
+    "principle": "Relatability, transformation",
+    "slogan": "Be Your Hero",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "An everyday person facing a relatable challenge, shown in an authentic way",
+        "mood": "Relatable, authentic, engaging",
+        "camera": "Natural lighting, documentary-style shots, authentic framing"
+      },
+      "segment2": {
+        "visual": "The same person overcoming the challenge with the help of the product",
+        "mood": "Empowering, inspiring, triumphant",
+        "camera": "Dynamic movement, uplifting lighting, heroic angles"
+      }
+    }
+  },
+  {
+    "title": "Tip: Leverage Pop Culture",
+    "script": "Reference movies, memes, or trending topics to feel current and shareable.",
+    "principle": "Relevance, engagement",
+    "slogan": "Trending Now",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A scene that cleverly references current pop culture, shot in a modern style",
+        "mood": "Current, relatable, trendy",
+        "camera": "Modern framing, dynamic movement, contemporary visual style"
+      },
+      "segment2": {
+        "visual": "The product seamlessly integrated into the pop culture reference, creating a shareable moment",
+        "mood": "Shareable, clever, memorable",
+        "camera": "Social media-friendly framing, meme-worthy moments, perfect timing"
+      }
+    }
+  },
+  {
+    "title": "Research Insight: Story Structure",
+    "script": "Great ads often follow a story arc: setup, conflict, resolution.",
+    "principle": "Narrative, engagement",
+    "slogan": "Story Arc",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A compelling setup that introduces the story and creates interest",
+        "mood": "Engaging, intriguing, set-up",
+        "camera": "Establishing shots, character introduction, story-focused framing"
+      },
+      "segment2": {
+        "visual": "The resolution that ties the story together and delivers the message",
+        "mood": "Satisfying, complete, impactful",
+        "camera": "Resolution shots, emotional moments, perfect timing"
+      }
+    }
+  },
+  {
+    "title": "Research Insight: Visual Metaphor",
+    "script": "Use strong visuals to symbolize your product's benefit (e.g., a rocket for speed).",
+    "principle": "Symbolism, visual impact",
+    "slogan": "See the Magic",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A powerful visual metaphor representing the product's core benefit",
+        "mood": "Symbolic, powerful, meaningful",
+        "camera": "Cinematic wide shots, dramatic lighting, symbolic framing"
+      },
+      "segment2": {
+        "visual": "The metaphor transforming into the actual product benefit",
+        "mood": "Revelatory, satisfying, impactful",
+        "camera": "Smooth transitions, creative visual effects, impactful reveals"
+      }
+    }
+  },
+  {
+    "title": "Research Insight: Social Proof",
+    "script": "Show real people or testimonials to build trust.",
+    "principle": "Credibility, authenticity",
+    "slogan": "Trusted",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "Real people in authentic situations, showing genuine experiences",
+        "mood": "Authentic, trustworthy, real",
+        "camera": "Documentary-style shots, natural lighting, authentic framing"
+      },
+      "segment2": {
+        "visual": "The same people sharing their positive experiences with the product",
+        "mood": "Credible, convincing, authentic",
+        "camera": "Close-ups of testimonials, natural reactions, authentic moments"
+      }
+    }
+  },
+  {
+    "title": "Research Insight: Humor Works",
+    "script": "Funny ads are more likely to be remembered and shared.",
+    "principle": "Humor, memorability",
+    "slogan": "Laugh & Share",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A humorous setup that creates anticipation and interest",
+        "mood": "Fun, engaging, playful",
+        "camera": "Comedic framing, perfect timing, dynamic movement"
+      },
+      "segment2": {
+        "visual": "The punchline that makes the ad memorable and shareable",
+        "mood": "Hilarious, memorable, shareable",
+        "camera": "Comedic timing, reaction shots, perfect delivery"
+      }
+    }
+  },
+  {
+    "title": "Research Insight: Music & Sound",
+    "script": "A catchy song or sound effect can make your ad unforgettable.",
+    "principle": "Audio branding, recall",
+    "slogan": "Sound On",
+    "call_to_action": "Act now.",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A scene that perfectly syncs with the music, creating an emotional connection",
+        "mood": "Musical, emotional, engaging",
+        "camera": "Rhythmic movement, musical timing, dynamic shots"
+      },
+      "segment2": {
+        "visual": "The music building to a memorable climax that reinforces the message",
+        "mood": "Impactful, memorable, emotional",
+        "camera": "Perfect musical timing, dynamic movement, emotional reveals"
+      }
+    }
+  },
+  {
+    "title": "Liquid Death - Murder Your Thirst",
+    "script": "A can of water is treated like a rockstar at a wild concert. Fans cheer, security guards protect it, and the can crowd-surfs. Suddenly, the can cracks open, water splashes everywhere, and the crowd goes wild. The ad ends with a close-up of the can: 'Murder Your Thirst.'",
+    "principle": "Shock value, humor, and subverting expectations. Uses pop culture and meme energy to make water exciting.",
+    "slogan": "Murder Your Thirst",
+    "call_to_action": "Grab yours and join the mayhem!",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "A water can being treated like a rockstar, with fans cheering and security guards protecting it",
+        "mood": "Rock and roll, energetic, unexpected",
+        "camera": "Dynamic concert shots, dramatic lighting, high-energy movement"
+      },
+      "segment2": {
+        "visual": "The can crowd-surfing and then dramatically cracking open, creating a wild, memorable moment",
+        "mood": "Wild, surprising, memorable",
+        "camera": "Dynamic crowd shots, perfect timing, impactful reveals"
+      }
+    }
+  }
+] 
