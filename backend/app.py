@@ -66,14 +66,28 @@ try:
     openai_key = os.getenv("OPENAI_API_KEY")
     if not openai_key:
         print("WARNING: OPENAI_API_KEY not found in environment")
+        client = None
     else:
         print("DEBUG: OPENAI_API_KEY found")
     
-    client = OpenAI(api_key=openai_key)
-    print("DEBUG: OpenAI client created successfully")
+    # Try different initialization methods for compatibility
+    try:
+        client = OpenAI(api_key=openai_key)
+        print("DEBUG: OpenAI client created successfully with standard method")
+    except TypeError as te:
+        if "proxies" in str(te):
+            print("DEBUG: Trying alternative OpenAI client initialization...")
+            # Try without any extra parameters that might cause issues
+            import openai
+            openai.api_key = openai_key
+            client = OpenAI()
+            print("DEBUG: OpenAI client created successfully with alternative method")
+        else:
+            raise te
 except Exception as e:
     print(f"ERROR creating OpenAI client: {e}")
-    raise
+    print("DEBUG: Continuing without OpenAI client - some features may not work")
+    client = None
 
 try:
     GEMINI_API_KEY = "AIzaSyABk6wdtiL7JHhpVsTM-criOeDyzr29lwk"
