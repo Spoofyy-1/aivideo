@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { generateAd } from '../api';
+import { generateAd, researchCompany } from '../api';
 
 const adTypeOptions = [
   'Unhinged',
@@ -106,8 +106,26 @@ function Chatbot() {
       setInput('');
       setMessages(msgs => [
         ...msgs,
-        { sender: 'bot', text: 'What industry is your company in?' }
+        { sender: 'bot', text: 'Researching your company...' }
       ]);
+      
+      // Research the company
+      try {
+        const research = await researchCompany(input);
+        setProductsList(research.products_services || []);
+        setResearchDone(true);
+        setMessages(msgs => [
+          ...msgs,
+          { sender: 'bot', text: 'What industry is your company in?' }
+        ]);
+      } catch (error) {
+        console.error('Research failed:', error);
+        setMessages(msgs => [
+          ...msgs,
+          { sender: 'bot', text: 'Research failed, but we can continue. What industry is your company in?' }
+        ]);
+        setResearchDone(true);
+      }
       return;
     }
 
