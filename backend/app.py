@@ -795,6 +795,57 @@ def health():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+@app.route('/debug-openai')
+def debug_openai():
+    try:
+        print("DEBUG: Testing OpenAI client...")
+        
+        # Test 1: Check API key
+        openai_key = os.getenv("OPENAI_API_KEY")
+        if not openai_key:
+            return jsonify({'error': 'No OpenAI API key found', 'key_length': 0})
+        
+        key_info = {
+            'key_set': True,
+            'key_length': len(openai_key),
+            'key_prefix': openai_key[:10] + '...' if len(openai_key) > 10 else openai_key
+        }
+        
+        # Test 2: Try to create client
+        try:
+            from openai import OpenAI
+            test_client = OpenAI(api_key=openai_key)
+            client_info = {'client_created': True, 'error': None}
+        except Exception as e:
+            client_info = {'client_created': False, 'error': str(e)}
+        
+        # Test 3: Try to make API call if client was created
+        api_call_info = {'attempted': False, 'success': False, 'error': None, 'response': None}
+        if client_info['client_created']:
+            try:
+                api_call_info['attempted'] = True
+                response = test_client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": "Say 'OpenAI test successful'"}]
+                )
+                api_call_info['success'] = True
+                api_call_info['response'] = response.choices[0].message.content
+            except Exception as e:
+                api_call_info['error'] = str(e)
+        
+        return jsonify({
+            'key_info': key_info,
+            'client_info': client_info,
+            'api_call_info': api_call_info,
+            'global_client_status': 'initialized' if client else 'failed'
+        })
+        
+    except Exception as e:
+        print(f"ERROR in debug_openai: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     try:
         print("DEBUG: Starting main execution...")
