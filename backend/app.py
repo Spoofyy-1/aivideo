@@ -73,26 +73,38 @@ try:
     
     # Try different initialization methods for compatibility
     try:
-        # First try the standard method
+        # First try the most basic method without any extra parameters
         client = OpenAI(api_key=openai_key)
-        print("DEBUG: OpenAI client created successfully with standard method")
+        print("DEBUG: OpenAI client created successfully with basic method")
     except Exception as e:
-        print(f"DEBUG: Standard OpenAI init failed: {e}")
+        print(f"DEBUG: Basic OpenAI init failed: {e}")
         try:
-            # Try alternative method
-            import openai as openai_module
-            openai_module.api_key = openai_key
-            client = OpenAI()
-            print("DEBUG: OpenAI client created successfully with alternative method")
+            # Try with explicit parameters that are known to work
+            client = OpenAI(
+                api_key=openai_key,
+                timeout=30.0,
+                max_retries=3
+            )
+            print("DEBUG: OpenAI client created successfully with explicit parameters")
         except Exception as e2:
-            print(f"DEBUG: Alternative OpenAI init failed: {e2}")
+            print(f"DEBUG: Explicit parameters OpenAI init failed: {e2}")
             try:
-                # Try with minimal parameters
-                client = OpenAI(api_key=openai_key, timeout=30)
-                print("DEBUG: OpenAI client created successfully with timeout parameter")
+                # Try setting the API key via environment and using default constructor
+                import os
+                os.environ["OPENAI_API_KEY"] = openai_key
+                client = OpenAI()
+                print("DEBUG: OpenAI client created successfully with environment variable method")
             except Exception as e3:
-                print(f"DEBUG: All OpenAI init methods failed: {e3}")
-                client = None
+                print(f"DEBUG: Environment variable OpenAI init failed: {e3}")
+                try:
+                    # Last resort: try importing and setting the old way
+                    import openai
+                    openai.api_key = openai_key
+                    client = OpenAI(api_key=openai_key)
+                    print("DEBUG: OpenAI client created successfully with legacy method")
+                except Exception as e4:
+                    print(f"DEBUG: All OpenAI init methods failed: {e4}")
+                    client = None
                 
 except Exception as e:
     print(f"ERROR creating OpenAI client: {e}")
