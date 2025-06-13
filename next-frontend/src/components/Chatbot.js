@@ -3,6 +3,24 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { generateAd, researchCompany, testAPI } from '../api';
 
+// API base URL - need to reuse this for downloads
+const getApiBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  
+  if (typeof window !== 'undefined' && (
+    window.location.hostname === 'localhost' || 
+    window.location.hostname === '127.0.0.1'
+  )) {
+    return 'http://localhost:5000';
+  }
+  
+  return 'https://aivideo-production.up.railway.app';
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
 const adTypeOptions = [
   'Unhinged',
   'Informative',
@@ -294,14 +312,14 @@ function Chatbot() {
                 <div className="bubble">Here is your generated ad!</div>
               </div>
               <div className="video-container">
-                <video controls src={result.video_url} style={{ width: '100%' }} />
+                <video controls src={`${API_BASE_URL}${result.video_url}`} style={{ width: '100%' }} />
                 <div id="video-error" style={{ display: 'none', color: '#fff', background: '#c00', padding: '1em', borderRadius: '8px', marginTop: '1em' }}>
                   Video could not be loaded. Please check your server logs or try again.
                 </div>
               </div>
               <div style={{ margin: '1em 0' }}>
                 <a
-                  href={result.video_url}
+                  href={`${API_BASE_URL}${result.video_url}`}
                   download
                   style={{ color: '#3ca1b5', fontWeight: 'bold', marginRight: '1.5em' }}
                   onClick={e => {
@@ -314,7 +332,7 @@ function Chatbot() {
                   ⬇️ Download Video
                 </a>
                 <a
-                  href={result.report_url}
+                  href={`${API_BASE_URL}${result.report_url}`}
                   download
                   style={{ color: '#3ca1b5', fontWeight: 'bold' }}
                   onClick={e => {
