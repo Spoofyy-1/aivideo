@@ -16,10 +16,10 @@ except Exception as e:
     raise
 
 try:
-    import openai
-    print("DEBUG: openai imported successfully")
+    from openai import OpenAI
+    print("DEBUG: OpenAI imported successfully")
 except Exception as e:
-    print(f"ERROR importing openai: {e}")
+    print(f"ERROR importing OpenAI: {e}")
     raise
 
 try:
@@ -72,10 +72,23 @@ def get_openai_client():
             print("WARNING: OPENAI_API_KEY not found in environment")
             return None
         
-        # For OpenAI v0.28.1, we just set the API key and return True
-        import openai
-        openai.api_key = openai_key
-        return True  # Return True to indicate success
+        # Create modern OpenAI client with explicit parameters to avoid proxy issues
+        try:
+            # Try with minimal parameters first
+            client = OpenAI(api_key=openai_key)
+            return client
+        except Exception as e:
+            print(f"DEBUG: Basic OpenAI client creation failed: {e}")
+            try:
+                # Try with explicit base URL to bypass proxy issues
+                client = OpenAI(
+                    api_key=openai_key,
+                    base_url="https://api.openai.com/v1"
+                )
+                return client
+            except Exception as e2:
+                print(f"DEBUG: OpenAI client with base_url failed: {e2}")
+                return None
                 
     except Exception as e:
         print(f"ERROR in get_openai_client: {e}")
@@ -137,10 +150,9 @@ def research_company(url):
         7. List any topics, themes, or words that should be avoided in marketing or advertising for this company (as a JSON array of strings, or an empty array if not found)
         """
         
-        # Use older OpenAI API syntax
-        import openai
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
+        # Use modern OpenAI API syntax
+        response = client.chat.completions.create(
+            model="gpt-4o",
             messages=[{"role": "user", "content": prompt}]
         )
         
@@ -156,9 +168,8 @@ def extract_products_services(research_text):
         
     prompt = f"""Extract up to 5 main products or services from the following company research. Return only a JSON array of strings. If none are found, return an empty array.\n\n{research_text}"""
     
-    import openai
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
+    response = client.chat.completions.create(
+        model="gpt-4o",
         messages=[{"role": "user", "content": prompt}]
     )
     content = response.choices[0].message.content.strip()
@@ -181,9 +192,8 @@ def extract_avoid_topics(research_text):
         
     prompt = f"""Extract a JSON array of topics, themes, or words that should be avoided in marketing or advertising for this company, based on the following research. If none are found, return an empty array.\n\n{research_text}"""
     
-    import openai
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
+    response = client.chat.completions.create(
+        model="gpt-4o",
         messages=[{"role": "user", "content": prompt}]
     )
     content = response.choices[0].message.content.strip()
@@ -201,6 +211,10 @@ def extract_avoid_topics(research_text):
 
 def get_top_best_ads(user_text, top_k=3):
     """Embed user/company info and retrieve top K most similar best ads."""
+    client = get_openai_client()
+    if client is None:
+        return []
+        
     with open("best_ads_embedded.json", "r") as f:
         best_ads = json.load(f)
     # Embed user/company info
@@ -251,6 +265,10 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
     """
     Generate a cinematic, story-driven, and entertaining ad script with two 8-second segments, plus a creative slogan and a call-to-action line.
     """
+    client = get_openai_client()
+    if client is None:
+        raise Exception("OpenAI client not available. Please check API key configuration.")
+        
     creative_notes = []
     if user_answers.get('product'):
         creative_notes.append(f"Main product/service to promote: {user_answers['product']}")
@@ -506,6 +524,12 @@ def ensure_best_ads_embedded():
         
         if needs_embedding:
             print("DEBUG: Embedding best ads for retrieval...")
+            
+            client = get_openai_client()
+            if client is None:
+                print("ERROR: OpenAI client not available for embedding")
+                return
+                
             try:
                 with open(best_ads_path, "r") as f:
                     best_ads = json.load(f)
@@ -836,9 +860,8 @@ def debug_openai():
         if client_info['client_created']:
             try:
                 api_call_info['attempted'] = True
-                import openai
-                response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
+                response = test_client.chat.completions.create(
+                    model="gpt-4o-mini",
                     messages=[{"role": "user", "content": "Say 'OpenAI test successful'"}]
                 )
                 api_call_info['success'] = True
