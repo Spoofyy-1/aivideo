@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useRef, useEffect } from 'react';
 import { generateAd } from '../api';
 // ... existing code from my-frontend/src/components/Chatbot.js ... 
