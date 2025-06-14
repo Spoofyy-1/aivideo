@@ -502,6 +502,10 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
     - Music Description: "melancholic piano melody" / "driving electronic bassline"
     - Avoid Subtitles: Add "(no subtitles)" and use colon format
     - Background Audio: Specify explicitly to avoid unwanted studio audience
+    - CONTINUOUS AUDIO: Ensure dialogue, music, or SFX fills every second - NO SILENCE
+    - OVERLAPPING AUDIO: Layer dialogue with background music and ambient sounds
+    - AUDIO TRANSITIONS: Smooth audio bridges between dialogue segments
+    - PACING CONTROL: Use "rapid-fire dialogue" or "conversational pace" specifications
 
     🎨 VISUAL ENHANCEMENT:
     - Style References: film noir, anime, documentary, Wes Anderson style, claymation
@@ -528,6 +532,13 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
     - Character Emotion: Link physical movements to emotional states
     - Scene Transitions: Plan continuity between segments for longer narratives
     - Director Mindset: Think like filmmaker directing AI crew
+
+    🎙️ CONTINUOUS DIALOGUE EXAMPLES:
+    - RAPID-FIRE: "Character says: 'This changed everything!' then immediately: 'I couldn't believe it!' followed by: 'Now I use it daily!'"
+    - OVERLAPPING: "Narrator says: 'Meet Sarah' while Sarah says: 'I love this product' with upbeat music playing"
+    - CONVERSATIONAL: "Person A says: 'What's that?' Person B responds: 'It's amazing!' Person A: 'Tell me more!'"
+    - LAYERED AUDIO: "Excited customer says: 'This is incredible!' over energetic background music with crowd cheering sounds"
+    - NO PAUSES: "Spokesperson says: 'Transform your life today' immediately followed by 'Don't wait another second' with no silence between"
 
     💫 CREATIVE VARIETY MANDATE:
     - AVOID REPETITIVE SCENARIOS: Don't default to the same creatures, settings, or situations
@@ -614,14 +625,14 @@ Create a 2025-optimized, ultra-short 16-second ad script using the complete Veo-
 
 🎬 VEO-3 16-SECOND STRUCTURE:
 Segment 1 (8 seconds): ATTENTION + BRANDING with Veo-3 emotion chains
-- Seconds 1-3: HOOK using Veo-3 gesture/emotion chaining techniques
-- Seconds 4-5: BRAND INTRODUCTION with native audio generation
-- Seconds 6-8: SETUP with motivated camera movement and character development
+- Seconds 1-3: HOOK using Veo-3 gesture/emotion chaining techniques + IMMEDIATE DIALOGUE
+- Seconds 4-5: BRAND INTRODUCTION with native audio generation + CONTINUOUS TALKING
+- Seconds 6-8: SETUP with motivated camera movement and character development + ONGOING AUDIO
 
 Segment 2 (8 seconds): CONNECTION + DIRECTION with Veo-3 cinematic mastery
-- Seconds 9-11: TRANSFORMATION using gesture + emotion combinations
-- Seconds 12-13: EMOTIONAL PAYOFF with physics-accurate interactions
-- Seconds 14-16: CLEAR CTA with motivated camera movement and audio reinforcement
+- Seconds 9-11: TRANSFORMATION using gesture + emotion combinations + RAPID DIALOGUE
+- Seconds 12-13: EMOTIONAL PAYOFF with physics-accurate interactions + MUSIC + VOICE
+- Seconds 14-16: CLEAR CTA with motivated camera movement and audio reinforcement + NON-STOP TALKING
 
 🎭 VEO-3 OPTIMIZATION REQUIREMENTS:
 - Apply emotion & gesture chaining: "Character starts [emotion], then [emotion], finally [emotion]"
@@ -652,6 +663,9 @@ For each segment, provide these Veo-3 optimized elements:
 - BRAND EARLY & OFTEN: Introduce within 5 seconds, maintain presence with audio
 - HUMAN CONNECTION: Show real people experiencing product with physics accuracy
 - CLEAR DIRECTION: Final 3 seconds have unmistakable CTA with motivated camera work
+- CONTINUOUS DIALOGUE: Ensure non-stop talking, music, or sound effects - NO DEAD AIR
+- RAPID PACING: Pack maximum information and engagement into 16 seconds
+- AUDIO LAYERING: Combine dialogue with background music and ambient sounds
 
 Format your response as valid JSON:
 {{
@@ -854,6 +868,10 @@ def improve_script_with_gemini(company_info, user_answers, gpt_script, best_ads=
        - Sound Design: Replace generic "sounds" with specific audio - "glass shattering" not "noise"
        - Music Integration: Add mood-specific music - "haunting violin melody" / "upbeat electronic beat"
        - Subtitle Prevention: Add "(no subtitles)" to every dialogue prompt
+       - ELIMINATE DEAD AIR: Ensure continuous dialogue, music, or SFX throughout entire 8 seconds
+       - RAPID-FIRE DIALOGUE: Pack multiple lines of dialogue into each segment
+       - AUDIO LAYERING: Combine talking with background music and ambient sounds
+       - SMOOTH TRANSITIONS: Bridge audio between different speakers or sound elements
 
     3. VEO-3 CINEMATIC ENHANCEMENT:
        - Camera Motivation: Every camera move serves the story - "dolly in as tension builds"
@@ -1309,6 +1327,13 @@ Apply the complete Veo-3 framework above for cinematic excellence:
 {best_ads_str}
 
 CRITICAL: Apply Veo-3's "this then that" sequencing, motivated camera work, professional audio formatting with colons, and physics-accurate interactions. Make every technical choice serve the story and emotional arc.
+
+*** AUDIO REQUIREMENTS - NO DEAD SPACE ***
+- CONTINUOUS DIALOGUE: Ensure non-stop talking throughout the entire 8-second segment
+- RAPID PACING: Pack multiple lines of dialogue or rapid-fire delivery
+- AUDIO LAYERING: Combine dialogue with background music and sound effects
+- SMOOTH FLOW: No awkward pauses or silent moments - fill every second with audio
+- OVERLAPPING ELEMENTS: Layer voice, music, and ambient sounds for rich audio experience
 
 Format your response as valid JSON. Only return the JSON object."""
                 gemini_script[seg] = gemini_generate_segment(segment_prompt)
