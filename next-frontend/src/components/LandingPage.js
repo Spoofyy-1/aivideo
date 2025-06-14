@@ -13,7 +13,7 @@ function LandingPage() {
         <div className="hero">
           <h1 className="hero-title">Create AI-Powered Ad Videos in Minutes</h1>
           <div className="hero-visual">
-            {/* Video Player - using a working demo video */}
+            {/* Actual AI Generated Video Demo */}
             <video 
               controls 
               poster="https://placehold.co/700x340/2a3f47/b6d6e0?text=AI+Generated+Ad+Preview"
@@ -28,7 +28,7 @@ function LandingPage() {
                 background: '#2a3f47'
               }}
             >
-              <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
+              <source src="https://aivideo-production.up.railway.app/download/video/replicate-prediction-j9qzxv3hmdrme0cq934sp9sxer_1_2.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </div>
