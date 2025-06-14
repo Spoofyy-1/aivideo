@@ -337,18 +337,40 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
     ad_type_instructions = ""
     if ad_type == "unhinged":
         ad_type_instructions = (
-            "Make this ad ABSOLUTELY INSANE and CHAOTIC with MAXIMUM VARIETY. Randomly choose from these wild scenarios: "
-            "1) Apocalyptic: buildings exploding, meteors falling, tornadoes, lightning storms, military helicopters "
-            "2) Celebrity chaos: famous people screaming about the product, politicians giving dramatic speeches "
-            "3) Action movie: explosions, car chases, dramatic zoom-ins, movie trailer voice-overs "
-            "4) Surreal: floating objects, gravity-defying scenes, time distortion, reality glitching "
-            "5) Internet chaos: viral memes gone wrong, social media influencers in panic, trending sounds "
-            "6) Everyday chaos: office workers rioting, suburban moms in dramatic standoffs, pets taking over "
-            "7) Sci-fi madness: aliens, robots, futuristic cities, space battles, time travel "
-            "8) Historical chaos: ancient civilizations, medieval knights, pirates, dinosaurs "
-            "BE CREATIVE AND UNPREDICTABLE - don't always use the same creatures or scenarios. "
-            "Mix and match elements. Make it feel like the most dramatic, over-the-top scenario possible. "
-            "Use phrases like 'IN A WORLD WHERE...' and 'ONE PRODUCT WILL CHANGE EVERYTHING' in ridiculous contexts."
+            "KALSHI-STYLE UNHINGED MADNESS: Create the most chaotic, high-dopamine, GTA-style commercial possible. "
+            "Philosophy: 'Crazy people doing crazy things while showcasing your brand' - this is the EXACT approach that made the viral Kalshi NBA Finals ad. "
+            "CRITICAL: CONSTANT PRODUCT INTEGRATION - Like Kalshi's 'you can bet on anything' throughout every scene, weave the product benefit into EVERY single chaotic moment. "
+            "CORE ELEMENTS: "
+            "1) FLORIDA MAN ENERGY: Unhinged American characters in absurd situations "
+            "2) RAPID-FIRE CHAOS: Quick cuts between wild scenarios, each more insane than the last "
+            "3) 'THE WORLD'S GONE MAD' THEME: Everything is spiraling into beautiful chaos "
+            "4) REAL-WORLD ABSURDITY: People doing normal things in completely abnormal ways "
+            "5) PRODUCT EVERYWHERE: Every character mentions/uses/screams about the product while doing insane things "
+            "SPECIFIC KALSHI-INSPIRED SCENARIOS (mix and match): "
+            "- Elderly person draped in American flag screaming '[PRODUCT] CHANGED MY LIFE!' "
+            "- Someone floating in inflatable pool filled with random objects yelling 'I use [PRODUCT] for everything!' "
+            "- Alien or creature chugging beverages while shouting '[PRODUCT] works on my planet too!' "
+            "- Person in sparkly tracksuit driving Zamboni screaming 'With [PRODUCT] I can afford this Zamboni!' "
+            "- Rizzed-out grandpa headed to the club: 'The ladies love my [PRODUCT]!' "
+            "- Old lady with pickup truck: 'I got all this stuff using [PRODUCT]!' "
+            "- Farmer making wild predictions: '[PRODUCT] told me the weather!' "
+            "- Person in cowboy hat carrying animals: 'My pets love [PRODUCT] too!' "
+            "- Someone swimming through unusual substances: 'Even underwater, I need [PRODUCT]!' "
+            "- Characters in every scene: 'On [PRODUCT] you can do ANYTHING!' "
+            "ADDITIONAL CHAOS CATEGORIES (all with product integration): "
+            "- Sports betting: 'I bet my [PRODUCT] subscription on this!' "
+            "- Weather disasters: 'Hurricane coming? Good thing I have [PRODUCT]!' "
+            "- Economic chaos: 'Egg prices up? [PRODUCT] saves me money!' "
+            "- Celebrity impersonators: 'Even fake celebrities use [PRODUCT]!' "
+            "- Extreme sports: 'Skydiving with [PRODUCT] is INSANE!' "
+            "- Conspiracy theories: '[PRODUCT] exposed the truth!' "
+            "- Time travel: '[PRODUCT] works in every timeline!' "
+            "- Reality TV: 'I'm only here for [PRODUCT]!' "
+            "TONE: Embrace the absurd. Make it feel like a fever dream where EVERYONE is obsessed with the product. "
+            "Use phrases like 'THE WORLD'S GONE MAD BUT [PRODUCT] KEEPS ME SANE!' and constant product mentions. "
+            "Every character should be at 11/10 energy level AND completely devoted to the product. "
+            "VISUAL STYLE: Think Grand Theft Auto meets Florida news headlines meets viral TikTok chaos, but with product placement in EVERY shot. "
+            "Make it so unhinged that people can't look away, just like the Kalshi ad, but with relentless product integration throughout every insane moment."
         )
     elif ad_type == "informative":
         ad_type_instructions = (
@@ -1116,7 +1138,7 @@ def generate_ad():
         # Thread-safe file operations
         with file_lock:
             report_path = os.path.join(user_dir, f'{unique_name}_report.txt')
-            generate_company_report(company_info, report_path)
+        generate_company_report(company_info, report_path)
         
         report_url = f'/download/report/{session_id}/{os.path.basename(report_path)}'
         print(f"Returning report_url: {report_url}")
@@ -1164,18 +1186,40 @@ def generate_ad():
             ad_type_instructions = ""
             if ad_type == "unhinged":
                 ad_type_instructions = (
-                    "Make this ad ABSOLUTELY INSANE and CHAOTIC with MAXIMUM VARIETY. Randomly choose from these wild scenarios: "
-                    "1) Apocalyptic: buildings exploding, meteors falling, tornadoes, lightning storms, military helicopters "
-                    "2) Celebrity chaos: famous people screaming about the product, politicians giving dramatic speeches "
-                    "3) Action movie: explosions, car chases, dramatic zoom-ins, movie trailer voice-overs "
-                    "4) Surreal: floating objects, gravity-defying scenes, time distortion, reality glitching "
-                    "5) Internet chaos: viral memes gone wrong, social media influencers in panic, trending sounds "
-                    "6) Everyday chaos: office workers rioting, suburban moms in dramatic standoffs, pets taking over "
-                    "7) Sci-fi madness: aliens, robots, futuristic cities, space battles, time travel "
-                    "8) Historical chaos: ancient civilizations, medieval knights, pirates, dinosaurs "
-                    "BE CREATIVE AND UNPREDICTABLE - don't always use the same creatures or scenarios. "
-                    "Mix and match elements. Make it feel like the most dramatic, over-the-top scenario possible. "
-                    "Use phrases like 'IN A WORLD WHERE...' and 'ONE PRODUCT WILL CHANGE EVERYTHING' in ridiculous contexts."
+                    "KALSHI-STYLE UNHINGED MADNESS: Create the most chaotic, high-dopamine, GTA-style commercial possible. "
+                    "Philosophy: 'Crazy people doing crazy things while showcasing your brand' - this is the EXACT approach that made the viral Kalshi NBA Finals ad. "
+                    "CRITICAL: CONSTANT PRODUCT INTEGRATION - Like Kalshi's 'you can bet on anything' throughout every scene, weave the product benefit into EVERY single chaotic moment. "
+                    "CORE ELEMENTS: "
+                    "1) FLORIDA MAN ENERGY: Unhinged American characters in absurd situations "
+                    "2) RAPID-FIRE CHAOS: Quick cuts between wild scenarios, each more insane than the last "
+                    "3) 'THE WORLD'S GONE MAD' THEME: Everything is spiraling into beautiful chaos "
+                    "4) REAL-WORLD ABSURDITY: People doing normal things in completely abnormal ways "
+                    "5) PRODUCT EVERYWHERE: Every character mentions/uses/screams about the product while doing insane things "
+                    "SPECIFIC KALSHI-INSPIRED SCENARIOS (mix and match): "
+                    "- Elderly person draped in American flag screaming '[PRODUCT] CHANGED MY LIFE!' "
+                    "- Someone floating in inflatable pool filled with random objects yelling 'I use [PRODUCT] for everything!' "
+                    "- Alien or creature chugging beverages while shouting '[PRODUCT] works on my planet too!' "
+                    "- Person in sparkly tracksuit driving Zamboni screaming 'With [PRODUCT] I can afford this Zamboni!' "
+                    "- Rizzed-out grandpa headed to the club: 'The ladies love my [PRODUCT]!' "
+                    "- Old lady with pickup truck: 'I got all this stuff using [PRODUCT]!' "
+                    "- Farmer making wild predictions: '[PRODUCT] told me the weather!' "
+                    "- Person in cowboy hat carrying animals: 'My pets love [PRODUCT] too!' "
+                    "- Someone swimming through unusual substances: 'Even underwater, I need [PRODUCT]!' "
+                    "- Characters in every scene: 'On [PRODUCT] you can do ANYTHING!' "
+                    "ADDITIONAL CHAOS CATEGORIES (all with product integration): "
+                    "- Sports betting: 'I bet my [PRODUCT] subscription on this!' "
+                    "- Weather disasters: 'Hurricane coming? Good thing I have [PRODUCT]!' "
+                    "- Economic chaos: 'Egg prices up? [PRODUCT] saves me money!' "
+                    "- Celebrity impersonators: 'Even fake celebrities use [PRODUCT]!' "
+                    "- Extreme sports: 'Skydiving with [PRODUCT] is INSANE!' "
+                    "- Conspiracy theories: '[PRODUCT] exposed the truth!' "
+                    "- Time travel: '[PRODUCT] works in every timeline!' "
+                    "- Reality TV: 'I'm only here for [PRODUCT]!' "
+                    "TONE: Embrace the absurd. Make it feel like a fever dream where EVERYONE is obsessed with the product. "
+                    "Use phrases like 'THE WORLD'S GONE MAD BUT [PRODUCT] KEEPS ME SANE!' and constant product mentions. "
+                    "Every character should be at 11/10 energy level AND completely devoted to the product. "
+                    "VISUAL STYLE: Think Grand Theft Auto meets Florida news headlines meets viral TikTok chaos, but with product placement in EVERY shot. "
+                    "Make it so unhinged that people can't look away, just like the Kalshi ad, but with relentless product integration throughout every insane moment."
                 )
             elif ad_type == "informative":
                 ad_type_instructions = (
@@ -1381,7 +1425,7 @@ Format your response as valid JSON. Only return the JSON object."""
         # Combine videos with thread-safe operations
         with file_lock:
             output_path = os.path.join(user_dir, f'{unique_name}_ad.mp4')
-            final_video_path = combine_videos(video_paths, output_path)
+        final_video_path = combine_videos(video_paths, output_path)
         
         print("Final video path:", final_video_path)
         # Check if file exists
