@@ -346,6 +346,46 @@ def get_target_audience_for_industry(industry):
         return 'Home buyers, renters, and real estate investors.'
     elif industry == 'entertainment':
         return 'Fans, viewers, and people seeking fun and excitement.'
+    elif industry == 'fitness':
+        return 'Fitness enthusiasts, athletes, gym-goers, and people seeking healthy lifestyle changes.'
+    elif industry == 'beauty':
+        return 'Beauty enthusiasts, skincare lovers, makeup artists, and people focused on self-care.'
+    elif industry == 'gaming':
+        return 'Gamers, esports fans, content creators, and interactive entertainment enthusiasts.'
+    elif industry == 'software':
+        return 'Developers, IT professionals, businesses seeking digital solutions, and tech users.'
+    elif industry == 'e-commerce':
+        return 'Online shoppers, entrepreneurs, small business owners, and digital commerce users.'
+    elif industry == 'marketing':
+        return 'Marketers, small business owners, content creators, and growth-focused professionals.'
+    elif industry == 'consulting':
+        return 'Business leaders, entrepreneurs, professionals seeking expertise, and decision-makers.'
+    elif industry == 'photography':
+        return 'Photographers, content creators, artists, and visual storytelling enthusiasts.'
+    elif industry == 'music':
+        return 'Musicians, music lovers, content creators, and audio entertainment enthusiasts.'
+    elif industry == 'sports':
+        return 'Athletes, sports fans, coaches, and active lifestyle enthusiasts.'
+    elif industry == 'home & garden':
+        return 'Homeowners, DIY enthusiasts, gardeners, and home improvement seekers.'
+    elif industry == 'pets':
+        return 'Pet owners, animal lovers, veterinarians, and pet care enthusiasts.'
+    elif industry == 'crypto':
+        return 'Cryptocurrency investors, blockchain enthusiasts, fintech users, and digital asset traders.'
+    elif industry == 'saas':
+        return 'Business owners, entrepreneurs, productivity seekers, and software-as-service users.'
+    elif industry == 'manufacturing':
+        return 'Manufacturers, industrial professionals, supply chain managers, and B2B decision-makers.'
+    elif industry == 'agriculture':
+        return 'Farmers, agricultural professionals, sustainability advocates, and food production experts.'
+    elif industry == 'construction':
+        return 'Contractors, builders, architects, and construction industry professionals.'
+    elif industry == 'legal':
+        return 'Lawyers, legal professionals, business owners, and individuals seeking legal solutions.'
+    elif industry == 'non-profit':
+        return 'Donors, volunteers, community advocates, and socially-conscious individuals.'
+    elif industry == 'wellness':
+        return 'Health-conscious individuals, wellness seekers, mental health advocates, and holistic lifestyle enthusiasts.'
     else:
         return 'A broad audience interested in this industry.'
 
@@ -544,6 +584,37 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
             "2025 CRITICAL: Make this ad feel like organic social content, not an ad. "
             "Use smartphone-shot aesthetics, natural lighting, casual framing. "
             "Make it look like something a friend would post, not a corporation."
+        )
+    elif ad_type == "normal":
+        ad_type_instructions = (
+            "CLASSIC PROBLEM-SOLUTION ADVERTISING: Create a traditional but effective ad that introduces a relatable problem in a unique way, then presents the product as the perfect solution. "
+            "Structure: Problem Introduction → Problem Amplification → Solution Reveal → Product Benefits → Call to Action "
+            "CORE ELEMENTS: "
+            "1) UNIQUE PROBLEM INTRODUCTION: Start with a relatable but creatively presented problem that your target audience faces "
+            "2) EMOTIONAL CONNECTION: Make viewers think 'That's exactly my problem!' through specific, recognizable scenarios "
+            "3) SMOOTH TRANSITION: Bridge from problem to solution naturally without feeling forced or sales-y "
+            "4) CLEAR SOLUTION PRESENTATION: Show how the product specifically solves the identified problem "
+            "5) TANGIBLE BENEFITS: Highlight concrete improvements the product provides "
+            "PROBLEM PRESENTATION TECHNIQUES: "
+            "- Start with a frustrating but relatable scenario that your audience knows well "
+            "- Use visual metaphors or creative analogies to represent the problem "
+            "- Show the emotional or practical impact of not having a solution "
+            "- Present multiple angles of the same core problem to increase relatability "
+            "- Use before/after scenarios to emphasize the problem's effects "
+            "SOLUTION REVEAL STRATEGIES: "
+            "- Natural transition: 'But what if there was a way...' or 'Imagine if you could...' "
+            "- Direct introduction: 'Meet [PRODUCT] - the solution you've been waiting for' "
+            "- Demonstration approach: Show the product solving the exact problem just presented "
+            "- Transformation narrative: 'Here's how [PRODUCT] changes everything...' "
+            "BENEFIT COMMUNICATION: "
+            "- Connect each product feature directly to solving the specific problem shown "
+            "- Use concrete examples: 'Instead of [PROBLEM], you get [SPECIFIC BENEFIT]' "
+            "- Show real-world applications that relate to the initial problem scenario "
+            "- Emphasize the contrast between the problem state and solution state "
+            "TONE: Professional yet approachable, empathetic to the problem, confident about the solution "
+            "Make viewers feel understood and hopeful - 'Finally, someone gets my problem AND has the answer!' "
+            "VISUAL STYLE: Clean, professional, focused on clear storytelling that guides viewers from problem to solution "
+            "Use visual contrast between problem scenes (darker, more chaotic) and solution scenes (brighter, more organized)."
         )
     # ... add more types as needed ...
 
@@ -1555,6 +1626,37 @@ def generate_ad():
                     "2025 CRITICAL: Make this ad feel like organic social content, not an ad. "
                     "Use smartphone-shot aesthetics, natural lighting, casual framing. "
                     "Make it look like something a friend would post, not a corporation."
+                )
+            elif ad_type == "normal":
+                ad_type_instructions = (
+                    "CLASSIC PROBLEM-SOLUTION ADVERTISING: Create a traditional but effective ad that introduces a relatable problem in a unique way, then presents the product as the perfect solution. "
+                    "Structure: Problem Introduction → Problem Amplification → Solution Reveal → Product Benefits → Call to Action "
+                    "CORE ELEMENTS: "
+                    "1) UNIQUE PROBLEM INTRODUCTION: Start with a relatable but creatively presented problem that your target audience faces "
+                    "2) EMOTIONAL CONNECTION: Make viewers think 'That's exactly my problem!' through specific, recognizable scenarios "
+                    "3) SMOOTH TRANSITION: Bridge from problem to solution naturally without feeling forced or sales-y "
+                    "4) CLEAR SOLUTION PRESENTATION: Show how the product specifically solves the identified problem "
+                    "5) TANGIBLE BENEFITS: Highlight concrete improvements the product provides "
+                    "PROBLEM PRESENTATION TECHNIQUES: "
+                    "- Start with a frustrating but relatable scenario that your audience knows well "
+                    "- Use visual metaphors or creative analogies to represent the problem "
+                    "- Show the emotional or practical impact of not having a solution "
+                    "- Present multiple angles of the same core problem to increase relatability "
+                    "- Use before/after scenarios to emphasize the problem's effects "
+                    "SOLUTION REVEAL STRATEGIES: "
+                    "- Natural transition: 'But what if there was a way...' or 'Imagine if you could...' "
+                    "- Direct introduction: 'Meet [PRODUCT] - the solution you've been waiting for' "
+                    "- Demonstration approach: Show the product solving the exact problem just presented "
+                    "- Transformation narrative: 'Here's how [PRODUCT] changes everything...' "
+                    "BENEFIT COMMUNICATION: "
+                    "- Connect each product feature directly to solving the specific problem shown "
+                    "- Use concrete examples: 'Instead of [PROBLEM], you get [SPECIFIC BENEFIT]' "
+                    "- Show real-world applications that relate to the initial problem scenario "
+                    "- Emphasize the contrast between the problem state and solution state "
+                    "TONE: Professional yet approachable, empathetic to the problem, confident about the solution "
+                    "Make viewers feel understood and hopeful - 'Finally, someone gets my problem AND has the answer!' "
+                    "VISUAL STYLE: Clean, professional, focused on clear storytelling that guides viewers from problem to solution "
+                    "Use visual contrast between problem scenes (darker, more chaotic) and solution scenes (brighter, more organized)."
                 )
             # For Gemini, we want to generate each segment separately
             gemini_script = {}
