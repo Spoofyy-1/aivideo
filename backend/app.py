@@ -337,17 +337,21 @@ def research_company(url):
         text_content = soup.get_text()[:4000]  # Limit content length
         
         # Use ChatGPT to analyze company
-        prompt = f"""Analyze this company based on their website content and provide key information:
+        prompt = f"""Analyze this company based on their website content and provide key information in JSON format:
         Website content: {text_content}
         
-        Please provide:
-        1. Company's main product/service
-        2. Target audience
-        3. Unique selling points
-        4. Brand voice and style
-        5. Key benefits for customers
-        6. List up to 5 main products or services (as a JSON array of strings, or an empty array if not found)
-        7. List any topics, themes, or words that should be avoided in marketing or advertising for this company (as a JSON array of strings, or an empty array if not found)
+        Return ONLY a valid JSON object with this exact structure:
+        {{
+            "main_product_service": "Company's main product/service",
+            "target_audience": "Target audience description",
+            "unique_selling_points": "Unique selling points",
+            "brand_voice_style": "Brand voice and style",
+            "key_benefits": "Key benefits for customers",
+            "products_services": ["product1", "product2", "product3"],
+            "avoid_topics": ["topic1", "topic2", "topic3"]
+        }}
+        
+        Do not include any text before or after the JSON object. Only return the JSON.
         """
         
         # Use modern OpenAI API syntax
@@ -370,30 +374,60 @@ def research_company(url):
         print("OpenAI raw response:", repr(content))  # Debug print
 
         # Check if OpenAI refused the request
-        if "I'm sorry, I can't assist" in content or "I cannot help" in content or "I'm unable to" in content:
+        if "I'm sorry, I can't assist" in content or "I cannot help" in content or "I'm unable to" in content or "I can't comply" in content or "I can't comply with" in content:
             print("OpenAI refused the request - likely content policy violation")
-            raise ValueError(f"OpenAI refused the request, likely due to content policy. This may be caused by the 'unhinged' ad type or other sensitive content in the prompt. Please try a different ad type. Response: {repr(content)}")
+            raise ValueError(f"OpenAI refused the request, likely due to content policy. Response: {repr(content)}")
 
         # Try to extract JSON from the response
         try:
             if not content:
                 raise ValueError("OpenAI returned an empty response.")
+            
+            # First try to parse as direct JSON
             return json.loads(content)
-        except Exception as e:
+        except json.JSONDecodeError as e:
+            print(f"Direct JSON parsing failed: {e}")
+            
+            # Try to extract JSON from markdown code blocks
             import re
-            match = re.search(r'\{.*\}', content, re.DOTALL)
-            if match:
+            json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
+            if json_match:
                 try:
-                    return json.loads(match.group(0))
-                except Exception as e2:
-                    print("Failed to parse extracted JSON:", e2)
-            print("Failed to parse OpenAI response as JSON:", e)
-            raise ValueError("Failed to parse OpenAI response as JSON. Raw response: " + repr(content))
+                    return json.loads(json_match.group(1))
+                except json.JSONDecodeError as e2:
+                    print(f"Markdown JSON parsing failed: {e2}")
+            
+            # Try to find any JSON object in the response
+            json_match = re.search(r'\{.*\}', content, re.DOTALL)
+            if json_match:
+                try:
+                    return json.loads(json_match.group(0))
+                except json.JSONDecodeError as e3:
+                    print(f"Regex JSON parsing failed: {e3}")
+            
+            # If all JSON parsing fails, create a structured response from the text
+            print("All JSON parsing failed, creating structured response from text")
+            return {
+                "main_product_service": "Unable to parse - see raw response",
+                "target_audience": "Unable to parse - see raw response", 
+                "unique_selling_points": "Unable to parse - see raw response",
+                "brand_voice_style": "Unable to parse - see raw response",
+                "key_benefits": "Unable to parse - see raw response",
+                "products_services": [],
+                "avoid_topics": [],
+                "raw_response": content[:1000]  # Include first 1000 chars for debugging
+            }
     except Exception as e:
         return f"Error researching company: {str(e)}"
 
 def extract_products_services(research_text):
     """Extract a list of products/services from the research_company output using OpenAI."""
+    
+    # If research_text is already a dict (from successful JSON parsing), extract products_services
+    if isinstance(research_text, dict):
+        return research_text.get('products_services', [])
+    
+    # If it's a string, try to parse it or use OpenAI to extract
     client = get_openai_client()
     if client is None:
         return []
@@ -1166,9 +1200,20 @@ Do not include any text before or after the JSON. Only return the JSON object.""
     print("OpenAI raw response:", repr(content))  # Debug print
 
     # Check if OpenAI refused the request
-    if "I'm sorry, I can't assist" in content or "I cannot help" in content or "I'm unable to" in content:
+    if "I'm sorry, I can't assist" in content or "I cannot help" in content or "I'm unable to" in content or "I can't comply" in content or "I can't comply with" in content:
         print("OpenAI refused the request - likely content policy violation")
-        raise ValueError(f"OpenAI refused the request, likely due to content policy. This may be caused by the 'unhinged' ad type or other sensitive content in the prompt. Please try a different ad type. Response: {repr(content)}")
+        
+        # If this was an "unhinged" request, automatically fallback to "high-energy" 
+        if ad_type == "unhinged":
+            print("Falling back from 'unhinged' to 'high-energy' ad type due to content policy")
+            user_answers_fallback = user_answers.copy()
+            user_answers_fallback['ad_type'] = 'high-energy'
+            try:
+                return generate_ad_script(company_info, user_answers_fallback, best_ads=best_ads)
+            except Exception as fallback_error:
+                raise ValueError(f"Both original and fallback ad generation failed. Original error: OpenAI refused request. Fallback error: {str(fallback_error)}")
+        else:
+            raise ValueError(f"OpenAI refused the request, likely due to content policy. Response: {repr(content)}")
 
     # Try to extract JSON from the response
     try:
