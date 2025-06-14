@@ -169,12 +169,44 @@ def research_company(url):
         """
         
         # Use modern OpenAI API syntax
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        
-        return response.choices[0].message.content
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7,
+                max_tokens=4000
+            )
+        except Exception as api_error:
+            print(f"OpenAI API Error: {api_error}")
+            # Check if it's a content policy violation
+            if "content policy" in str(api_error).lower() or "safety" in str(api_error).lower():
+                raise ValueError(f"Content policy violation: The ad prompt was rejected by OpenAI. This may be due to sensitive content in the ad type or prompt. Error: {str(api_error)}")
+            else:
+                raise ValueError(f"OpenAI API Error: {str(api_error)}")
+
+        content = response.choices[0].message.content.strip()
+        print("OpenAI raw response:", repr(content))  # Debug print
+
+        # Check if OpenAI refused the request
+        if "I'm sorry, I can't assist" in content or "I cannot help" in content or "I'm unable to" in content:
+            print("OpenAI refused the request - likely content policy violation")
+            raise ValueError(f"OpenAI refused the request, likely due to content policy. This may be caused by the 'unhinged' ad type or other sensitive content in the prompt. Please try a different ad type. Response: {repr(content)}")
+
+        # Try to extract JSON from the response
+        try:
+            if not content:
+                raise ValueError("OpenAI returned an empty response.")
+            return json.loads(content)
+        except Exception as e:
+            import re
+            match = re.search(r'\{.*\}', content, re.DOTALL)
+            if match:
+                try:
+                    return json.loads(match.group(0))
+                except Exception as e2:
+                    print("Failed to parse extracted JSON:", e2)
+            print("Failed to parse OpenAI response as JSON:", e)
+            raise ValueError("Failed to parse OpenAI response as JSON. Raw response: " + repr(content))
     except Exception as e:
         return f"Error researching company: {str(e)}"
 
@@ -337,40 +369,40 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
     ad_type_instructions = ""
     if ad_type == "unhinged":
         ad_type_instructions = (
-            "KALSHI-STYLE UNHINGED MADNESS: Create the most chaotic, high-dopamine, GTA-style commercial possible. "
-            "Philosophy: 'Crazy people doing crazy things while showcasing your brand' - this is the EXACT approach that made the viral Kalshi NBA Finals ad. "
-            "CRITICAL: CONSTANT PRODUCT INTEGRATION - Like Kalshi's 'you can bet on anything' throughout every scene, weave the product benefit into EVERY single chaotic moment. "
+            "ENERGETIC VIRAL ADVERTISING: Create a high-energy, attention-grabbing commercial that captures viewer interest immediately. "
+            "Philosophy: 'Creative, memorable characters showcasing your brand in unexpected ways' - this approach builds brand recall through distinctive content. "
+            "CRITICAL: CONTINUOUS PRODUCT INTEGRATION - Like successful viral campaigns, weave the product benefit into every dynamic scene. "
             "CORE ELEMENTS: "
-            "1) FLORIDA MAN ENERGY: Unhinged American characters in absurd situations "
-            "2) RAPID-FIRE CHAOS: Quick cuts between wild scenarios, each more insane than the last "
-            "3) 'THE WORLD'S GONE MAD' THEME: Everything is spiraling into beautiful chaos "
-            "4) REAL-WORLD ABSURDITY: People doing normal things in completely abnormal ways "
-            "5) PRODUCT EVERYWHERE: Every character mentions/uses/screams about the product while doing insane things "
-            "SPECIFIC KALSHI-INSPIRED SCENARIOS (mix and match): "
-            "- Elderly person draped in American flag screaming '[PRODUCT] CHANGED MY LIFE!' "
-            "- Someone floating in inflatable pool filled with random objects yelling 'I use [PRODUCT] for everything!' "
-            "- Alien or creature chugging beverages while shouting '[PRODUCT] works on my planet too!' "
-            "- Person in sparkly tracksuit driving Zamboni screaming 'With [PRODUCT] I can afford this Zamboni!' "
-            "- Rizzed-out grandpa headed to the club: 'The ladies love my [PRODUCT]!' "
-            "- Old lady with pickup truck: 'I got all this stuff using [PRODUCT]!' "
-            "- Farmer making wild predictions: '[PRODUCT] told me the weather!' "
-            "- Person in cowboy hat carrying animals: 'My pets love [PRODUCT] too!' "
-            "- Someone swimming through unusual substances: 'Even underwater, I need [PRODUCT]!' "
-            "- Characters in every scene: 'On [PRODUCT] you can do ANYTHING!' "
-            "ADDITIONAL CHAOS CATEGORIES (all with product integration): "
-            "- Sports betting: 'I bet my [PRODUCT] subscription on this!' "
-            "- Weather disasters: 'Hurricane coming? Good thing I have [PRODUCT]!' "
-            "- Economic chaos: 'Egg prices up? [PRODUCT] saves me money!' "
-            "- Celebrity impersonators: 'Even fake celebrities use [PRODUCT]!' "
-            "- Extreme sports: 'Skydiving with [PRODUCT] is INSANE!' "
-            "- Conspiracy theories: '[PRODUCT] exposed the truth!' "
-            "- Time travel: '[PRODUCT] works in every timeline!' "
-            "- Reality TV: 'I'm only here for [PRODUCT]!' "
-            "TONE: Embrace the absurd. Make it feel like a fever dream where EVERYONE is obsessed with the product. "
-            "Use phrases like 'THE WORLD'S GONE MAD BUT [PRODUCT] KEEPS ME SANE!' and constant product mentions. "
-            "Every character should be at 11/10 energy level AND completely devoted to the product. "
-            "VISUAL STYLE: Think Grand Theft Auto meets Florida news headlines meets viral TikTok chaos, but with product placement in EVERY shot. "
-            "Make it so unhinged that people can't look away, just like the Kalshi ad, but with relentless product integration throughout every insane moment."
+            "1) HIGH ENERGY: Enthusiastic characters in unexpected situations "
+            "2) RAPID-FIRE CREATIVITY: Quick cuts between engaging scenarios, each more interesting than the last "
+            "3) 'LIFE IS EXCITING' THEME: Everything is vibrant and full of possibility "
+            "4) REAL-WORLD CREATIVITY: People doing normal things in wonderfully creative ways "
+            "5) PRODUCT EVERYWHERE: Every character mentions/uses/celebrates the product while engaging in fun activities "
+            "SPECIFIC VIRAL-INSPIRED SCENARIOS (mix and match): "
+            "- Elderly person enthusiastically declaring '[PRODUCT] CHANGED MY LIFE!' "
+            "- Someone in a creative setup exclaiming 'I use [PRODUCT] for everything!' "
+            "- Character with unique style shouting '[PRODUCT] works everywhere!' "
+            "- Person with interesting vehicle enthusiastically saying 'With [PRODUCT] I can afford amazing things!' "
+            "- Charismatic grandparent: 'Everyone loves my [PRODUCT] success!' "
+            "- Creative entrepreneur with cool setup: 'I got all this using [PRODUCT]!' "
+            "- Enthusiastic forecaster: '[PRODUCT] helps me predict everything!' "
+            "- Pet lover carrying animals: 'My pets and I love [PRODUCT]!' "
+            "- Someone in creative environment: 'Everywhere I go, I need [PRODUCT]!' "
+            "- Characters in every scene: 'With [PRODUCT] you can do ANYTHING!' "
+            "ADDITIONAL CREATIVE CATEGORIES (all with product integration): "
+            "- Competitive activities: 'I bet my success on [PRODUCT]!' "
+            "- Weather enthusiasm: 'Storm coming? Good thing I have [PRODUCT]!' "
+            "- Economic creativity: 'Prices changing? [PRODUCT] saves me money!' "
+            "- Character performers: 'Even performers use [PRODUCT]!' "
+            "- Adventure sports: 'Adventure with [PRODUCT] is AMAZING!' "
+            "- Discovery themes: '[PRODUCT] revealed the solution!' "
+            "- Time themes: '[PRODUCT] works every time!' "
+            "- Entertainment: 'I'm only here for [PRODUCT]!' "
+            "TONE: Embrace the creative and memorable. Make it feel like an exciting adventure where EVERYONE loves the product. "
+            "Use phrases like 'LIFE IS AMAZING WITH [PRODUCT]!' and constant product enthusiasm. "
+            "Every character should be at high energy level AND completely enthusiastic about the product. "
+            "VISUAL STYLE: Think vibrant viral content meets creative storytelling meets memorable moments, but with product placement in EVERY shot. "
+            "Make it so engaging that people can't look away, with consistent product enthusiasm throughout every creative moment."
         )
     elif ad_type == "informative":
         ad_type_instructions = (
@@ -743,13 +775,28 @@ Format your response as valid JSON:
 
 Do not include any text before or after the JSON. Only return the JSON object."""
 
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": prompt}]
-    )
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=4000
+        )
+    except Exception as api_error:
+        print(f"OpenAI API Error: {api_error}")
+        # Check if it's a content policy violation
+        if "content policy" in str(api_error).lower() or "safety" in str(api_error).lower():
+            raise ValueError(f"Content policy violation: The ad prompt was rejected by OpenAI. This may be due to sensitive content in the ad type or prompt. Error: {str(api_error)}")
+        else:
+            raise ValueError(f"OpenAI API Error: {str(api_error)}")
 
     content = response.choices[0].message.content.strip()
     print("OpenAI raw response:", repr(content))  # Debug print
+
+    # Check if OpenAI refused the request
+    if "I'm sorry, I can't assist" in content or "I cannot help" in content or "I'm unable to" in content:
+        print("OpenAI refused the request - likely content policy violation")
+        raise ValueError(f"OpenAI refused the request, likely due to content policy. This may be caused by the 'unhinged' ad type or other sensitive content in the prompt. Please try a different ad type. Response: {repr(content)}")
 
     # Try to extract JSON from the response
     try:
@@ -1309,40 +1356,40 @@ def generate_ad():
             ad_type_instructions = ""
             if ad_type == "unhinged":
                 ad_type_instructions = (
-                    "KALSHI-STYLE UNHINGED MADNESS: Create the most chaotic, high-dopamine, GTA-style commercial possible. "
-                    "Philosophy: 'Crazy people doing crazy things while showcasing your brand' - this is the EXACT approach that made the viral Kalshi NBA Finals ad. "
-                    "CRITICAL: CONSTANT PRODUCT INTEGRATION - Like Kalshi's 'you can bet on anything' throughout every scene, weave the product benefit into EVERY single chaotic moment. "
+                    "ENERGETIC VIRAL ADVERTISING: Create a high-energy, attention-grabbing commercial that captures viewer interest immediately. "
+                    "Philosophy: 'Creative, memorable characters showcasing your brand in unexpected ways' - this approach builds brand recall through distinctive content. "
+                    "CRITICAL: CONTINUOUS PRODUCT INTEGRATION - Like successful viral campaigns, weave the product benefit into every dynamic scene. "
                     "CORE ELEMENTS: "
-                    "1) FLORIDA MAN ENERGY: Unhinged American characters in absurd situations "
-                    "2) RAPID-FIRE CHAOS: Quick cuts between wild scenarios, each more insane than the last "
-                    "3) 'THE WORLD'S GONE MAD' THEME: Everything is spiraling into beautiful chaos "
-                    "4) REAL-WORLD ABSURDITY: People doing normal things in completely abnormal ways "
-                    "5) PRODUCT EVERYWHERE: Every character mentions/uses/screams about the product while doing insane things "
-                    "SPECIFIC KALSHI-INSPIRED SCENARIOS (mix and match): "
-                    "- Elderly person draped in American flag screaming '[PRODUCT] CHANGED MY LIFE!' "
-                    "- Someone floating in inflatable pool filled with random objects yelling 'I use [PRODUCT] for everything!' "
-                    "- Alien or creature chugging beverages while shouting '[PRODUCT] works on my planet too!' "
-                    "- Person in sparkly tracksuit driving Zamboni screaming 'With [PRODUCT] I can afford this Zamboni!' "
-                    "- Rizzed-out grandpa headed to the club: 'The ladies love my [PRODUCT]!' "
-                    "- Old lady with pickup truck: 'I got all this stuff using [PRODUCT]!' "
-                    "- Farmer making wild predictions: '[PRODUCT] told me the weather!' "
-                    "- Person in cowboy hat carrying animals: 'My pets love [PRODUCT] too!' "
-                    "- Someone swimming through unusual substances: 'Even underwater, I need [PRODUCT]!' "
-                    "- Characters in every scene: 'On [PRODUCT] you can do ANYTHING!' "
-                    "ADDITIONAL CHAOS CATEGORIES (all with product integration): "
-                    "- Sports betting: 'I bet my [PRODUCT] subscription on this!' "
-                    "- Weather disasters: 'Hurricane coming? Good thing I have [PRODUCT]!' "
-                    "- Economic chaos: 'Egg prices up? [PRODUCT] saves me money!' "
-                    "- Celebrity impersonators: 'Even fake celebrities use [PRODUCT]!' "
-                    "- Extreme sports: 'Skydiving with [PRODUCT] is INSANE!' "
-                    "- Conspiracy theories: '[PRODUCT] exposed the truth!' "
-                    "- Time travel: '[PRODUCT] works in every timeline!' "
-                    "- Reality TV: 'I'm only here for [PRODUCT]!' "
-                    "TONE: Embrace the absurd. Make it feel like a fever dream where EVERYONE is obsessed with the product. "
-                    "Use phrases like 'THE WORLD'S GONE MAD BUT [PRODUCT] KEEPS ME SANE!' and constant product mentions. "
-                    "Every character should be at 11/10 energy level AND completely devoted to the product. "
-                    "VISUAL STYLE: Think Grand Theft Auto meets Florida news headlines meets viral TikTok chaos, but with product placement in EVERY shot. "
-                    "Make it so unhinged that people can't look away, just like the Kalshi ad, but with relentless product integration throughout every insane moment."
+                    "1) HIGH ENERGY: Enthusiastic characters in unexpected situations "
+                    "2) RAPID-FIRE CREATIVITY: Quick cuts between engaging scenarios, each more interesting than the last "
+                    "3) 'LIFE IS EXCITING' THEME: Everything is vibrant and full of possibility "
+                    "4) REAL-WORLD CREATIVITY: People doing normal things in wonderfully creative ways "
+                    "5) PRODUCT EVERYWHERE: Every character mentions/uses/celebrates the product while engaging in fun activities "
+                    "SPECIFIC VIRAL-INSPIRED SCENARIOS (mix and match): "
+                    "- Elderly person enthusiastically declaring '[PRODUCT] CHANGED MY LIFE!' "
+                    "- Someone in a creative setup exclaiming 'I use [PRODUCT] for everything!' "
+                    "- Character with unique style shouting '[PRODUCT] works everywhere!' "
+                    "- Person with interesting vehicle enthusiastically saying 'With [PRODUCT] I can afford amazing things!' "
+                    "- Charismatic grandparent: 'Everyone loves my [PRODUCT] success!' "
+                    "- Creative entrepreneur with cool setup: 'I got all this using [PRODUCT]!' "
+                    "- Enthusiastic forecaster: '[PRODUCT] helps me predict everything!' "
+                    "- Pet lover carrying animals: 'My pets and I love [PRODUCT]!' "
+                    "- Someone in creative environment: 'Everywhere I go, I need [PRODUCT]!' "
+                    "- Characters in every scene: 'With [PRODUCT] you can do ANYTHING!' "
+                    "ADDITIONAL CREATIVE CATEGORIES (all with product integration): "
+                    "- Competitive activities: 'I bet my success on [PRODUCT]!' "
+                    "- Weather enthusiasm: 'Storm coming? Good thing I have [PRODUCT]!' "
+                    "- Economic creativity: 'Prices changing? [PRODUCT] saves me money!' "
+                    "- Character performers: 'Even performers use [PRODUCT]!' "
+                    "- Adventure sports: 'Adventure with [PRODUCT] is AMAZING!' "
+                    "- Discovery themes: '[PRODUCT] revealed the solution!' "
+                    "- Time themes: '[PRODUCT] works every time!' "
+                    "- Entertainment: 'I'm only here for [PRODUCT]!' "
+                    "TONE: Embrace the creative and memorable. Make it feel like an exciting adventure where EVERYONE loves the product. "
+                    "Use phrases like 'LIFE IS AMAZING WITH [PRODUCT]!' and constant product enthusiasm. "
+                    "Every character should be at high energy level AND completely enthusiastic about the product. "
+                    "VISUAL STYLE: Think vibrant viral content meets creative storytelling meets memorable moments, but with product placement in EVERY shot. "
+                    "Make it so engaging that people can't look away, with consistent product enthusiasm throughout every creative moment."
                 )
             elif ad_type == "informative":
                 ad_type_instructions = (
