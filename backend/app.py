@@ -528,6 +528,10 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
     - OVERLAPPING AUDIO: Layer dialogue with background music and ambient sounds
     - AUDIO TRANSITIONS: Smooth audio bridges between dialogue segments
     - PACING CONTROL: Use "rapid-fire dialogue" or "conversational pace" specifications
+    - ELIMINATE DEAD AIR: Pack multiple lines of dialogue into each 8-second segment
+    - RAPID-FIRE DELIVERY: Characters speak quickly without pauses between sentences
+    - CONSTANT TALKING: Someone is always speaking - no awkward silence or blank space
+    - PRODUCT INTEGRATION: Weave company/product mentions into every line of dialogue
 
     🎨 VISUAL ENHANCEMENT:
     - Style References: film noir, anime, documentary, Wes Anderson style, claymation
@@ -555,12 +559,13 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
     - Scene Transitions: Plan continuity between segments for longer narratives
     - Director Mindset: Think like filmmaker directing AI crew
 
-    🎙️ CONTINUOUS DIALOGUE EXAMPLES:
-    - RAPID-FIRE: "Character says: 'This changed everything!' then immediately: 'I couldn't believe it!' followed by: 'Now I use it daily!'"
-    - OVERLAPPING: "Narrator says: 'Meet Sarah' while Sarah says: 'I love this product' with upbeat music playing"
-    - CONVERSATIONAL: "Person A says: 'What's that?' Person B responds: 'It's amazing!' Person A: 'Tell me more!'"
-    - LAYERED AUDIO: "Excited customer says: 'This is incredible!' over energetic background music with crowd cheering sounds"
-    - NO PAUSES: "Spokesperson says: 'Transform your life today' immediately followed by 'Don't wait another second' with no silence between"
+    🎙️ CONTINUOUS DIALOGUE EXAMPLES - NO DEAD SPACE:
+    - RAPID-FIRE: "Character says: 'This changed everything!' then immediately: 'I couldn't believe it!' followed by: 'Now I use it daily!' then: 'Everyone should try this!' ending with: 'It's absolutely incredible!'"
+    - OVERLAPPING: "Narrator says: 'Meet Sarah' while Sarah says: 'I love this product' while background voice adds: 'Amazing results' with upbeat music playing"
+    - CONVERSATIONAL: "Person A says: 'What's that?' Person B responds: 'It's amazing!' Person A: 'Tell me more!' Person B: 'It changed my life!' Person A: 'I need this now!'"
+    - LAYERED AUDIO: "Excited customer says: 'This is incredible!' over energetic background music while crowd cheers and someone else shouts: 'I agree completely!'"
+    - NO PAUSES: "Spokesperson says: 'Transform your life today' immediately followed by 'Don't wait another second' then 'Call now' then 'You won't regret it' with no silence between"
+    - PRODUCT INTEGRATION: "Every line mentions the company: 'With [COMPANY] I saved money' then 'On [COMPANY] everything is easy' then '[COMPANY] changed everything' then 'I love [COMPANY] so much'"
 
     💫 CREATIVE VARIETY MANDATE:
     - AVOID REPETITIVE SCENARIOS: Don't default to the same creatures, settings, or situations
@@ -647,14 +652,14 @@ Create a 2025-optimized, ultra-short 16-second ad script using the complete Veo-
 
 🎬 VEO-3 16-SECOND STRUCTURE:
 Segment 1 (8 seconds): ATTENTION + BRANDING with Veo-3 emotion chains
-- Seconds 1-3: HOOK using Veo-3 gesture/emotion chaining techniques + IMMEDIATE DIALOGUE
-- Seconds 4-5: BRAND INTRODUCTION with native audio generation + CONTINUOUS TALKING
-- Seconds 6-8: SETUP with motivated camera movement and character development + ONGOING AUDIO
+- Seconds 1-3: HOOK using Veo-3 gesture/emotion chaining techniques + IMMEDIATE RAPID-FIRE DIALOGUE
+- Seconds 4-5: BRAND INTRODUCTION with native audio generation + CONTINUOUS PRODUCT MENTIONS
+- Seconds 6-8: SETUP with motivated camera movement and character development + NON-STOP TALKING
 
 Segment 2 (8 seconds): CONNECTION + DIRECTION with Veo-3 cinematic mastery
-- Seconds 9-11: TRANSFORMATION using gesture + emotion combinations + RAPID DIALOGUE
-- Seconds 12-13: EMOTIONAL PAYOFF with physics-accurate interactions + MUSIC + VOICE
-- Seconds 14-16: CLEAR CTA with motivated camera movement and audio reinforcement + NON-STOP TALKING
+- Seconds 9-11: TRANSFORMATION using gesture + emotion combinations + RAPID DIALOGUE WITH PRODUCT INTEGRATION
+- Seconds 12-13: EMOTIONAL PAYOFF with physics-accurate interactions + MUSIC + VOICE + COMPANY MENTIONS
+- Seconds 14-16: CLEAR CTA with motivated camera movement and audio reinforcement + CONSTANT PRODUCT TALK
 
 🎭 VEO-3 OPTIMIZATION REQUIREMENTS:
 - Apply emotion & gesture chaining: "Character starts [emotion], then [emotion], finally [emotion]"
@@ -668,7 +673,7 @@ Segment 2 (8 seconds): CONNECTION + DIRECTION with Veo-3 cinematic mastery
 For each segment, provide these Veo-3 optimized elements:
 - "scene_description": Detailed Veo-3 visual using cinematic language (NO logos)
 - "prompt": Complete Veo-3 prompt with emotion chains, camera work, and [voiceover: ...] (NO logos)
-- "voiceover_script": 8-second dialogue using proper Veo-3 format with emotional delivery
+- "voiceover_script": 8-second RAPID-FIRE dialogue using proper Veo-3 format with emotional delivery
 - "mood": Emotional atmosphere with specific lighting/color references
 - "camera": Professional camera movement with narrative motivation
 - "veo3_optimization": Explanation of which Veo-3 techniques were applied
@@ -685,9 +690,24 @@ For each segment, provide these Veo-3 optimized elements:
 - BRAND EARLY & OFTEN: Introduce within 5 seconds, maintain presence with audio
 - HUMAN CONNECTION: Show real people experiencing product with physics accuracy
 - CLEAR DIRECTION: Final 3 seconds have unmistakable CTA with motivated camera work
-- CONTINUOUS DIALOGUE: Ensure non-stop talking, music, or sound effects - NO DEAD AIR
-- RAPID PACING: Pack maximum information and engagement into 16 seconds
-- AUDIO LAYERING: Combine dialogue with background music and ambient sounds
+- RAPID-FIRE DIALOGUE: Pack 4-6 lines of dialogue into each 8-second segment
+- CONSTANT PRODUCT MENTIONS: Company/product name mentioned 3-4 times per segment
+- ZERO DEAD AIR: Continuous talking, music, or sound effects - NO SILENCE EVER
+- OVERLAPPING AUDIO: Multiple voices, background music, and ambient sounds simultaneously
+
+*** CRITICAL DIALOGUE REQUIREMENTS - ELIMINATE ALL DEAD SPACE ***
+- PACK DIALOGUE: Each 8-second segment must have 4-6 rapid-fire lines
+- PRODUCT INTEGRATION: Company name mentioned multiple times per segment
+- NO PAUSES: Characters speak immediately after each other with no gaps
+- OVERLAPPING VOICES: Multiple people can talk simultaneously
+- BACKGROUND CHATTER: Add crowd voices, ambient conversations
+- MUSIC + VOICE: Background music plays while people talk
+- SOUND EFFECTS: Layer in relevant sounds while dialogue continues
+- RAPID DELIVERY: Characters speak quickly and enthusiastically
+- COMPANY OBSESSION: Every character is obsessed with mentioning the company
+
+EXAMPLE RAPID-FIRE VOICEOVER STRUCTURE:
+"Person says: 'I love [COMPANY]!' then immediately: 'It changed my life!' while background voice adds: '[COMPANY] is amazing!' then main person continues: 'Everyone needs [COMPANY]!' as music builds and crowd cheers: 'We love [COMPANY] too!'"
 
 Format your response as valid JSON:
 {{
@@ -862,6 +882,98 @@ def improve_script_with_gemini(company_info, user_answers, gpt_script, best_ads=
     import copy
     improved_script = copy.deepcopy(gpt_script)
     
+    # VEO-3 OPTIMIZATION FRAMEWORK - Define here for scope access
+    veo3_framework = """
+    *** ADVANCED VEO-3 OPTIMIZATION FRAMEWORK ***
+    CRITICAL: Apply these cutting-edge Veo-3 techniques for cinematic excellence:
+
+    🎬 VEO-3 CORE PRINCIPLES:
+    1. "PROMPT AS BLUEPRINT" - Your prompt is a detailed architectural plan for Veo-3
+    2. CINEMATIC LANGUAGE - Veo-3 understands professional film terminology
+    3. NATIVE AUDIO GENERATION - Dialogue, SFX, and music from single prompt
+    4. PHYSICS SIMULATION - Realistic motion and interactions
+    5. SEQUENCE UNDERSTANDING - "This then that" emotional/gesture chains
+    6. CREATIVE DIVERSITY - Avoid repetitive scenarios, be unpredictable and varied
+
+    🎭 EMOTION & GESTURE CHAINING (Veo-3 Specialty):
+    - Use "this then that" sequences for complex emotional arcs
+    - Chain emotions: "Starts calm, then bursts into laughter, suddenly stops with terror"
+    - Chain gestures: "Spreads arms wide, brings hands to chest, points outward"
+    - Combine gesture + emotion: "Turns head like hearing something, pauses, whips back fast, eyes dart"
+    - Define start/stop points: "Begins composed, flash of violence, returns to calm"
+
+    🎥 CINEMATIC CONTROL OPTIMIZATION:
+    - Camera Motion Keywords: static shot, dolly in/out, pan left/right, tracking shot, crane shot, zoom in/out
+    - Composition Control: close-up, medium shot, wide shot, over-the-shoulder, point-of-view (POV)
+    - Lens Effects: shallow depth of field, rack focus, soft focus, macro lens, wide-angle lens
+    - Motivated Movement: Camera moves serve narrative purpose, not arbitrary
+
+    🎙️ AUDIO MASTERY (Veo-3's Breakthrough Feature):
+    - Dialogue Format: "Character says: 'exact words'" (use colon, not quotes)
+    - Emotional Delivery: "He confessed with trembling voice" / "She announced triumphantly"
+    - Sound Effects: Be specific - "rhythmic clatter of train tracks" not "noise"
+    - Music Description: "melancholic piano melody" / "driving electronic bassline"
+    - Avoid Subtitles: Add "(no subtitles)" and use colon format
+    - Background Audio: Specify explicitly to avoid unwanted studio audience
+    - CONTINUOUS AUDIO: Ensure dialogue, music, or SFX fills every second - NO SILENCE
+    - OVERLAPPING AUDIO: Layer dialogue with background music and ambient sounds
+    - AUDIO TRANSITIONS: Smooth audio bridges between dialogue segments
+    - PACING CONTROL: Use "rapid-fire dialogue" or "conversational pace" specifications
+    - ELIMINATE DEAD AIR: Pack multiple lines of dialogue into each 8-second segment
+    - RAPID-FIRE DELIVERY: Characters speak quickly without pauses between sentences
+    - CONSTANT TALKING: Someone is always speaking - no awkward silence or blank space
+    - PRODUCT INTEGRATION: Weave company/product mentions into every line of dialogue
+
+    🎨 VISUAL ENHANCEMENT:
+    - Style References: film noir, anime, documentary, Wes Anderson style, claymation
+    - Lighting Control: chiaroscuro, golden hour, neon glow, candlelit
+    - Color Palette: desaturated cool blues, warm orange tones, monochromatic
+    - Physics Integration: Fabric movement, water flow, realistic interactions
+
+    📝 HIERARCHICAL PROMPT STRUCTURE:
+    1. Primary Elements: Main characters, core actions, setting
+    2. Secondary Elements: Environmental details, background elements  
+    3. Technical Specifications: Camera angles, lighting, audio
+    4. Temporal Indicators: Scene duration, emotional progression
+
+    ⚡ VEO-3 SPECIFIC OPTIMIZATIONS:
+    - Character Consistency: Use identical detailed descriptions across segments
+    - Sequence Planning: 8-second segments with emotional/narrative progression
+    - Negative Prompts: Describe desired state, avoid "no" or "don't" commands
+    - Iterative Refinement: Analyze output, refine specific elements progressively
+    - Motivated Direction: Every technical choice serves story/emotion
+
+    🔥 ADVANCED TECHNIQUES:
+    - Selfie-Style: "A selfie video of..." with visible arm for authenticity
+    - Dialogue Timing: Perfect for 8-second segments, avoid rushed/gibberish speech
+    - Character Emotion: Link physical movements to emotional states
+    - Scene Transitions: Plan continuity between segments for longer narratives
+    - Director Mindset: Think like filmmaker directing AI crew
+
+    🎙️ CONTINUOUS DIALOGUE EXAMPLES - NO DEAD SPACE:
+    - RAPID-FIRE: "Character says: 'This changed everything!' then immediately: 'I couldn't believe it!' followed by: 'Now I use it daily!' then: 'Everyone should try this!' ending with: 'It's absolutely incredible!'"
+    - OVERLAPPING: "Narrator says: 'Meet Sarah' while Sarah says: 'I love this product' while background voice adds: 'Amazing results' with upbeat music playing"
+    - CONVERSATIONAL: "Person A says: 'What's that?' Person B responds: 'It's amazing!' Person A: 'Tell me more!' Person B: 'It changed my life!' Person A: 'I need this now!'"
+    - LAYERED AUDIO: "Excited customer says: 'This is incredible!' over energetic background music while crowd cheers and someone else shouts: 'I agree completely!'"
+    - NO PAUSES: "Spokesperson says: 'Transform your life today' immediately followed by 'Don't wait another second' then 'Call now' then 'You won't regret it' with no silence between"
+    - PRODUCT INTEGRATION: "Every line mentions the company: 'With [COMPANY] I saved money' then 'On [COMPANY] everything is easy' then '[COMPANY] changed everything' then 'I love [COMPANY] so much'"
+
+    💫 CREATIVE VARIETY MANDATE:
+    - AVOID REPETITIVE SCENARIOS: Don't default to the same creatures, settings, or situations
+    - MIX GENRES: Combine different themes (sci-fi + comedy, horror + romance, etc.)
+    - UNEXPECTED COMBINATIONS: Pair mundane products with epic scenarios
+    - CULTURAL DIVERSITY: Use varied cultural references, not just Western tropes
+    - TEMPORAL VARIETY: Mix modern, historical, futuristic, and timeless elements
+    - SCALE VARIETY: From intimate personal moments to epic cosmic events
+
+    💫 PROMPT THEORY APPROACH:
+    - Macro Prompt: Establish atmosphere, lighting, cinematic style globally
+    - Character Specificity: Novel-level detail - "woman with tired green eyes, scar above eyebrow"
+    - Dialogue Integration: Intersperse speech with facial expressions and actions
+    - Cinematic Language: Use professional film terminology for camera guidance
+    - Emotional Journey: Clear understanding of character's emotional arc
+    """
+    
     # Build best ads inspiration string for Gemini improvements
     best_ads_str = ""
     if best_ads:
@@ -891,9 +1003,12 @@ def improve_script_with_gemini(company_info, user_answers, gpt_script, best_ads=
        - Music Integration: Add mood-specific music - "haunting violin melody" / "upbeat electronic beat"
        - Subtitle Prevention: Add "(no subtitles)" to every dialogue prompt
        - ELIMINATE DEAD AIR: Ensure continuous dialogue, music, or SFX throughout entire 8 seconds
-       - RAPID-FIRE DIALOGUE: Pack multiple lines of dialogue into each segment
+       - RAPID-FIRE DIALOGUE: Pack 4-6 lines of dialogue into each segment
        - AUDIO LAYERING: Combine talking with background music and ambient sounds
        - SMOOTH TRANSITIONS: Bridge audio between different speakers or sound elements
+       - PRODUCT OBSESSION: Company name mentioned 3-4 times per segment
+       - CONSTANT TALKING: Characters speak immediately after each other with no gaps
+       - OVERLAPPING VOICES: Multiple people can talk simultaneously for richness
 
     3. VEO-3 CINEMATIC ENHANCEMENT:
        - Camera Motivation: Every camera move serves the story - "dolly in as tension builds"
@@ -902,10 +1017,10 @@ def improve_script_with_gemini(company_info, user_answers, gpt_script, best_ads=
        - Lighting Specificity: "chiaroscuro lighting" / "golden hour warmth" / "neon glow"
 
     4. 16-SECOND ABCD OPTIMIZATION:
-       - A: Strengthen 3-second hook with Veo-3 emotion chaining
-       - B: Earlier brand integration using Veo-3 audio generation
-       - C: Deeper connection through Veo-3 dialogue + gesture linking
-       - D: Clearer direction with motivated camera movement
+       - A: Strengthen 3-second hook with Veo-3 emotion chaining + immediate rapid dialogue
+       - B: Earlier brand integration using Veo-3 audio generation + constant product mentions
+       - C: Deeper connection through Veo-3 dialogue + gesture linking + company obsession
+       - D: Clearer direction with motivated camera movement + non-stop product talk
 
     5. VEO-3 PHYSICS & AUTHENTICITY:
        - Add realistic interactions between characters and objects
@@ -930,6 +1045,14 @@ def improve_script_with_gemini(company_info, user_answers, gpt_script, best_ads=
        - Perfect dialogue timing for 8-second segments
        - Motivated directorial choices - every technical decision serves the story
        - Scene transition planning for multi-segment narratives
+
+    *** CRITICAL DIALOGUE IMPROVEMENTS ***
+    - ELIMINATE ALL DEAD SPACE: No awkward pauses, silence, or blank moments
+    - RAPID-FIRE DELIVERY: Characters speak quickly and enthusiastically
+    - PRODUCT INTEGRATION: Weave company mentions into every line naturally
+    - OVERLAPPING AUDIO: Multiple voices, background music, ambient sounds
+    - CONSTANT ENERGY: High-energy delivery throughout entire segment
+    - NO CREEPY SILENCE: Fill every second with engaging audio content
     """
     
     for seg in ['segment1', 'segment2']:
