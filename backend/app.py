@@ -1713,6 +1713,94 @@ def test_chatgpt():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/debug-embeddings')
+def debug_embeddings():
+    """Debug endpoint to check embedding file status"""
+    try:
+        import os
+        import json
+        
+        debug_info = {
+            'best_ads_exists': os.path.exists('best_ads.json'),
+            'embedded_exists': os.path.exists('best_ads_embedded.json'),
+            'embedding_status': 'unknown'
+        }
+        
+        # Check file sizes
+        if debug_info['best_ads_exists']:
+            debug_info['best_ads_size'] = os.path.getsize('best_ads.json')
+            try:
+                with open('best_ads.json', 'r') as f:
+                    best_ads = json.load(f)
+                debug_info['best_ads_count'] = len(best_ads)
+            except Exception as e:
+                debug_info['best_ads_error'] = str(e)
+        
+        if debug_info['embedded_exists']:
+            debug_info['embedded_size'] = os.path.getsize('best_ads_embedded.json')
+            try:
+                with open('best_ads_embedded.json', 'r') as f:
+                    embedded_ads = json.load(f)
+                debug_info['embedded_count'] = len(embedded_ads)
+                # Check if embeddings have the right structure
+                if embedded_ads and len(embedded_ads) > 0:
+                    first_ad = embedded_ads[0]
+                    debug_info['has_embeddings'] = 'embedding' in first_ad
+                    if 'embedding' in first_ad:
+                        debug_info['embedding_length'] = len(first_ad['embedding'])
+            except Exception as e:
+                debug_info['embedded_error'] = str(e)
+        
+        # Test the embedding function
+        try:
+            client = get_openai_client()
+            if client:
+                debug_info['openai_client_available'] = True
+                # Try to get embeddings for a test
+                test_embedding = client.embeddings.create(
+                    model="text-embedding-ada-002",
+                    input="test embedding"
+                ).data[0].embedding
+                debug_info['test_embedding_length'] = len(test_embedding)
+                debug_info['embedding_test_success'] = True
+            else:
+                debug_info['openai_client_available'] = False
+        except Exception as e:
+            debug_info['embedding_test_error'] = str(e)
+            debug_info['embedding_test_success'] = False
+        
+        # Check if we need to re-embed
+        if debug_info['best_ads_exists'] and debug_info['embedded_exists']:
+            best_ads_mtime = os.path.getmtime('best_ads.json')
+            embedded_mtime = os.path.getmtime('best_ads_embedded.json')
+            debug_info['best_ads_newer'] = best_ads_mtime > embedded_mtime
+            debug_info['embedding_status'] = 'up_to_date' if not debug_info['best_ads_newer'] else 'needs_update'
+        elif debug_info['best_ads_exists'] and not debug_info['embedded_exists']:
+            debug_info['embedding_status'] = 'needs_creation'
+        else:
+            debug_info['embedding_status'] = 'missing_source_file'
+        
+        return jsonify(debug_info)
+        
+    except Exception as e:
+        return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
+
+@app.route('/force-embed', methods=['POST'])
+def force_embed():
+    """Force re-embedding of best ads"""
+    try:
+        print("DEBUG: Force embedding requested")
+        ensure_best_ads_embedded()
+        return jsonify({
+            'status': 'success',
+            'message': 'Embedding process completed'
+        })
+    except Exception as e:
+        print(f"ERROR in force_embed: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
+
 if __name__ == '__main__':
     try:
         print("DEBUG: Starting main execution...")
