@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { generateAd, researchCompany, testAPI } from '../api';
+import RatingModal from './RatingModal';
 
 // API base URL - need to reuse this for downloads
 const getApiBaseUrl = () => {
@@ -108,6 +109,10 @@ function Chatbot() {
   const [researchDone, setResearchDone] = useState(false);
   const [productAsked, setProductAsked] = useState(false);
   const [productSelected, setProductSelected] = useState(false);
+
+  // Rating modal state
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [hasRated, setHasRated] = useState(false);
 
   const chatRef = useRef(null);
 
@@ -272,12 +277,34 @@ function Chatbot() {
         const data = await generateAd(finalAnswers || answers);
         setResult(data);
         setMessages(msgs => [...msgs, { sender: 'bot', text: 'Here is your generated ad!' }]);
+        
+        // Show rating modal after a short delay to let user see the result
+        setTimeout(() => {
+          if (!hasRated) {
+            setShowRatingModal(true);
+          }
+        }, 3000);
       } catch (err) {
         setMessages(msgs => [...msgs, { sender: 'bot', text: 'Sorry, something went wrong generating your ad.' }]);
       }
       setLoading(false);
       setLoadingMessage('');
     }
+  };
+
+  // Handle rating submission
+  const handleRatingSubmit = (ratingData) => {
+    console.log('Rating submitted:', ratingData);
+    setHasRated(true);
+    setMessages(msgs => [...msgs, { 
+      sender: 'bot', 
+      text: `Thank you for rating the ad ${ratingData.rating}/5 stars! Your feedback helps us improve our AI.` 
+    }]);
+  };
+
+  // Handle rating modal close
+  const handleRatingClose = () => {
+    setShowRatingModal(false);
   };
 
   return (
@@ -373,6 +400,26 @@ function Chatbot() {
                   >
                     📄 Download Report
                   </a>
+                  
+                  {!hasRated && (
+                    <button
+                      onClick={() => setShowRatingModal(true)}
+                      style={{ 
+                        color: '#fff', 
+                        backgroundColor: '#ffc107', 
+                        padding: '12px 24px', 
+                        border: 'none',
+                        borderRadius: '8px',
+                        display: 'inline-block',
+                        marginLeft: '1em',
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      ⭐ Rate This Ad
+                    </button>
+                  )}
                 </div>
                 
                 <p style={{ color: '#666', fontSize: '14px', marginTop: '1em' }}>
@@ -476,6 +523,18 @@ function Chatbot() {
         )}
         {loading && <div className="loading">{loadingMessage}</div>}
       </div>
+      
+      {/* Rating Modal */}
+      <RatingModal
+        isOpen={showRatingModal}
+        onClose={handleRatingClose}
+        onSubmit={handleRatingSubmit}
+        sessionId={result?.session_id}
+        adType={answers.ad_type}
+        industry={answers.industry}
+        companyUrl={answers.company_url}
+        adScript={result?.script}
+      />
     </div>
   );
 }

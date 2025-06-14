@@ -9,6 +9,7 @@ import uuid  # Add UUID for unique file naming
 import threading  # Add threading for thread-safe operations
 import time  # Add time for cleanup scheduling
 import queue  # Add queue for request management
+import sqlite3  # Add SQLite for rating storage
 from collections import defaultdict  # Add for rate limiting
 from flask import Flask, request, jsonify, send_from_directory
 from dotenv import load_dotenv
@@ -42,6 +43,187 @@ file_lock = threading.Lock()
 request_counts = defaultdict(list)  # Track requests per IP
 request_queue = queue.Queue(maxsize=50)  # Limit concurrent requests
 active_requests = threading.Semaphore(5)  # Max 5 concurrent video generations
+
+# Initialize SQLite database for ratings
+def init_rating_database():
+    """Initialize SQLite database for storing ad ratings and feedback"""
+    try:
+        conn = sqlite3.connect('ratings.db')
+        cursor = conn.cursor()
+        
+        # Create ratings table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS ad_ratings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT NOT NULL,
+                company_url TEXT NOT NULL,
+                ad_type TEXT NOT NULL,
+                industry TEXT NOT NULL,
+                rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+                feedback_text TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                user_ip TEXT,
+                ad_script_json TEXT,
+                improvement_suggestions TEXT
+            )
+        ''')
+        
+        # Create feedback analysis table for AI insights
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS feedback_analysis (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                analysis_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                ad_type TEXT NOT NULL,
+                industry TEXT NOT NULL,
+                avg_rating REAL NOT NULL,
+                total_ratings INTEGER NOT NULL,
+                common_complaints TEXT,
+                improvement_recommendations TEXT,
+                successful_patterns TEXT,
+                ai_analysis_json TEXT
+            )
+        ''')
+        
+        conn.commit()
+        conn.close()
+        print("DEBUG: Rating database initialized successfully")
+    except Exception as e:
+        print(f"ERROR initializing rating database: {e}")
+
+def analyze_feedback_with_ai(ratings_data):
+    """Use AI to analyze user feedback and generate improvement recommendations"""
+    try:
+        client = get_openai_client()
+        if not client:
+            return None
+            
+        # Prepare feedback data for analysis
+        feedback_summary = {
+            'total_ratings': len(ratings_data),
+            'avg_rating': sum(r['rating'] for r in ratings_data) / len(ratings_data),
+            'rating_distribution': {},
+            'feedback_by_rating': {1: [], 2: [], 3: [], 4: [], 5: []}
+        }
+        
+        # Organize feedback by rating
+        for rating in ratings_data:
+            rating_val = rating['rating']
+            feedback_summary['rating_distribution'][rating_val] = feedback_summary['rating_distribution'].get(rating_val, 0) + 1
+            if rating['feedback_text']:
+                feedback_summary['feedback_by_rating'][rating_val].append(rating['feedback_text'])
+        
+        # Create AI analysis prompt
+        prompt = f"""Analyze this user feedback data for AI-generated video ads and provide actionable insights:
+
+RATING SUMMARY:
+- Total Ratings: {feedback_summary['total_ratings']}
+- Average Rating: {feedback_summary['avg_rating']:.2f}/5
+- Rating Distribution: {feedback_summary['rating_distribution']}
+
+NEGATIVE FEEDBACK (1-2 stars):
+{chr(10).join(feedback_summary['feedback_by_rating'][1] + feedback_summary['feedback_by_rating'][2])}
+
+NEUTRAL FEEDBACK (3 stars):
+{chr(10).join(feedback_summary['feedback_by_rating'][3])}
+
+POSITIVE FEEDBACK (4-5 stars):
+{chr(10).join(feedback_summary['feedback_by_rating'][4] + feedback_summary['feedback_by_rating'][5])}
+
+Please provide analysis in JSON format:
+{{
+    "overall_sentiment": "positive/neutral/negative",
+    "main_complaints": ["complaint1", "complaint2", "complaint3"],
+    "successful_elements": ["element1", "element2", "element3"],
+    "improvement_recommendations": [
+        {{"issue": "specific problem", "solution": "specific fix", "priority": "high/medium/low"}},
+        {{"issue": "another problem", "solution": "another fix", "priority": "high/medium/low"}}
+    ],
+    "ad_type_insights": {{"insight": "what works well for this ad type"}},
+    "industry_insights": {{"insight": "what works well for this industry"}},
+    "prompt_improvements": ["specific prompt modification 1", "specific prompt modification 2"],
+    "content_patterns": {{"avoid": ["pattern1", "pattern2"], "emphasize": ["pattern3", "pattern4"]}}
+}}"""
+
+        response = client.chat.completions.create(
+            model="gpt-4.1",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=2000
+        )
+        
+        content = response.choices[0].message.content.strip()
+        
+        # Parse JSON response
+        import re
+        match = re.search(r'\{.*\}', content, re.DOTALL)
+        if match:
+            return json.loads(match.group(0))
+        else:
+            return json.loads(content)
+            
+    except Exception as e:
+        print(f"ERROR in AI feedback analysis: {e}")
+        return None
+
+def get_improvement_insights(ad_type, industry):
+    """Get AI-generated improvement insights for specific ad type and industry"""
+    try:
+        conn = sqlite3.connect('ratings.db')
+        cursor = conn.cursor()
+        
+        # Get recent ratings for this ad type and industry
+        cursor.execute('''
+            SELECT rating, feedback_text, ad_script_json, created_at
+            FROM ad_ratings 
+            WHERE ad_type = ? AND industry = ? 
+            AND created_at > datetime('now', '-30 days')
+            ORDER BY created_at DESC
+            LIMIT 50
+        ''', (ad_type, industry))
+        
+        ratings_data = []
+        for row in cursor.fetchall():
+            ratings_data.append({
+                'rating': row[0],
+                'feedback_text': row[1],
+                'ad_script_json': row[2],
+                'created_at': row[3]
+            })
+        
+        conn.close()
+        
+        if len(ratings_data) < 3:  # Need minimum data for analysis
+            return None
+            
+        # Analyze with AI
+        analysis = analyze_feedback_with_ai(ratings_data)
+        
+        if analysis:
+            # Store analysis in database
+            conn = sqlite3.connect('ratings.db')
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO feedback_analysis 
+                (ad_type, industry, avg_rating, total_ratings, common_complaints, 
+                 improvement_recommendations, successful_patterns, ai_analysis_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                ad_type, industry,
+                sum(r['rating'] for r in ratings_data) / len(ratings_data),
+                len(ratings_data),
+                json.dumps(analysis.get('main_complaints', [])),
+                json.dumps(analysis.get('improvement_recommendations', [])),
+                json.dumps(analysis.get('successful_elements', [])),
+                json.dumps(analysis)
+            ))
+            conn.commit()
+            conn.close()
+        
+        return analysis
+        
+    except Exception as e:
+        print(f"ERROR getting improvement insights: {e}")
+        return None
 
 def check_rate_limit(client_ip, max_requests=10, time_window=3600):
     """Check if client has exceeded rate limit (10 requests per hour)."""
@@ -393,10 +575,67 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
     """
     Generate a cinematic, story-driven, and entertaining ad script with two 8-second segments, plus a creative slogan and a call-to-action line.
     Updated for 2025 best practices: authenticity, 3-second hooks, humor comeback, educational content.
+    Now includes AI-powered feedback insights for continuous improvement.
     """
     client = get_openai_client()
     if client is None:
         raise Exception("OpenAI client not available. Please check API key configuration.")
+    
+    # Get AI-powered improvement insights based on user feedback
+    ad_type = user_answers.get('ad_type', '').lower()
+    industry = user_answers.get('industry', '')
+    
+    # Normalize ad_type to handle frontend formatting
+    ad_type_mapping = {
+        '✨ educational-first (2025 trend)': 'educational-first',
+        '✨ founder-story (2025 trend)': 'founder-story', 
+        '✨ nostalgia-driven (2025 trend)': 'nostalgia-driven',
+        '✨ brain-rot/escapism (2025 trend)': 'brain-rot/escapism',
+        '✨ micro-moment (2025 trend)': 'micro-moment',
+        '✨ platform-native (2025 trend)': 'platform-native'
+    }
+    
+    # Check if the ad_type needs to be normalized
+    for key, value in ad_type_mapping.items():
+        if key in ad_type:
+            ad_type = value
+            break
+    
+    # Get improvement insights from user feedback
+    improvement_insights = get_improvement_insights(ad_type, industry)
+    feedback_improvements = ""
+    
+    if improvement_insights:
+        print(f"DEBUG: Using feedback insights for {ad_type}/{industry}")
+        feedback_improvements = f"""
+*** AI-POWERED FEEDBACK INSIGHTS - APPLY THESE LEARNINGS ***
+Based on user ratings and feedback for {ad_type} ads in {industry} industry:
+
+OVERALL SENTIMENT: {improvement_insights.get('overall_sentiment', 'neutral')}
+
+AVOID THESE PATTERNS (User Complaints):
+{chr(10).join([f"- {complaint}" for complaint in improvement_insights.get('main_complaints', [])])}
+
+EMPHASIZE THESE ELEMENTS (What Users Love):
+{chr(10).join([f"- {element}" for element in improvement_insights.get('successful_elements', [])])}
+
+HIGH-PRIORITY IMPROVEMENTS:
+{chr(10).join([f"- {rec['issue']}: {rec['solution']}" for rec in improvement_insights.get('improvement_recommendations', []) if rec.get('priority') == 'high'])}
+
+CONTENT PATTERNS TO FOLLOW:
+- AVOID: {', '.join(improvement_insights.get('content_patterns', {}).get('avoid', []))}
+- EMPHASIZE: {', '.join(improvement_insights.get('content_patterns', {}).get('emphasize', []))}
+
+PROMPT IMPROVEMENTS FROM USER FEEDBACK:
+{chr(10).join([f"- {improvement}" for improvement in improvement_insights.get('prompt_improvements', [])])}
+
+AD TYPE INSIGHTS: {improvement_insights.get('ad_type_insights', {}).get('insight', 'No specific insights available')}
+INDUSTRY INSIGHTS: {improvement_insights.get('industry_insights', {}).get('insight', 'No specific insights available')}
+
+*** CRITICAL: Apply these user-validated improvements to create better ads ***
+"""
+    else:
+        print(f"DEBUG: No feedback insights available for {ad_type}/{industry}")
         
     creative_notes = []
     if user_answers.get('product'):
@@ -418,7 +657,6 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
     if user_answers.get('features'):
         creative_notes.append(f"Features/benefits to highlight: {user_answers['features']}")
     # Add industry and target audience
-    industry = user_answers.get('industry', '')
     if industry:
         creative_notes.append(f"Industry: {industry}")
     target_audience = get_target_audience_for_industry(industry)
@@ -796,6 +1034,8 @@ CRITICAL: Use these SPECIFIC features and benefits in the dialogue. Don't just s
 
     prompt = f"""{ad_type_instructions}
 
+{feedback_improvements}
+
 {practices_2025}
 
 {best_ads_str}
@@ -901,7 +1141,8 @@ Format your response as valid JSON:
     "call_to_action": "...",
     "ad_strategy_2025": "Brief explanation of 2025 best practices applied",
     "veo3_framework_application": "Detailed explanation of Veo-3 optimization techniques used",
-    "sixteen_second_optimization": "How this ad maximizes impact in the 16-second format"
+    "sixteen_second_optimization": "How this ad maximizes impact in the 16-second format",
+    "feedback_integration": "How user feedback insights were applied to improve this ad"
 }}
 
 Do not include any text before or after the JSON. Only return the JSON object."""
@@ -1801,9 +2042,164 @@ def force_embed():
         traceback.print_exc()
         return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
 
+@app.route('/submit-rating', methods=['POST'])
+def submit_rating():
+    """Submit user rating and feedback for an ad"""
+    try:
+        data = request.json
+        session_id = data.get('session_id')
+        rating = data.get('rating')  # 1-5 stars
+        feedback_text = data.get('feedback_text', '')
+        ad_type = data.get('ad_type')
+        industry = data.get('industry')
+        company_url = data.get('company_url')
+        ad_script = data.get('ad_script', {})
+        
+        # Validate required fields
+        if not all([session_id, rating, ad_type, industry, company_url]):
+            return jsonify({'error': 'Missing required fields'}), 400
+            
+        if not (1 <= rating <= 5):
+            return jsonify({'error': 'Rating must be between 1 and 5'}), 400
+        
+        # Get user IP
+        user_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
+        
+        # Store rating in database
+        conn = sqlite3.connect('ratings.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO ad_ratings 
+            (session_id, company_url, ad_type, industry, rating, feedback_text, user_ip, ad_script_json)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (session_id, company_url, ad_type, industry, rating, feedback_text, user_ip, json.dumps(ad_script)))
+        
+        conn.commit()
+        conn.close()
+        
+        # If rating is low (1-2), trigger immediate analysis for this ad type/industry
+        if rating <= 2 and feedback_text:
+            try:
+                analysis = get_improvement_insights(ad_type, industry)
+                if analysis:
+                    print(f"DEBUG: Generated improvement insights for {ad_type}/{industry} due to low rating")
+            except Exception as e:
+                print(f"WARNING: Could not generate immediate insights: {e}")
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'Rating submitted successfully',
+            'rating_id': cursor.lastrowid
+        })
+        
+    except Exception as e:
+        print(f"ERROR in submit_rating: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/get-ratings-stats')
+def get_ratings_stats():
+    """Get overall rating statistics"""
+    try:
+        conn = sqlite3.connect('ratings.db')
+        cursor = conn.cursor()
+        
+        # Overall stats
+        cursor.execute('''
+            SELECT 
+                COUNT(*) as total_ratings,
+                AVG(rating) as avg_rating,
+                COUNT(CASE WHEN rating = 5 THEN 1 END) as five_star,
+                COUNT(CASE WHEN rating = 4 THEN 1 END) as four_star,
+                COUNT(CASE WHEN rating = 3 THEN 1 END) as three_star,
+                COUNT(CASE WHEN rating = 2 THEN 1 END) as two_star,
+                COUNT(CASE WHEN rating = 1 THEN 1 END) as one_star
+            FROM ad_ratings
+        ''')
+        
+        overall_stats = cursor.fetchone()
+        
+        # Stats by ad type
+        cursor.execute('''
+            SELECT ad_type, COUNT(*) as count, AVG(rating) as avg_rating
+            FROM ad_ratings
+            GROUP BY ad_type
+            ORDER BY avg_rating DESC
+        ''')
+        
+        ad_type_stats = cursor.fetchall()
+        
+        # Stats by industry
+        cursor.execute('''
+            SELECT industry, COUNT(*) as count, AVG(rating) as avg_rating
+            FROM ad_ratings
+            GROUP BY industry
+            ORDER BY avg_rating DESC
+        ''')
+        
+        industry_stats = cursor.fetchall()
+        
+        # Recent feedback
+        cursor.execute('''
+            SELECT rating, feedback_text, ad_type, industry, created_at
+            FROM ad_ratings
+            WHERE feedback_text IS NOT NULL AND feedback_text != ''
+            ORDER BY created_at DESC
+            LIMIT 10
+        ''')
+        
+        recent_feedback = cursor.fetchall()
+        
+        conn.close()
+        
+        return jsonify({
+            'overall': {
+                'total_ratings': overall_stats[0],
+                'avg_rating': round(overall_stats[1], 2) if overall_stats[1] else 0,
+                'distribution': {
+                    '5_star': overall_stats[2],
+                    '4_star': overall_stats[3],
+                    '3_star': overall_stats[4],
+                    '2_star': overall_stats[5],
+                    '1_star': overall_stats[6]
+                }
+            },
+            'by_ad_type': [{'ad_type': row[0], 'count': row[1], 'avg_rating': round(row[2], 2)} for row in ad_type_stats],
+            'by_industry': [{'industry': row[0], 'count': row[1], 'avg_rating': round(row[2], 2)} for row in industry_stats],
+            'recent_feedback': [{'rating': row[0], 'feedback': row[1], 'ad_type': row[2], 'industry': row[3], 'date': row[4]} for row in recent_feedback]
+        })
+        
+    except Exception as e:
+        print(f"ERROR in get_ratings_stats: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/get-improvement-insights/<ad_type>/<industry>')
+def get_insights_endpoint(ad_type, industry):
+    """Get AI-generated improvement insights for specific ad type and industry"""
+    try:
+        insights = get_improvement_insights(ad_type, industry)
+        if insights:
+            return jsonify({
+                'status': 'success',
+                'insights': insights
+            })
+        else:
+            return jsonify({
+                'status': 'no_data',
+                'message': 'Not enough rating data for analysis'
+            })
+    except Exception as e:
+        print(f"ERROR in get_insights_endpoint: {e}")
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     try:
         print("DEBUG: Starting main execution...")
+        
+        print("DEBUG: Initializing rating database...")
+        init_rating_database()
+        
         print("DEBUG: About to call ensure_best_ads_embedded()")
         ensure_best_ads_embedded()
         print("DEBUG: ensure_best_ads_embedded() completed")
