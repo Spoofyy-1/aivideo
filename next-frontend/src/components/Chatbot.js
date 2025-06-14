@@ -376,13 +376,34 @@ function Chatbot() {
         {!result && !loading && (
           <form className="input-row" onSubmit={handleSend}>
             {!answers.company_url ? (
-              <input
-                type="text"
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                placeholder="Enter your company website URL..."
-                autoFocus
-              />
+              <div>
+                <div style={{ 
+                  background: '#e3f2fd', 
+                  border: '1px solid #2196f3', 
+                  borderRadius: '8px', 
+                  padding: '12px', 
+                  marginBottom: '12px',
+                  fontSize: '14px',
+                  color: '#1976d2'
+                }}>
+                  💡 <strong>Tip:</strong> Just enter the website domain (e.g., "apple.com" or "nike.com"). 
+                  No need to include "https://" - we'll handle that automatically!
+                </div>
+                <input
+                  type="text"
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  placeholder="Enter company website (e.g., apple.com, nike.com, tesla.com)"
+                  autoFocus
+                />
+                <div style={{ 
+                  fontSize: '12px', 
+                  color: '#666', 
+                  marginTop: '8px' 
+                }}>
+                  ✅ Supported formats: apple.com, www.apple.com, https://apple.com
+                </div>
+              </div>
             ) : !answers.industry ? (
               <select
                 value={input}

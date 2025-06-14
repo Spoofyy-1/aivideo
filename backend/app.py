@@ -121,15 +121,36 @@ def normalize_na(val):
         return None
     return val.strip().lower() in ['n/a', 'na', 'none', 'no', '']
 
+def normalize_url(url):
+    """Normalize URL to ensure it has proper protocol and format."""
+    if not url:
+        return url
+    
+    # Remove whitespace
+    url = url.strip()
+    
+    # If no protocol specified, add https://
+    if not url.startswith(('http://', 'https://')):
+        url = 'https://' + url
+    
+    # Remove trailing slash for consistency
+    url = url.rstrip('/')
+    
+    return url
+
 def research_company(url):
     """Research company using ChatGPT and web scraping."""
     try:
+        # Normalize the URL first
+        normalized_url = normalize_url(url)
+        print(f"DEBUG: Normalized URL from '{url}' to '{normalized_url}'")
+        
         client = get_openai_client()
         if client is None:
             return "Error: OpenAI client not available. Please check API key configuration."
             
         # Scrape website content
-        response = requests.get(url)
+        response = requests.get(normalized_url)
         soup = BeautifulSoup(response.text, 'html.parser')
         text_content = soup.get_text()[:4000]  # Limit content length
         
