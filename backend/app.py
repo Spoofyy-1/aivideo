@@ -259,6 +259,44 @@ def extract_avoid_topics(research_text):
                 pass
         return []
 
+def extract_key_features_and_benefits(research_text):
+    """Extract specific features, benefits, and what the product actually does from company research."""
+    client = get_openai_client()
+    if client is None:
+        return {"features": [], "benefits": [], "what_it_does": ""}
+        
+    prompt = f"""Based on this company research, extract specific information about their product/service. Return as JSON:
+
+{research_text}
+
+Format:
+{{
+    "features": ["specific feature 1", "specific feature 2", "specific feature 3"],
+    "benefits": ["concrete benefit 1", "concrete benefit 2", "concrete benefit 3"],
+    "what_it_does": "Clear 1-2 sentence explanation of what the product/service actually does",
+    "unique_selling_points": ["unique advantage 1", "unique advantage 2"],
+    "target_pain_points": ["problem it solves 1", "problem it solves 2"]
+}}
+
+Be specific and actionable. Don't use generic terms like "innovative" or "cutting-edge". Focus on concrete, tangible features and benefits that would matter to customers."""
+    
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}]
+    )
+    content = response.choices[0].message.content.strip()
+    try:
+        return json.loads(content)
+    except Exception:
+        import re
+        match = re.search(r'\{.*\}', content, re.DOTALL)
+        if match:
+            try:
+                return json.loads(match.group(0))
+            except Exception:
+                pass
+        return {"features": [], "benefits": [], "what_it_does": "", "unique_selling_points": [], "target_pain_points": []}
+
 def get_top_best_ads(user_text, top_k=3):
     """Embed user/company info and retrieve top K most similar best ads."""
     client = get_openai_client()
@@ -369,40 +407,40 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
     ad_type_instructions = ""
     if ad_type == "unhinged":
         ad_type_instructions = (
-            "ENERGETIC VIRAL ADVERTISING: Create a high-energy, attention-grabbing commercial that captures viewer interest immediately. "
-            "Philosophy: 'Creative, memorable characters showcasing your brand in unexpected ways' - this approach builds brand recall through distinctive content. "
-            "CRITICAL: CONTINUOUS PRODUCT INTEGRATION - Like successful viral campaigns, weave the product benefit into every dynamic scene. "
+            "ENERGETIC PRODUCT-FOCUSED VIRAL ADVERTISING: Create a high-energy, attention-grabbing commercial that showcases SPECIFIC product features and benefits. "
+            "Philosophy: 'Enthusiastic characters demonstrating real product value in creative ways' - this approach builds brand recall through distinctive content while actually educating viewers. "
+            "CRITICAL: FEATURE-FOCUSED PRODUCT INTEGRATION - Every scene must highlight a SPECIFIC feature, benefit, or capability of the product. "
             "CORE ELEMENTS: "
-            "1) HIGH ENERGY: Enthusiastic characters in unexpected situations "
-            "2) RAPID-FIRE CREATIVITY: Quick cuts between engaging scenarios, each more interesting than the last "
-            "3) 'LIFE IS EXCITING' THEME: Everything is vibrant and full of possibility "
-            "4) REAL-WORLD CREATIVITY: People doing normal things in wonderfully creative ways "
-            "5) PRODUCT EVERYWHERE: Every character mentions/uses/celebrates the product while engaging in fun activities "
-            "SPECIFIC VIRAL-INSPIRED SCENARIOS (mix and match): "
-            "- Elderly person enthusiastically declaring '[PRODUCT] CHANGED MY LIFE!' "
-            "- Someone in a creative setup exclaiming 'I use [PRODUCT] for everything!' "
-            "- Character with unique style shouting '[PRODUCT] works everywhere!' "
-            "- Person with interesting vehicle enthusiastically saying 'With [PRODUCT] I can afford amazing things!' "
-            "- Charismatic grandparent: 'Everyone loves my [PRODUCT] success!' "
-            "- Creative entrepreneur with cool setup: 'I got all this using [PRODUCT]!' "
-            "- Enthusiastic forecaster: '[PRODUCT] helps me predict everything!' "
-            "- Pet lover carrying animals: 'My pets and I love [PRODUCT]!' "
-            "- Someone in creative environment: 'Everywhere I go, I need [PRODUCT]!' "
-            "- Characters in every scene: 'With [PRODUCT] you can do ANYTHING!' "
-            "ADDITIONAL CREATIVE CATEGORIES (all with product integration): "
-            "- Competitive activities: 'I bet my success on [PRODUCT]!' "
-            "- Weather enthusiasm: 'Storm coming? Good thing I have [PRODUCT]!' "
-            "- Economic creativity: 'Prices changing? [PRODUCT] saves me money!' "
-            "- Character performers: 'Even performers use [PRODUCT]!' "
-            "- Adventure sports: 'Adventure with [PRODUCT] is AMAZING!' "
-            "- Discovery themes: '[PRODUCT] revealed the solution!' "
-            "- Time themes: '[PRODUCT] works every time!' "
-            "- Entertainment: 'I'm only here for [PRODUCT]!' "
-            "TONE: Embrace the creative and memorable. Make it feel like an exciting adventure where EVERYONE loves the product. "
-            "Use phrases like 'LIFE IS AMAZING WITH [PRODUCT]!' and constant product enthusiasm. "
-            "Every character should be at high energy level AND completely enthusiastic about the product. "
-            "VISUAL STYLE: Think vibrant viral content meets creative storytelling meets memorable moments, but with product placement in EVERY shot. "
-            "Make it so engaging that people can't look away, with consistent product enthusiasm throughout every creative moment."
+            "1) HIGH-ENERGY DEMOS: Characters enthusiastically demonstrating specific product features "
+            "2) RAPID-FIRE BENEFITS: Quick cuts between different product capabilities and real-world applications "
+            "3) 'THIS PRODUCT IS AMAZING BECAUSE...' THEME: Always explain WHY the product is great with concrete examples "
+            "4) REAL-WORLD PROBLEM-SOLVING: Show specific problems being solved by specific product features "
+            "5) FEATURE EVERYWHERE: Every character mentions/demonstrates/explains a specific product feature or benefit "
+            "SPECIFIC PRODUCT-FOCUSED SCENARIOS (mix and match): "
+            "- Character excitedly demonstrating: '[PRODUCT] does [SPECIFIC FEATURE] which means [SPECIFIC BENEFIT]!' "
+            "- Someone showing off: 'Look how [PRODUCT] solves [SPECIFIC PROBLEM] with [SPECIFIC FEATURE]!' "
+            "- Enthusiastic user explaining: '[PRODUCT] has [FEATURE] that lets me [SPECIFIC ACTION/RESULT]!' "
+            "- Person demonstrating: 'Before [PRODUCT], I couldn't [PROBLEM]. Now with [FEATURE], I can [SOLUTION]!' "
+            "- Expert showcasing: '[PRODUCT]'s [FEATURE] is perfect for [SPECIFIC USE CASE]!' "
+            "- Happy customer: 'The [SPECIFIC FEATURE] in [PRODUCT] saves me [TIME/MONEY/EFFORT]!' "
+            "- Excited reviewer: '[PRODUCT] is the only one that has [UNIQUE FEATURE] which [SPECIFIC BENEFIT]!' "
+            "- Demonstrator: 'Watch what happens when I use [PRODUCT]'s [FEATURE] on [SPECIFIC SCENARIO]!' "
+            "- User testimonial: 'I tried everything, but only [PRODUCT]'s [FEATURE] actually [SPECIFIC RESULT]!' "
+            "- Feature showcase: 'This [FEATURE] in [PRODUCT] is a game-changer for [SPECIFIC AUDIENCE/USE CASE]!' "
+            "PRODUCT DEMONSTRATION CATEGORIES (all with specific features): "
+            "- Speed/Efficiency: 'With [PRODUCT]'s [SPEED FEATURE], I finish [TASK] in [TIME]!' "
+            "- Cost Savings: '[PRODUCT]'s [MONEY-SAVING FEATURE] cut my [EXPENSE] by [AMOUNT]!' "
+            "- Ease of Use: 'Even I can [COMPLEX TASK] thanks to [PRODUCT]'s [SIMPLICITY FEATURE]!' "
+            "- Quality Results: '[PRODUCT]'s [QUALITY FEATURE] gives me [SUPERIOR OUTCOME]!' "
+            "- Unique Capabilities: 'Only [PRODUCT] can [UNIQUE CAPABILITY] because of [SPECIAL FEATURE]!' "
+            "- Problem Solving: '[PRODUCT]'s [FEATURE] finally solved my [SPECIFIC PAIN POINT]!' "
+            "- Time Management: '[PRODUCT]'s [AUTOMATION FEATURE] handles [TASK] while I [OTHER ACTIVITY]!' "
+            "- Customization: '[PRODUCT] lets me [CUSTOMIZE] with [PERSONALIZATION FEATURE]!' "
+            "TONE: High-energy product evangelism with concrete proof points. Make viewers think 'I need to try this specific feature!' "
+            "Use phrases like '[PRODUCT]'s [FEATURE] is incredible because [SPECIFIC REASON]!' and feature-focused enthusiasm. "
+            "Every character should be genuinely excited about SPECIFIC product capabilities, not just generic brand love. "
+            "VISUAL STYLE: Dynamic product demonstrations meets viral energy meets educational content. "
+            "Show the product in action, highlight specific features visually, and make the benefits crystal clear through enthusiastic explanation."
         )
     elif ad_type == "informative":
         ad_type_instructions = (
@@ -511,6 +549,29 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
 
     avoid_topics = extract_avoid_topics(company_info)
     avoid_str = ", ".join(avoid_topics) if avoid_topics else "None"
+
+    # Extract specific product features and benefits from research
+    product_features = extract_key_features_and_benefits(company_info)
+    
+    # Build comprehensive product information string
+    product_info_str = f"""
+SPECIFIC PRODUCT INFORMATION (USE THIS IN THE AD):
+What it does: {product_features.get('what_it_does', 'Product information not available')}
+
+Key Features:
+{chr(10).join([f"- {feature}" for feature in product_features.get('features', ['Features not specified'])])}
+
+Benefits:
+{chr(10).join([f"- {benefit}" for benefit in product_features.get('benefits', ['Benefits not specified'])])}
+
+Unique Selling Points:
+{chr(10).join([f"- {usp}" for usp in product_features.get('unique_selling_points', ['USPs not specified'])])}
+
+Problems it Solves:
+{chr(10).join([f"- {pain_point}" for pain_point in product_features.get('target_pain_points', ['Pain points not specified'])])}
+
+CRITICAL: Use these SPECIFIC features and benefits in the dialogue. Don't just say "I love [PRODUCT]" - explain WHY with concrete features like "[PRODUCT]'s [SPECIFIC FEATURE] helps me [SPECIFIC BENEFIT]!"
+"""
 
     # Add best ads inspiration with enhanced scene descriptions
     best_ads_str = ""
@@ -673,6 +734,8 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
 
 Based on this company information (from their website):
 {company_info}
+
+{product_info_str}
 
 And the following creative direction from the user:
 {creative_notes_str}
@@ -1356,40 +1419,40 @@ def generate_ad():
             ad_type_instructions = ""
             if ad_type == "unhinged":
                 ad_type_instructions = (
-                    "ENERGETIC VIRAL ADVERTISING: Create a high-energy, attention-grabbing commercial that captures viewer interest immediately. "
-                    "Philosophy: 'Creative, memorable characters showcasing your brand in unexpected ways' - this approach builds brand recall through distinctive content. "
-                    "CRITICAL: CONTINUOUS PRODUCT INTEGRATION - Like successful viral campaigns, weave the product benefit into every dynamic scene. "
+                    "ENERGETIC PRODUCT-FOCUSED VIRAL ADVERTISING: Create a high-energy, attention-grabbing commercial that showcases SPECIFIC product features and benefits. "
+                    "Philosophy: 'Enthusiastic characters demonstrating real product value in creative ways' - this approach builds brand recall through distinctive content while actually educating viewers. "
+                    "CRITICAL: FEATURE-FOCUSED PRODUCT INTEGRATION - Every scene must highlight a SPECIFIC feature, benefit, or capability of the product. "
                     "CORE ELEMENTS: "
-                    "1) HIGH ENERGY: Enthusiastic characters in unexpected situations "
-                    "2) RAPID-FIRE CREATIVITY: Quick cuts between engaging scenarios, each more interesting than the last "
-                    "3) 'LIFE IS EXCITING' THEME: Everything is vibrant and full of possibility "
-                    "4) REAL-WORLD CREATIVITY: People doing normal things in wonderfully creative ways "
-                    "5) PRODUCT EVERYWHERE: Every character mentions/uses/celebrates the product while engaging in fun activities "
-                    "SPECIFIC VIRAL-INSPIRED SCENARIOS (mix and match): "
-                    "- Elderly person enthusiastically declaring '[PRODUCT] CHANGED MY LIFE!' "
-                    "- Someone in a creative setup exclaiming 'I use [PRODUCT] for everything!' "
-                    "- Character with unique style shouting '[PRODUCT] works everywhere!' "
-                    "- Person with interesting vehicle enthusiastically saying 'With [PRODUCT] I can afford amazing things!' "
-                    "- Charismatic grandparent: 'Everyone loves my [PRODUCT] success!' "
-                    "- Creative entrepreneur with cool setup: 'I got all this using [PRODUCT]!' "
-                    "- Enthusiastic forecaster: '[PRODUCT] helps me predict everything!' "
-                    "- Pet lover carrying animals: 'My pets and I love [PRODUCT]!' "
-                    "- Someone in creative environment: 'Everywhere I go, I need [PRODUCT]!' "
-                    "- Characters in every scene: 'With [PRODUCT] you can do ANYTHING!' "
-                    "ADDITIONAL CREATIVE CATEGORIES (all with product integration): "
-                    "- Competitive activities: 'I bet my success on [PRODUCT]!' "
-                    "- Weather enthusiasm: 'Storm coming? Good thing I have [PRODUCT]!' "
-                    "- Economic creativity: 'Prices changing? [PRODUCT] saves me money!' "
-                    "- Character performers: 'Even performers use [PRODUCT]!' "
-                    "- Adventure sports: 'Adventure with [PRODUCT] is AMAZING!' "
-                    "- Discovery themes: '[PRODUCT] revealed the solution!' "
-                    "- Time themes: '[PRODUCT] works every time!' "
-                    "- Entertainment: 'I'm only here for [PRODUCT]!' "
-                    "TONE: Embrace the creative and memorable. Make it feel like an exciting adventure where EVERYONE loves the product. "
-                    "Use phrases like 'LIFE IS AMAZING WITH [PRODUCT]!' and constant product enthusiasm. "
-                    "Every character should be at high energy level AND completely enthusiastic about the product. "
-                    "VISUAL STYLE: Think vibrant viral content meets creative storytelling meets memorable moments, but with product placement in EVERY shot. "
-                    "Make it so engaging that people can't look away, with consistent product enthusiasm throughout every creative moment."
+                    "1) HIGH-ENERGY DEMOS: Characters enthusiastically demonstrating specific product features "
+                    "2) RAPID-FIRE BENEFITS: Quick cuts between different product capabilities and real-world applications "
+                    "3) 'THIS PRODUCT IS AMAZING BECAUSE...' THEME: Always explain WHY the product is great with concrete examples "
+                    "4) REAL-WORLD PROBLEM-SOLVING: Show specific problems being solved by specific product features "
+                    "5) FEATURE EVERYWHERE: Every character mentions/demonstrates/explains a specific product feature or benefit "
+                    "SPECIFIC PRODUCT-FOCUSED SCENARIOS (mix and match): "
+                    "- Character excitedly demonstrating: '[PRODUCT] does [SPECIFIC FEATURE] which means [SPECIFIC BENEFIT]!' "
+                    "- Someone showing off: 'Look how [PRODUCT] solves [SPECIFIC PROBLEM] with [SPECIFIC FEATURE]!' "
+                    "- Enthusiastic user explaining: '[PRODUCT] has [FEATURE] that lets me [SPECIFIC ACTION/RESULT]!' "
+                    "- Person demonstrating: 'Before [PRODUCT], I couldn't [PROBLEM]. Now with [FEATURE], I can [SOLUTION]!' "
+                    "- Expert showcasing: '[PRODUCT]'s [FEATURE] is perfect for [SPECIFIC USE CASE]!' "
+                    "- Happy customer: 'The [SPECIFIC FEATURE] in [PRODUCT] saves me [TIME/MONEY/EFFORT]!' "
+                    "- Excited reviewer: '[PRODUCT] is the only one that has [UNIQUE FEATURE] which [SPECIFIC BENEFIT]!' "
+                    "- Demonstrator: 'Watch what happens when I use [PRODUCT]'s [FEATURE] on [SPECIFIC SCENARIO]!' "
+                    "- User testimonial: 'I tried everything, but only [PRODUCT]'s [FEATURE] actually [SPECIFIC RESULT]!' "
+                    "- Feature showcase: 'This [FEATURE] in [PRODUCT] is a game-changer for [SPECIFIC AUDIENCE/USE CASE]!' "
+                    "PRODUCT DEMONSTRATION CATEGORIES (all with specific features): "
+                    "- Speed/Efficiency: 'With [PRODUCT]'s [SPEED FEATURE], I finish [TASK] in [TIME]!' "
+                    "- Cost Savings: '[PRODUCT]'s [MONEY-SAVING FEATURE] cut my [EXPENSE] by [AMOUNT]!' "
+                    "- Ease of Use: 'Even I can [COMPLEX TASK] thanks to [PRODUCT]'s [SIMPLICITY FEATURE]!' "
+                    "- Quality Results: '[PRODUCT]'s [QUALITY FEATURE] gives me [SUPERIOR OUTCOME]!' "
+                    "- Unique Capabilities: 'Only [PRODUCT] can [UNIQUE CAPABILITY] because of [SPECIAL FEATURE]!' "
+                    "- Problem Solving: '[PRODUCT]'s [FEATURE] finally solved my [SPECIFIC PAIN POINT]!' "
+                    "- Time Management: '[PRODUCT]'s [AUTOMATION FEATURE] handles [TASK] while I [OTHER ACTIVITY]!' "
+                    "- Customization: '[PRODUCT] lets me [CUSTOMIZE] with [PERSONALIZATION FEATURE]!' "
+                    "TONE: High-energy product evangelism with concrete proof points. Make viewers think 'I need to try this specific feature!' "
+                    "Use phrases like '[PRODUCT]'s [FEATURE] is incredible because [SPECIFIC REASON]!' and feature-focused enthusiasm. "
+                    "Every character should be genuinely excited about SPECIFIC product capabilities, not just generic brand love. "
+                    "VISUAL STYLE: Dynamic product demonstrations meets viral energy meets educational content. "
+                    "Show the product in action, highlight specific features visually, and make the benefits crystal clear through enthusiastic explanation."
                 )
             elif ad_type == "informative":
                 ad_type_instructions = (
@@ -1496,6 +1559,29 @@ def generate_ad():
             # For Gemini, we want to generate each segment separately
             gemini_script = {}
             
+            # Extract specific product features and benefits from research (for Gemini path)
+            product_features = extract_key_features_and_benefits(company_info)
+            
+            # Build comprehensive product information string (for Gemini path)
+            product_info_str = f"""
+SPECIFIC PRODUCT INFORMATION (USE THIS IN THE AD):
+What it does: {product_features.get('what_it_does', 'Product information not available')}
+
+Key Features:
+{chr(10).join([f"- {feature}" for feature in product_features.get('features', ['Features not specified'])])}
+
+Benefits:
+{chr(10).join([f"- {benefit}" for benefit in product_features.get('benefits', ['Benefits not specified'])])}
+
+Unique Selling Points:
+{chr(10).join([f"- {usp}" for usp in product_features.get('unique_selling_points', ['USPs not specified'])])}
+
+Problems it Solves:
+{chr(10).join([f"- {pain_point}" for pain_point in product_features.get('target_pain_points', ['Pain points not specified'])])}
+
+CRITICAL: Use these SPECIFIC features and benefits in the dialogue. Don't just say "I love [PRODUCT]" - explain WHY with concrete features like "[PRODUCT]'s [SPECIFIC FEATURE] helps me [SPECIFIC BENEFIT]!"
+"""
+            
             # Build best ads inspiration string for Gemini with Veo-3 optimization
             best_ads_str = ""
             if best_ads:
@@ -1514,6 +1600,8 @@ def generate_ad():
 
 Based on this company information (from their website):
 {company_info}
+
+{product_info_str}
 
 And the following creative direction from the user:
 {user_answers}
