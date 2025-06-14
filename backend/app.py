@@ -1336,7 +1336,39 @@ def generate_company_report(company_info, output_path):
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write("Company Research Report\n")
             f.write("=======================\n\n")
-            f.write(company_info)
+            
+            # Handle both string and dictionary inputs
+            if isinstance(company_info, dict):
+                # Format dictionary as readable report
+                f.write(f"Main Product/Service: {company_info.get('main_product_service', 'Not specified')}\n\n")
+                f.write(f"Target Audience: {company_info.get('target_audience', 'Not specified')}\n\n")
+                f.write(f"Unique Selling Points: {company_info.get('unique_selling_points', 'Not specified')}\n\n")
+                f.write(f"Brand Voice & Style: {company_info.get('brand_voice_style', 'Not specified')}\n\n")
+                f.write(f"Key Benefits: {company_info.get('key_benefits', 'Not specified')}\n\n")
+                
+                products_services = company_info.get('products_services', [])
+                if products_services:
+                    f.write("Products & Services:\n")
+                    for i, product in enumerate(products_services, 1):
+                        f.write(f"{i}. {product}\n")
+                    f.write("\n")
+                
+                avoid_topics = company_info.get('avoid_topics', [])
+                if avoid_topics:
+                    f.write("Topics to Avoid in Marketing:\n")
+                    for i, topic in enumerate(avoid_topics, 1):
+                        f.write(f"{i}. {topic}\n")
+                    f.write("\n")
+                
+                # Include raw response if available for debugging
+                if 'raw_response' in company_info:
+                    f.write("Raw AI Response (for debugging):\n")
+                    f.write("=" * 40 + "\n")
+                    f.write(company_info['raw_response'])
+                    f.write("\n")
+            else:
+                # Handle string input (legacy support)
+                f.write(str(company_info))
         return output_path
     except Exception as e:
         raise Exception(f"Error generating company report: {str(e)}")
