@@ -229,6 +229,7 @@ def get_target_audience_for_industry(industry):
 def generate_ad_script(company_info, user_answers, best_ads=None):
     """
     Generate a cinematic, story-driven, and entertaining ad script with two 8-second segments, plus a creative slogan and a call-to-action line.
+    Updated for 2025 best practices: authenticity, 3-second hooks, humor comeback, educational content.
     """
     client = get_openai_client()
     if client is None:
@@ -263,6 +264,23 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
     creative_notes_str = "\n".join(creative_notes) if creative_notes else "No additional creative direction provided by the user."
 
     ad_type = user_answers.get('ad_type', '').lower()
+    
+    # Normalize ad_type to handle frontend formatting
+    ad_type_mapping = {
+        '✨ educational-first (2025 trend)': 'educational-first',
+        '✨ founder-story (2025 trend)': 'founder-story', 
+        '✨ nostalgia-driven (2025 trend)': 'nostalgia-driven',
+        '✨ brain-rot/escapism (2025 trend)': 'brain-rot/escapism',
+        '✨ micro-moment (2025 trend)': 'micro-moment',
+        '✨ platform-native (2025 trend)': 'platform-native'
+    }
+    
+    # Check if the ad_type needs to be normalized
+    for key, value in ad_type_mapping.items():
+        if key in ad_type:
+            ad_type = value
+            break
+
     ad_type_instructions = ""
     if ad_type == "unhinged":
         ad_type_instructions = (
@@ -271,7 +289,8 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
         )
     elif ad_type == "informative":
         ad_type_instructions = (
-            "Make this ad clear, concise, and focused on delivering key information. Use a trustworthy tone, clear visuals, and step-by-step explanations."
+            "Make this ad clear, concise, and focused on delivering key information. Use a trustworthy tone, clear visuals, and step-by-step explanations. "
+            "IMPORTANT: Lead with education first (8 seconds) before introducing the product - this builds trust and reduces skepticism."
         )
     elif ad_type == "emotional":
         ad_type_instructions = (
@@ -283,7 +302,9 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
         )
     elif ad_type == "funny":
         ad_type_instructions = (
-            "Make this ad hilarious and memorable. Use clever jokes, visual gags, comedic timing, and unexpected punchlines to make the viewer laugh."
+            "PRIORITY: Make this ad hilarious and memorable. Use clever jokes, visual gags, comedic timing, and unexpected punchlines. "
+            "Research shows humor is making a major comeback in 2025 - 25% of highest-spending ads use humor. "
+            "Focus on humor that connects to the product benefit, not just random comedy."
         )
     elif ad_type == "heartwarming":
         ad_type_instructions = (
@@ -295,7 +316,8 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
         )
     elif ad_type == "testimonial":
         ad_type_instructions = (
-            "Make this ad feel like a genuine testimonial. Use authentic voices, real stories, and social proof to build trust and credibility."
+            "AUTHENTICITY FOCUS: Make this ad feel like a genuine testimonial. Use authentic voices, real stories, and social proof to build trust and credibility. "
+            "In 2025, consumers crave authentic human stories over AI-generated content. Feature real people with genuine experiences."
         )
     elif ad_type == "product demo":
         ad_type_instructions = (
@@ -319,11 +341,47 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
         )
     elif ad_type == "social proof":
         ad_type_instructions = (
-            "Make this ad focus on social proof. Show real people, testimonials, and evidence of popularity or trust."
+            "TRUST-BUILDING FOCUS: Make this ad focus on social proof. Show real people, testimonials, and evidence of popularity or trust. "
+            "84% of consumers are influenced by user-generated content - emphasize authentic customer experiences."
         )
     elif ad_type == "pop culture reference":
         ad_type_instructions = (
             "Make this ad packed with pop culture references, memes, and trending topics. Make it feel current, relevant, and shareable."
+        )
+    elif ad_type == "educational-first":
+        ad_type_instructions = (
+            "2025 TREND: Lead with education and value before selling. Build trust by teaching something useful first. "
+            "Introduce the product later (after 40+ seconds) - this addresses consumer skepticism and builds authority. "
+            "Make the viewer feel smarter for watching."
+        )
+    elif ad_type == "founder-story":
+        ad_type_instructions = (
+            "2025 AUTHENTICITY TREND: Feature the founder's personal story, passion, and behind-the-scenes journey. "
+            "Show the human side of the business. Use first-person POV and authentic, relatable moments. "
+            "Make it feel like a personal conversation, not a corporate pitch."
+        )
+    elif ad_type == "nostalgia-driven":
+        ad_type_instructions = (
+            "2025 TREND: Use nostalgia marketing to create emotional connections. Reference past eras, childhood memories, "
+            "or 'simpler times' that resonate with your audience. Blend retro aesthetics with modern sensibilities. "
+            "Make viewers feel warm and connected to shared cultural memories."
+        )
+    elif ad_type == "brain-rot/escapism":
+        ad_type_instructions = (
+            "2025 TREND: Create satisfying, low-cognitive-load content that provides mental relief from information overload. "
+            "Use ASMR-like elements, satisfying visuals, slow movements, calming colors. "
+            "Make it a palate cleanser from the chaos of social media - give viewers a mental break."
+        )
+    elif ad_type == "micro-moment":
+        ad_type_instructions = (
+            "2025 TREND: Capture specific micro-moments and pain points. Focus on very specific, relatable situations "
+            "that make viewers say 'that's exactly what happens to me!' Ultra-targeted, highly specific scenarios."
+        )
+    elif ad_type == "platform-native":
+        ad_type_instructions = (
+            "2025 CRITICAL: Make this ad feel like organic social content, not an ad. "
+            "Use smartphone-shot aesthetics, natural lighting, casual framing. "
+            "Make it look like something a friend would post, not a corporation."
         )
     # ... add more types as needed ...
 
@@ -341,7 +399,214 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
                 scene_desc += f"Scene 2: {ad['scene_descriptions']['segment2']['visual']} (Mood: {ad['scene_descriptions']['segment2']['mood']}, Camera: {ad['scene_descriptions']['segment2']['camera']})"
             best_ads_str += f"- {ad['title']}: {ad['script']} (Principle: {ad['principle']}, Slogan: {ad.get('slogan', '')}, Call to Action: {ad.get('call_to_action', '')}){scene_desc}\n"
 
-    prompt = f"""{ad_type_instructions}\n{best_ads_str}\nBased on this company information (from their website):\n{company_info}\n\nAnd the following creative direction from the user:\n{creative_notes_str}\n\nWhen writing the ad, avoid these topics, themes, or words: {avoid_str}\n\nCreate a cinematic, story-driven, and entertaining 16-second ad script divided into two 8-second scenes (setup and transformation), inspired by the best practices and styles seen in top-performing ads and tutorials such as:\n- https://www.youtube.com/watch?v=5Pc0hzKkOvE (ad creation tutorial)\n- https://www.youtube.com/watch?v=09n73rbMyiw (ad compilation)\n- https://www.youtube.com/watch?v=-QMftwmyW-A (AI-generated ad example)\n\nGuidelines:\n- Scene 1: Start with a dramatic hook, viral moment, or relatable problem.\n- Scene 2: Show the transformation, solution, or benefit in a visually dynamic, unexpected, or emotionally powerful way. You must include an outro at the end of the second scene that shows the company's name and logo.\n- Make the ad visually entertaining, cinematic, and story-driven.\n- Use camera movement, mood, and cinematic language.\n- Each scene should be visually distinct but flow together as a story.\n- Focus on benefits and transformation, not just features.\n- Avoid on-screen text.\n- Try to add a creative element to the ad, such as a pop culture reference, meme, twist ending, or a viral-worthy moment. Use humor, surprise, or emotion if appropriate.\n- Try to make the ad feel like a movie trailer, with a story and a hook.\n- IMPORTANT: A creative, memorable slogan is mandatory. If the user hasn't provided one, create a short, bold, catchy, and viral-worthy slogan for the company or product.\n- IMPORTANT: A bold, memorable, and actionable call-to-action (CTA) is also mandatory. If the user hasn't provided one, create a strong call-to-action line that drives viewers to take action immediately.\n\nIMPORTANT: For each segment, provide:\n- "scene_description": a cinematic visual description for Veo-3 (do NOT mention or describe any logos)\n- "prompt": a concise Veo-3 prompt that includes a simple voiceover instruction, e.g., [voiceover: ...] (do NOT mention or describe any logos)\n- "voiceover_script": a short, compelling line to be spoken as a voiceover\n- "mood": the emotional tone and atmosphere of the scene\n- "camera": specific camera movements and techniques to use\n\nFormat your response as valid JSON:\n{{\n    "segment1": {{\n        "scene_description": "...",\n        "prompt": "... [voiceover: ...]",\n        "voiceover_script": "...",\n        "mood": "...",\n        "camera": "..."\n    }},\n    "segment2": {{\n        "scene_description": "...",\n        "prompt": "... [voiceover: ...]",\n        "voiceover_script": "...",\n        "mood": "...",\n        "camera": "..."\n    }},\n    "slogan": "...",\n    "call_to_action": "..."\n}}\nDo not include any text before or after the JSON. Only return the JSON object.\n"""
+    # VEO-3 OPTIMIZATION FRAMEWORK - Based on Latest Research & Best Practices
+    veo3_framework = """
+    *** ADVANCED VEO-3 OPTIMIZATION FRAMEWORK ***
+    CRITICAL: Apply these cutting-edge Veo-3 techniques for cinematic excellence:
+
+    🎬 VEO-3 CORE PRINCIPLES:
+    1. "PROMPT AS BLUEPRINT" - Your prompt is a detailed architectural plan for Veo-3
+    2. CINEMATIC LANGUAGE - Veo-3 understands professional film terminology
+    3. NATIVE AUDIO GENERATION - Dialogue, SFX, and music from single prompt
+    4. PHYSICS SIMULATION - Realistic motion and interactions
+    5. SEQUENCE UNDERSTANDING - "This then that" emotional/gesture chains
+
+    🎭 EMOTION & GESTURE CHAINING (Veo-3 Specialty):
+    - Use "this then that" sequences for complex emotional arcs
+    - Chain emotions: "Starts calm, then bursts into laughter, suddenly stops with terror"
+    - Chain gestures: "Spreads arms wide, brings hands to chest, points outward"
+    - Combine gesture + emotion: "Turns head like hearing something, pauses, whips back fast, eyes dart"
+    - Define start/stop points: "Begins composed, flash of violence, returns to calm"
+
+    🎥 CINEMATIC CONTROL OPTIMIZATION:
+    - Camera Motion Keywords: static shot, dolly in/out, pan left/right, tracking shot, crane shot, zoom in/out
+    - Composition Control: close-up, medium shot, wide shot, over-the-shoulder, point-of-view (POV)
+    - Lens Effects: shallow depth of field, rack focus, soft focus, macro lens, wide-angle lens
+    - Motivated Movement: Camera moves serve narrative purpose, not arbitrary
+
+    🎙️ AUDIO MASTERY (Veo-3's Breakthrough Feature):
+    - Dialogue Format: "Character says: 'exact words'" (use colon, not quotes)
+    - Emotional Delivery: "He confessed with trembling voice" / "She announced triumphantly"
+    - Sound Effects: Be specific - "rhythmic clatter of train tracks" not "noise"
+    - Music Description: "melancholic piano melody" / "driving electronic bassline"
+    - Avoid Subtitles: Add "(no subtitles)" and use colon format
+    - Background Audio: Specify explicitly to avoid unwanted studio audience
+
+    🎨 VISUAL ENHANCEMENT:
+    - Style References: film noir, anime, documentary, Wes Anderson style, claymation
+    - Lighting Control: chiaroscuro, golden hour, neon glow, candlelit
+    - Color Palette: desaturated cool blues, warm orange tones, monochromatic
+    - Physics Integration: Fabric movement, water flow, realistic interactions
+
+    📝 HIERARCHICAL PROMPT STRUCTURE:
+    1. Primary Elements: Main characters, core actions, setting
+    2. Secondary Elements: Environmental details, background elements  
+    3. Technical Specifications: Camera angles, lighting, audio
+    4. Temporal Indicators: Scene duration, emotional progression
+
+    ⚡ VEO-3 SPECIFIC OPTIMIZATIONS:
+    - Character Consistency: Use identical detailed descriptions across segments
+    - Sequence Planning: 8-second segments with emotional/narrative progression
+    - Negative Prompts: Describe desired state, avoid "no" or "don't" commands
+    - Iterative Refinement: Analyze output, refine specific elements progressively
+    - Motivated Direction: Every technical choice serves story/emotion
+
+    🔥 ADVANCED TECHNIQUES:
+    - Selfie-Style: "A selfie video of..." with visible arm for authenticity
+    - Dialogue Timing: Perfect for 8-second segments, avoid rushed/gibberish speech
+    - Character Emotion: Link physical movements to emotional states
+    - Scene Transitions: Plan continuity between segments for longer narratives
+    - Director Mindset: Think like filmmaker directing AI crew
+
+    💫 PROMPT THEORY APPROACH:
+    - Macro Prompt: Establish atmosphere, lighting, cinematic style globally
+    - Character Specificity: Novel-level detail - "woman with tired green eyes, scar above eyebrow"
+    - Dialogue Integration: Intersperse speech with facial expressions and actions
+    - Cinematic Language: Use professional film terminology for camera guidance
+    - Emotional Journey: Clear understanding of character's emotional arc
+    """
+
+    # 2025 Best Practices Section with 16-Second Video Optimization + Veo-3 Framework
+    practices_2025 = f"""
+    *** 2025 AD CREATION BEST PRACTICES - OPTIMIZED FOR 16-SECOND FORMAT + VEO-3 ***
+    CRITICAL: Apply these proven 2025 trends and Veo-3 optimization techniques:
+
+    {veo3_framework}
+
+    1. 3-SECOND HOOK RULE (CRITICAL FOR 16s): The first 3 seconds MUST grab attention immediately. Use:
+       - Immediately recognizable visuals (familiar objects/situations)
+       - Strong opening problem that resonates instantly
+       - Visual that speaks for itself without explanation
+       - Veo-3 Emotion Chain: Start with one emotion, transition to another in 3 seconds
+
+    2. ABCD FRAMEWORK FOR 16-SECOND ADS + VEO-3:
+       A - ATTENTION: Hook with Veo-3 gesture/emotion chains from second 1
+       B - BRANDING: Early integration (5s) using Veo-3 audio generation
+       C - CONNECTION: Veo-3 dialogue with emotional delivery + gesture linking
+       D - DIRECTION: Clear CTA with Veo-3 motivated camera movement
+
+    3. 16-SECOND VEO-3 STRUCTURE OPTIMIZATION:
+       - Seconds 1-3: HOOK using Veo-3 emotion chaining techniques
+       - Seconds 4-8: SETUP with cinematic camera movement keywords 
+       - Seconds 9-13: TRANSFORMATION using gesture + emotion combinations
+       - Seconds 14-16: CTA with motivated dolly/zoom for emphasis
+
+    4. VEO-3 AUDIO INTEGRATION FOR ADS:
+       - Dialogue Format: "Spokesperson says: 'Transform your business today'"
+       - Emotional Delivery: "Excited customer exclaims" / "Expert confidently states"
+       - Brand Audio: Specific SFX for product sounds, branded music cues
+       - Avoid Subtitle Issues: Use "(no subtitles)" religiously in ad context
+
+    5. VEO-3 CINEMATIC AD TECHNIQUES:
+       - Product Reveals: Use "rack focus" from product to user reaction
+       - Testimonials: "Over-the-shoulder" shots for authenticity
+       - Action Sequences: "Tracking shot" following product in use
+       - Emotional Moments: "Close-up" with "shallow depth of field"
+
+    6. AUTHENTICITY WITH VEO-3 PHYSICS:
+       - Real interactions between characters and products
+       - Physics-accurate product demonstrations
+       - Natural fabric/hair movement in testimonials
+       - Believable environmental interactions
+
+    7. VEO-3 CHARACTER CONSISTENCY FOR BRAND:
+       - Identical spokesperson descriptions across segments
+       - Consistent brand character personalities
+       - Visual continuity for multi-part campaigns
+       - Character reference sheets for ongoing use
+    """
+
+    prompt = f"""{ad_type_instructions}
+
+{practices_2025}
+
+{best_ads_str}
+
+Based on this company information (from their website):
+{company_info}
+
+And the following creative direction from the user:
+{creative_notes_str}
+
+When writing the ad, avoid these topics, themes, or words: {avoid_str}
+
+*** VEO-3 OPTIMIZED 16-SECOND AD CREATION FRAMEWORK ***
+Create a 2025-optimized, ultra-short 16-second ad script using the complete Veo-3 framework above:
+
+🎬 VEO-3 16-SECOND STRUCTURE:
+Segment 1 (8 seconds): ATTENTION + BRANDING with Veo-3 emotion chains
+- Seconds 1-3: HOOK using Veo-3 gesture/emotion chaining techniques
+- Seconds 4-5: BRAND INTRODUCTION with native audio generation
+- Seconds 6-8: SETUP with motivated camera movement and character development
+
+Segment 2 (8 seconds): CONNECTION + DIRECTION with Veo-3 cinematic mastery
+- Seconds 9-11: TRANSFORMATION using gesture + emotion combinations
+- Seconds 12-13: EMOTIONAL PAYOFF with physics-accurate interactions
+- Seconds 14-16: CLEAR CTA with motivated camera movement and audio reinforcement
+
+🎭 VEO-3 OPTIMIZATION REQUIREMENTS:
+- Apply emotion & gesture chaining: "Character starts [emotion], then [emotion], finally [emotion]"
+- Use professional cinematic language: dolly in/out, tracking shot, close-up, over-the-shoulder
+- Implement native audio generation: "Character says: 'exact words'" with (no subtitles)
+- Include physics-accurate interactions and realistic movement
+- Follow hierarchical structure: Primary → Secondary → Technical → Temporal
+- Motivated directorial choices: Every camera move and technique serves the story
+
+📝 ENHANCED OUTPUT REQUIREMENTS:
+For each segment, provide these Veo-3 optimized elements:
+- "scene_description": Detailed Veo-3 visual using cinematic language (NO logos)
+- "prompt": Complete Veo-3 prompt with emotion chains, camera work, and [voiceover: ...] (NO logos)
+- "voiceover_script": 8-second dialogue using proper Veo-3 format with emotional delivery
+- "mood": Emotional atmosphere with specific lighting/color references
+- "camera": Professional camera movement with narrative motivation
+- "veo3_optimization": Explanation of which Veo-3 techniques were applied
+- "emotion_chain": Specific emotion/gesture sequence for this segment
+- "audio_design": Detailed audio elements (dialogue, SFX, music) with Veo-3 formatting
+- "hook_strength": Rate 1-10 with explanation (segment1 only)
+- "abcd_elements": ABCD framework integration for this segment
+
+🚀 CINEMATIC EXCELLENCE GUIDELINES:
+- EVERY SECOND COUNTS: No wasted moments, every frame advances story
+- MOBILE-FIRST: Bright, high-contrast visuals, tight framing for small screens
+- AUDIO-VISUAL SYNC: Voice-over and visuals work together using Veo-3 native audio
+- IMMEDIATE IMMERSION: Drop viewers into story from second 1 using emotion chains
+- BRAND EARLY & OFTEN: Introduce within 5 seconds, maintain presence with audio
+- HUMAN CONNECTION: Show real people experiencing product with physics accuracy
+- CLEAR DIRECTION: Final 3 seconds have unmistakable CTA with motivated camera work
+
+Format your response as valid JSON:
+{{
+    "segment1": {{
+        "scene_description": "...",
+        "prompt": "... [voiceover: ...]",
+        "voiceover_script": "...",
+        "mood": "...",
+        "camera": "...",
+        "veo3_optimization": "...",
+        "emotion_chain": "...",
+        "audio_design": "...",
+        "hook_strength": {{"rating": X, "explanation": "..."}},
+        "abcd_elements": "A: ... B: ... C: ... D: ..."
+    }},
+    "segment2": {{
+        "scene_description": "...",
+        "prompt": "... [voiceover: ...]",
+        "voiceover_script": "...",
+        "mood": "...",
+        "camera": "...",
+        "veo3_optimization": "...",
+        "emotion_chain": "...",
+        "audio_design": "...",
+        "abcd_elements": "A: ... B: ... C: ... D: ..."
+    }},
+    "slogan": "...",
+    "call_to_action": "...",
+    "ad_strategy_2025": "Brief explanation of 2025 best practices applied",
+    "veo3_framework_application": "Detailed explanation of Veo-3 optimization techniques used",
+    "sixteen_second_optimization": "How this ad maximizes impact in the 16-second format"
+}}
+
+Do not include any text before or after the JSON. Only return the JSON object."""
 
     response = client.chat.completions.create(
         model="gpt-4o",
@@ -444,7 +709,7 @@ def generate_company_report(company_info, output_path):
         raise Exception(f"Error generating company report: {str(e)}")
 
 def improve_script_with_gemini(company_info, user_answers, gpt_script, best_ads=None):
-    """Send each segment to Gemini separately to improve for Veo3."""
+    """Send each segment to Gemini separately to improve for Veo3 with 2025 best practices."""
     import copy
     improved_script = copy.deepcopy(gpt_script)
     
@@ -455,8 +720,67 @@ def improve_script_with_gemini(company_info, user_answers, gpt_script, best_ads=
         for ad in best_ads:
             best_ads_str += f"- {ad['title']}: {ad['script']} (Principle: {ad['principle']})\n"
     
+    # 2025 improvement guidelines with 16-second optimization + VEO-3 MASTERY
+    improvement_guidelines_2025 = f"""
+    *** 2025 IMPROVEMENT FOCUS - 16-SECOND OPTIMIZATION + VEO-3 MASTERY ***
+    When improving this script, prioritize these 2025 best practices and Veo-3 optimization:
+
+    {veo3_framework}
+
+    🚀 IMPROVEMENT PRIORITIES:
+
+    1. VEO-3 EMOTION & GESTURE ENHANCEMENT:
+       - Add emotion chaining: "Character starts [emotion], then [emotion], finally [emotion]"
+       - Include gesture sequences: "First [gesture], then [gesture], ending with [gesture]"
+       - Combine movement + feeling: Link physical actions to emotional states
+       - Create start/stop emotional arcs within 8-second segments
+
+    2. VEO-3 AUDIO OPTIMIZATION:
+       - Dialogue Format: Use "Character says: 'exact words'" with colon syntax
+       - Emotional Delivery: Specify HOW lines are delivered - "whispers fearfully" / "shouts triumphantly"
+       - Sound Design: Replace generic "sounds" with specific audio - "glass shattering" not "noise"
+       - Music Integration: Add mood-specific music - "haunting violin melody" / "upbeat electronic beat"
+       - Subtitle Prevention: Add "(no subtitles)" to every dialogue prompt
+
+    3. VEO-3 CINEMATIC ENHANCEMENT:
+       - Camera Motivation: Every camera move serves the story - "dolly in as tension builds"
+       - Composition Precision: Use professional terms - "over-the-shoulder shot" / "extreme close-up"
+       - Lens Effects: Add focus techniques - "rack focus from product to satisfied user"
+       - Lighting Specificity: "chiaroscuro lighting" / "golden hour warmth" / "neon glow"
+
+    4. 16-SECOND ABCD OPTIMIZATION:
+       - A: Strengthen 3-second hook with Veo-3 emotion chaining
+       - B: Earlier brand integration using Veo-3 audio generation
+       - C: Deeper connection through Veo-3 dialogue + gesture linking
+       - D: Clearer direction with motivated camera movement
+
+    5. VEO-3 PHYSICS & AUTHENTICITY:
+       - Add realistic interactions between characters and objects
+       - Include natural movement - fabric sway, hair movement, realistic gestures
+       - Physics-accurate product demonstrations
+       - Environmental authenticity - lighting changes, atmospheric effects
+
+    6. CHARACTER CONSISTENCY (VEO-3 STRENGTH):
+       - Maintain identical detailed character descriptions across segments
+       - Consistent personality traits and mannerisms
+       - Visual continuity for brand characters
+       - Emotional progression that feels natural and motivated
+
+    7. HIERARCHICAL INFORMATION STRUCTURE:
+       - Primary: Core characters, main actions, setting
+       - Secondary: Environmental details, background elements
+       - Technical: Camera, lighting, audio specifications
+       - Temporal: Timing, transitions, emotional progression
+
+    8. ADVANCED VEO-3 TECHNIQUES:
+       - Selfie-style authenticity when appropriate
+       - Perfect dialogue timing for 8-second segments
+       - Motivated directorial choices - every technical decision serves the story
+       - Scene transition planning for multi-segment narratives
+    """
+    
     for seg in ['segment1', 'segment2']:
-        prompt = f"Can you improve this current script to be better fit for Veo3 generation for an Ad? Make it more engaging, cinematic, and effective.{best_ads_str}\n\nCurrent segment script:\n{json.dumps(gpt_script[seg], indent=2)}\n\nImprove this script while maintaining the JSON format. Focus on making it more visually compelling and better suited for video generation."
+        prompt = f"Can you improve this current script to be better fit for Veo3 generation for a 16-second Ad? Make it more engaging, cinematic, and effective using 2025 best practices and the ABCD framework (Attention, Branding, Connection, Direction).{improvement_guidelines_2025}{best_ads_str}\n\nCurrent segment script:\n{json.dumps(gpt_script[seg], indent=2)}\n\nImprove this script while maintaining the JSON format. Focus on:\n1. 16-SECOND OPTIMIZATION: Making every second count with no wasted moments\n2. ABCD FRAMEWORK: Ensuring proper Attention (hook), Branding (early presence), Connection (human elements), Direction (clear CTA)\n3. MOBILE-FIRST: Bright, high-contrast visuals with tight framing for small screens\n4. IMMEDIATE IMMERSION: Drop viewers into story from second 1\n5. ULTRA-SHORT STORYTELLING: Making it more visually compelling and better suited for 16-second video generation\n6. Applying 2025 trends: stronger hooks, authenticity, humor (if appropriate), emotional engagement\n7. Ensuring the visual and voiceover work together for maximum impact in limited time\n8. Making it feel more native to social platforms rather than traditional advertising\n\nFor segment1: Focus on ATTENTION + BRANDING (hook in 1-3s, brand intro 4-5s, setup 6-8s)\nFor segment2: Focus on CONNECTION + DIRECTION (transformation 9-11s, emotion 12-13s, CTA 14-16s)"
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-06-05:generateContent?key=" + GEMINI_API_KEY
         headers = {"Content-Type": "application/json"}
         data = {"contents": [{"parts": [{"text": prompt}]}]}
@@ -624,6 +948,23 @@ def generate_ad():
                     raise Exception("Gemini did not return valid JSON. Raw response: " + repr(text))
             # Build prompts for each segment
             ad_type = user_answers.get('ad_type', '').lower()
+            
+            # Normalize ad_type to handle frontend formatting (Gemini path)
+            ad_type_mapping = {
+                '✨ educational-first (2025 trend)': 'educational-first',
+                '✨ founder-story (2025 trend)': 'founder-story', 
+                '✨ nostalgia-driven (2025 trend)': 'nostalgia-driven',
+                '✨ brain-rot/escapism (2025 trend)': 'brain-rot/escapism',
+                '✨ micro-moment (2025 trend)': 'micro-moment',
+                '✨ platform-native (2025 trend)': 'platform-native'
+            }
+            
+            # Check if the ad_type needs to be normalized
+            for key, value in ad_type_mapping.items():
+                if key in ad_type:
+                    ad_type = value
+                    break
+            
             ad_type_instructions = ""
             if ad_type == "unhinged":
                 ad_type_instructions = (
@@ -644,7 +985,9 @@ def generate_ad():
                 )
             elif ad_type == "funny":
                 ad_type_instructions = (
-                    "Make this ad hilarious and memorable. Use clever jokes, visual gags, comedic timing, and unexpected punchlines to make the viewer laugh."
+                    "PRIORITY: Make this ad hilarious and memorable. Use clever jokes, visual gags, comedic timing, and unexpected punchlines. "
+                    "Research shows humor is making a major comeback in 2025 - 25% of highest-spending ads use humor. "
+                    "Focus on humor that connects to the product benefit, not just random comedy."
                 )
             elif ad_type == "heartwarming":
                 ad_type_instructions = (
@@ -656,7 +999,8 @@ def generate_ad():
                 )
             elif ad_type == "testimonial":
                 ad_type_instructions = (
-                    "Make this ad feel like a genuine testimonial. Use authentic voices, real stories, and social proof to build trust and credibility."
+                    "AUTHENTICITY FOCUS: Make this ad feel like a genuine testimonial. Use authentic voices, real stories, and social proof to build trust and credibility. "
+                    "In 2025, consumers crave authentic human stories over AI-generated content. Feature real people with genuine experiences."
                 )
             elif ad_type == "product demo":
                 ad_type_instructions = (
@@ -680,19 +1024,55 @@ def generate_ad():
                 )
             elif ad_type == "social proof":
                 ad_type_instructions = (
-                    "Make this ad focus on social proof. Show real people, testimonials, and evidence of popularity or trust."
+                    "TRUST-BUILDING FOCUS: Make this ad focus on social proof. Show real people, testimonials, and evidence of popularity or trust. "
+                    "84% of consumers are influenced by user-generated content - emphasize authentic customer experiences."
                 )
             elif ad_type == "pop culture reference":
                 ad_type_instructions = (
                     "Make this ad packed with pop culture references, memes, and trending topics. Make it feel current, relevant, and shareable."
                 )
+            elif ad_type == "educational-first":
+                ad_type_instructions = (
+                    "2025 TREND: Lead with education and value before selling. Build trust by teaching something useful first. "
+                    "Introduce the product later (after 40+ seconds) - this addresses consumer skepticism and builds authority. "
+                    "Make the viewer feel smarter for watching."
+                )
+            elif ad_type == "founder-story":
+                ad_type_instructions = (
+                    "2025 AUTHENTICITY TREND: Feature the founder's personal story, passion, and behind-the-scenes journey. "
+                    "Show the human side of the business. Use first-person POV and authentic, relatable moments. "
+                    "Make it feel like a personal conversation, not a corporate pitch."
+                )
+            elif ad_type == "nostalgia-driven":
+                ad_type_instructions = (
+                    "2025 TREND: Use nostalgia marketing to create emotional connections. Reference past eras, childhood memories, "
+                    "or 'simpler times' that resonate with your audience. Blend retro aesthetics with modern sensibilities. "
+                    "Make viewers feel warm and connected to shared cultural memories."
+                )
+            elif ad_type == "brain-rot/escapism":
+                ad_type_instructions = (
+                    "2025 TREND: Create satisfying, low-cognitive-load content that provides mental relief from information overload. "
+                    "Use ASMR-like elements, satisfying visuals, slow movements, calming colors. "
+                    "Make it a palate cleanser from the chaos of social media - give viewers a mental break."
+                )
+            elif ad_type == "micro-moment":
+                ad_type_instructions = (
+                    "2025 TREND: Capture specific micro-moments and pain points. Focus on very specific, relatable situations "
+                    "that make viewers say 'that's exactly what happens to me!' Ultra-targeted, highly specific scenarios."
+                )
+            elif ad_type == "platform-native":
+                ad_type_instructions = (
+                    "2025 CRITICAL: Make this ad feel like organic social content, not an ad. "
+                    "Use smartphone-shot aesthetics, natural lighting, casual framing. "
+                    "Make it look like something a friend would post, not a corporation."
+                )
             # For Gemini, we want to generate each segment separately
             gemini_script = {}
             
-            # Build best ads inspiration string for Gemini
+            # Build best ads inspiration string for Gemini with Veo-3 optimization
             best_ads_str = ""
             if best_ads:
-                best_ads_str = "Here are some of the best, most creative, and viral ad scripts and creative principles in history to use as inspiration (be bold, surprising, and memorable!):\n"
+                best_ads_str = f"Here are some of the best, most creative, and viral ad scripts and creative principles in history to use as inspiration (be bold, surprising, and memorable!):\n{veo3_framework}\n\n"
                 for ad in best_ads:
                     scene_desc = ""
                     if 'scene_descriptions' in ad:
@@ -701,7 +1081,41 @@ def generate_ad():
                     best_ads_str += f"- {ad['title']}: {ad['script']} (Principle: {ad['principle']}, Slogan: {ad.get('slogan', '')}, Call to Action: {ad.get('call_to_action', '')}){scene_desc}\n"
             
             for seg in ['segment1', 'segment2']:
-                segment_prompt = f"{ad_type_instructions}\n{best_ads_str}\nBased on this company information (from their website):\n{company_info}\n\nAnd the following creative direction from the user:\n{user_answers}\n\nIMPORTANT: For this segment, provide:\n- 'scene_description': a cinematic visual description for Veo-3 (do NOT mention or describe any logos)\n- 'prompt': a concise Veo-3 prompt that includes a simple voiceover instruction, e.g., [voiceover: ...] (do NOT mention or describe any logos)\n- 'voiceover_script': a short, compelling line to be spoken as a voiceover\n- 'mood': the emotional tone and atmosphere of the scene\n- 'camera': specific camera movements and techniques to use\n\nFormat your response as valid JSON. Only return the JSON object."
+                segment_prompt = f"""{ad_type_instructions}
+
+{veo3_framework}
+
+Based on this company information (from their website):
+{company_info}
+
+And the following creative direction from the user:
+{user_answers}
+
+*** VEO-3 OPTIMIZED 16-SECOND AD GENERATION ***
+Apply the complete Veo-3 framework above for cinematic excellence:
+
+🎬 SEGMENT REQUIREMENTS ({seg}):
+- Use Veo-3 emotion & gesture chaining techniques
+- Apply professional cinematic language (camera movements, compositions)
+- Integrate native audio generation (dialogue with colons, specific SFX, music)
+- Implement physics-accurate interactions and realistic movement
+- Follow hierarchical prompt structure (Primary → Secondary → Technical → Temporal)
+
+🎭 FOR THIS SEGMENT, PROVIDE:
+- 'scene_description': Detailed Veo-3 visual description using cinematic language (NO logos)
+- 'prompt': Complete Veo-3 prompt with emotion chains, camera work, and audio using [voiceover: ...] format (NO logos)
+- 'voiceover_script': Compelling 8-second dialogue using proper Veo-3 format
+- 'mood': Emotional atmosphere with specific lighting/color references
+- 'camera': Professional camera movement with narrative motivation
+- 'veo3_optimization': Explanation of which Veo-3 techniques were applied
+- 'emotion_chain': Specific emotion/gesture sequence for this segment
+- 'audio_design': Detailed audio elements (dialogue, SFX, music) with Veo-3 formatting
+
+{best_ads_str}
+
+CRITICAL: Apply Veo-3's "this then that" sequencing, motivated camera work, professional audio formatting with colons, and physics-accurate interactions. Make every technical choice serve the story and emotional arc.
+
+Format your response as valid JSON. Only return the JSON object."""
                 gemini_script[seg] = gemini_generate_segment(segment_prompt)
             # Slogan and CTA: generate with Gemini as well
             slogan_cta_prompt = f"Based on the above, generate a creative, memorable slogan and a bold, actionable call-to-action for this ad. Format as JSON: {{'slogan': '...', 'call_to_action': '...'}}. Only return the JSON object."

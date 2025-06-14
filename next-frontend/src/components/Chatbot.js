@@ -37,6 +37,12 @@ const adTypeOptions = [
   'High-Energy',
   'Social Proof',
   'Pop Culture Reference',
+  '✨ Educational-First (2025 Trend)',
+  '✨ Founder-Story (2025 Trend)',
+  '✨ Nostalgia-Driven (2025 Trend)',
+  '✨ Brain-Rot/Escapism (2025 Trend)',
+  '✨ Micro-Moment (2025 Trend)',
+  '✨ Platform-Native (2025 Trend)',
   'Other'
 ];
 
