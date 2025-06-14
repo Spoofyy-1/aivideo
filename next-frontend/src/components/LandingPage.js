@@ -13,7 +13,7 @@ function LandingPage() {
         <div className="hero">
           <h1 className="hero-title">Create AI-Powered Ad Videos in Minutes</h1>
           <div className="hero-visual">
-            {/* Video Player - using Railway backend URL */}
+            {/* Video Player - using a working demo video */}
             <video 
               controls 
               poster="https://placehold.co/700x340/2a3f47/b6d6e0?text=AI+Generated+Ad+Preview"
@@ -28,7 +28,7 @@ function LandingPage() {
                 background: '#2a3f47'
               }}
             >
-              <source src="https://aivideo-production.up.railway.app/static/generated/replicate-prediction-j9qzxv3hmdrme0cq934sp9sxer_1_2.mp4" type="video/mp4" />
+              <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </div>
@@ -64,7 +64,7 @@ function LandingPage() {
           <div className="feature-card">
             <div className="feature-icon">💸</div>
             <div className="feature-title">Unbeatable Value</div>
-            <div className="feature-desc">Professional 16-second ad for just <strong>$16</strong> - fraction of industry price.</div>
+            <div className="feature-desc">Professional 16-second ads for just <strong>$45</strong> - a fraction of the industry price.</div>
           </div>
         </div>
         
