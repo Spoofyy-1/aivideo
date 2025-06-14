@@ -171,10 +171,10 @@ def research_company(url):
         # Use modern OpenAI API syntax
         try:
             response = client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-4.1",
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.7,
-                max_tokens=4000
+                max_tokens=10000
             )
         except Exception as api_error:
             print(f"OpenAI API Error: {api_error}")
@@ -219,7 +219,7 @@ def extract_products_services(research_text):
     prompt = f"""Extract up to 5 main products or services from the following company research. Return only a JSON array of strings. If none are found, return an empty array.\n\n{research_text}"""
     
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4.1",
         messages=[{"role": "user", "content": prompt}]
     )
     content = response.choices[0].message.content.strip()
@@ -243,7 +243,7 @@ def extract_avoid_topics(research_text):
     prompt = f"""Extract a JSON array of topics, themes, or words that should be avoided in marketing or advertising for this company, based on the following research. If none are found, return an empty array.\n\n{research_text}"""
     
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4.1",
         messages=[{"role": "user", "content": prompt}]
     )
     content = response.choices[0].message.content.strip()
@@ -281,7 +281,7 @@ Format:
 Be specific and actionable. Don't use generic terms like "innovative" or "cutting-edge". Focus on concrete, tangible features and benefits that would matter to customers."""
     
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4.1",
         messages=[{"role": "user", "content": prompt}]
     )
     content = response.choices[0].message.content.strip()
@@ -447,40 +447,37 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
     ad_type_instructions = ""
     if ad_type == "unhinged":
         ad_type_instructions = (
-            "ENERGETIC PRODUCT-FOCUSED VIRAL ADVERTISING: Create a high-energy, attention-grabbing commercial that showcases SPECIFIC product features and benefits. "
-            "Philosophy: 'Enthusiastic characters demonstrating real product value in creative ways' - this approach builds brand recall through distinctive content while actually educating viewers. "
-            "CRITICAL: FEATURE-FOCUSED PRODUCT INTEGRATION - Every scene must highlight a SPECIFIC feature, benefit, or capability of the product. "
-            "CORE ELEMENTS: "
-            "1) HIGH-ENERGY DEMOS: Characters enthusiastically demonstrating specific product features "
-            "2) RAPID-FIRE BENEFITS: Quick cuts between different product capabilities and real-world applications "
-            "3) 'THIS PRODUCT IS AMAZING BECAUSE...' THEME: Always explain WHY the product is great with concrete examples "
-            "4) REAL-WORLD PROBLEM-SOLVING: Show specific problems being solved by specific product features "
-            "5) FEATURE EVERYWHERE: Every character mentions/demonstrates/explains a specific product feature or benefit "
-            "SPECIFIC PRODUCT-FOCUSED SCENARIOS (mix and match): "
-            "- Character excitedly demonstrating: '[PRODUCT] does [SPECIFIC FEATURE] which means [SPECIFIC BENEFIT]!' "
-            "- Someone showing off: 'Look how [PRODUCT] solves [SPECIFIC PROBLEM] with [SPECIFIC FEATURE]!' "
-            "- Enthusiastic user explaining: '[PRODUCT] has [FEATURE] that lets me [SPECIFIC ACTION/RESULT]!' "
-            "- Person demonstrating: 'Before [PRODUCT], I couldn't [PROBLEM]. Now with [FEATURE], I can [SOLUTION]!' "
-            "- Expert showcasing: '[PRODUCT]'s [FEATURE] is perfect for [SPECIFIC USE CASE]!' "
-            "- Happy customer: 'The [SPECIFIC FEATURE] in [PRODUCT] saves me [TIME/MONEY/EFFORT]!' "
-            "- Excited reviewer: '[PRODUCT] is the only one that has [UNIQUE FEATURE] which [SPECIFIC BENEFIT]!' "
-            "- Demonstrator: 'Watch what happens when I use [PRODUCT]'s [FEATURE] on [SPECIFIC SCENARIO]!' "
-            "- User testimonial: 'I tried everything, but only [PRODUCT]'s [FEATURE] actually [SPECIFIC RESULT]!' "
-            "- Feature showcase: 'This [FEATURE] in [PRODUCT] is a game-changer for [SPECIFIC AUDIENCE/USE CASE]!' "
-            "PRODUCT DEMONSTRATION CATEGORIES (all with specific features): "
-            "- Speed/Efficiency: 'With [PRODUCT]'s [SPEED FEATURE], I finish [TASK] in [TIME]!' "
-            "- Cost Savings: '[PRODUCT]'s [MONEY-SAVING FEATURE] cut my [EXPENSE] by [AMOUNT]!' "
-            "- Ease of Use: 'Even I can [COMPLEX TASK] thanks to [PRODUCT]'s [SIMPLICITY FEATURE]!' "
-            "- Quality Results: '[PRODUCT]'s [QUALITY FEATURE] gives me [SUPERIOR OUTCOME]!' "
-            "- Unique Capabilities: 'Only [PRODUCT] can [UNIQUE CAPABILITY] because of [SPECIAL FEATURE]!' "
-            "- Problem Solving: '[PRODUCT]'s [FEATURE] finally solved my [SPECIFIC PAIN POINT]!' "
-            "- Time Management: '[PRODUCT]'s [AUTOMATION FEATURE] handles [TASK] while I [OTHER ACTIVITY]!' "
-            "- Customization: '[PRODUCT] lets me [CUSTOMIZE] with [PERSONALIZATION FEATURE]!' "
-            "TONE: High-energy product evangelism with concrete proof points. Make viewers think 'I need to try this specific feature!' "
-            "Use phrases like '[PRODUCT]'s [FEATURE] is incredible because [SPECIFIC REASON]!' and feature-focused enthusiasm. "
-            "Every character should be genuinely excited about SPECIFIC product capabilities, not just generic brand love. "
-            "VISUAL STYLE: Dynamic product demonstrations meets viral energy meets educational content. "
-            "Show the product in action, highlight specific features visually, and make the benefits crystal clear through enthusiastic explanation."
+            "ENTHUSIASTIC PRODUCT DEMONSTRATION: Create a high-energy, engaging commercial focused on showcasing specific product features and benefits. "
+            "Philosophy: 'Excited characters genuinely sharing their positive product experiences' - build brand recall through authentic enthusiasm and clear product education. "
+            "CORE APPROACH: FEATURE-FOCUSED STORYTELLING - Every scene highlights a specific product capability or benefit. "
+            "KEY ELEMENTS: "
+            "1) ENTHUSIASTIC TESTIMONIALS: Characters sharing genuine excitement about specific product features "
+            "2) RAPID PRODUCT BENEFITS: Quick demonstration of different product capabilities and real-world applications "
+            "3) 'THIS WORKS BECAUSE...' APPROACH: Always explain the practical reasons why the product delivers results "
+            "4) SOLUTION-ORIENTED: Show specific problems being solved by specific product features "
+            "5) EDUCATIONAL FOCUS: Every character teaches viewers about a specific product feature or benefit "
+            "POSITIVE TESTIMONIAL EXAMPLES: "
+            "- Happy customer explaining: '[PRODUCT] has this amazing [FEATURE] that helps me [SPECIFIC BENEFIT]!' "
+            "- Satisfied user sharing: 'I love how [PRODUCT] solves [SPECIFIC PROBLEM] with [SPECIFIC FEATURE]!' "
+            "- Enthusiastic reviewer: '[PRODUCT] includes [FEATURE] which means I can [SPECIFIC ACTION/RESULT]!' "
+            "- Grateful customer: 'Before [PRODUCT], I struggled with [PROBLEM]. Now with [FEATURE], everything is easier!' "
+            "- Product advocate: '[PRODUCT]'s [FEATURE] is perfect for people who want [SPECIFIC BENEFIT]!' "
+            "- Delighted user: 'The [SPECIFIC FEATURE] in [PRODUCT] saves me so much [TIME/MONEY/EFFORT]!' "
+            "- Excited fan: '[PRODUCT] is special because it has [UNIQUE FEATURE] that provides [SPECIFIC BENEFIT]!' "
+            "- Happy demonstrator: 'Watch how [PRODUCT]'s [FEATURE] works in [SPECIFIC SCENARIO] - it's incredible!' "
+            "- Satisfied customer: 'I've tried many options, but [PRODUCT]'s [FEATURE] actually delivers [SPECIFIC RESULT]!' "
+            "POSITIVE BENEFIT CATEGORIES: "
+            "- Efficiency: 'With [PRODUCT]'s [FEATURE], I complete [TASK] much faster!' "
+            "- Value: '[PRODUCT]'s [FEATURE] helps me save money on [EXPENSE]!' "
+            "- Simplicity: '[PRODUCT]'s [FEATURE] makes [COMPLEX TASK] really easy!' "
+            "- Results: '[PRODUCT]'s [FEATURE] gives me better [OUTCOME] than anything else!' "
+            "- Innovation: '[PRODUCT] offers [UNIQUE CAPABILITY] through its [SPECIAL FEATURE]!' "
+            "- Problem-Solving: '[PRODUCT]'s [FEATURE] finally addressed my [PAIN POINT]!' "
+            "TONE: Positive, enthusiastic product advocacy with specific proof points. Make viewers think 'I want to experience these benefits!' "
+            "Focus on genuine customer satisfaction and feature-specific enthusiasm. "
+            "Every character should be authentically excited about specific product capabilities and real benefits. "
+            "VISUAL STYLE: Clean product demonstrations with positive energy and clear educational content. "
+            "Show the product working effectively, highlight features visually, and make benefits obvious through happy customer experiences."
         )
     elif ad_type == "informative":
         ad_type_instructions = (
@@ -911,7 +908,7 @@ Do not include any text before or after the JSON. Only return the JSON object.""
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4.1",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
             max_tokens=4000
@@ -1451,311 +1448,14 @@ def generate_ad():
         user_text = f"Company info: {company_info}\nUser wants: {json.dumps(user_answers)}"
         best_ads = get_top_best_ads(user_text)
         
-        ai_model = user_answers.get('ai_model', 'Best (Recommended)').lower()
-        if ai_model == 'gemini':
-            # Use Gemini only for both segments
-            def gemini_generate_segment(segment_prompt):
-                url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-06-05:generateContent?key=" + GEMINI_API_KEY
-                headers = {"Content-Type": "application/json"}
-                data = {"contents": [{"parts": [{"text": segment_prompt}]}]}
-                response = requests.post(url, headers=headers, json=data)
-                response.raise_for_status()
-                result = response.json()
-                import re
-                text = result["candidates"][0]["content"]["parts"][0]["text"]
-                match = re.search(r'\{.*\}', text, re.DOTALL)
-                if match:
-                    return json.loads(match.group(0))
-                else:
-                    raise Exception("Gemini did not return valid JSON. Raw response: " + repr(text))
-            # Build prompts for each segment
-            ad_type = user_answers.get('ad_type', '').lower()
-            
-            # Normalize ad_type to handle frontend formatting (Gemini path)
-            ad_type_mapping = {
-                '✨ educational-first (2025 trend)': 'educational-first',
-                '✨ founder-story (2025 trend)': 'founder-story', 
-                '✨ nostalgia-driven (2025 trend)': 'nostalgia-driven',
-                '✨ brain-rot/escapism (2025 trend)': 'brain-rot/escapism',
-                '✨ micro-moment (2025 trend)': 'micro-moment',
-                '✨ platform-native (2025 trend)': 'platform-native'
-            }
-            
-            # Check if the ad_type needs to be normalized
-            for key, value in ad_type_mapping.items():
-                if key in ad_type:
-                    ad_type = value
-                    break
-            
-            ad_type_instructions = ""
-            if ad_type == "unhinged":
-                ad_type_instructions = (
-                    "ENERGETIC PRODUCT-FOCUSED VIRAL ADVERTISING: Create a high-energy, attention-grabbing commercial that showcases SPECIFIC product features and benefits. "
-                    "Philosophy: 'Enthusiastic characters demonstrating real product value in creative ways' - this approach builds brand recall through distinctive content while actually educating viewers. "
-                    "CRITICAL: FEATURE-FOCUSED PRODUCT INTEGRATION - Every scene must highlight a SPECIFIC feature, benefit, or capability of the product. "
-                    "CORE ELEMENTS: "
-                    "1) HIGH-ENERGY DEMOS: Characters enthusiastically demonstrating specific product features "
-                    "2) RAPID-FIRE BENEFITS: Quick cuts between different product capabilities and real-world applications "
-                    "3) 'THIS PRODUCT IS AMAZING BECAUSE...' THEME: Always explain WHY the product is great with concrete examples "
-                    "4) REAL-WORLD PROBLEM-SOLVING: Show specific problems being solved by specific product features "
-                    "5) FEATURE EVERYWHERE: Every character mentions/demonstrates/explains a specific product feature or benefit "
-                    "SPECIFIC PRODUCT-FOCUSED SCENARIOS (mix and match): "
-                    "- Character excitedly demonstrating: '[PRODUCT] does [SPECIFIC FEATURE] which means [SPECIFIC BENEFIT]!' "
-                    "- Someone showing off: 'Look how [PRODUCT] solves [SPECIFIC PROBLEM] with [SPECIFIC FEATURE]!' "
-                    "- Enthusiastic user explaining: '[PRODUCT] has [FEATURE] that lets me [SPECIFIC ACTION/RESULT]!' "
-                    "- Person demonstrating: 'Before [PRODUCT], I couldn't [PROBLEM]. Now with [FEATURE], I can [SOLUTION]!' "
-                    "- Expert showcasing: '[PRODUCT]'s [FEATURE] is perfect for [SPECIFIC USE CASE]!' "
-                    "- Happy customer: 'The [SPECIFIC FEATURE] in [PRODUCT] saves me [TIME/MONEY/EFFORT]!' "
-                    "- Excited reviewer: '[PRODUCT] is the only one that has [UNIQUE FEATURE] which [SPECIFIC BENEFIT]!' "
-                    "- Demonstrator: 'Watch what happens when I use [PRODUCT]'s [FEATURE] on [SPECIFIC SCENARIO]!' "
-                    "- User testimonial: 'I tried everything, but only [PRODUCT]'s [FEATURE] actually [SPECIFIC RESULT]!' "
-                    "- Feature showcase: 'This [FEATURE] in [PRODUCT] is a game-changer for [SPECIFIC AUDIENCE/USE CASE]!' "
-                    "PRODUCT DEMONSTRATION CATEGORIES (all with specific features): "
-                    "- Speed/Efficiency: 'With [PRODUCT]'s [SPEED FEATURE], I finish [TASK] in [TIME]!' "
-                    "- Cost Savings: '[PRODUCT]'s [MONEY-SAVING FEATURE] cut my [EXPENSE] by [AMOUNT]!' "
-                    "- Ease of Use: 'Even I can [COMPLEX TASK] thanks to [PRODUCT]'s [SIMPLICITY FEATURE]!' "
-                    "- Quality Results: '[PRODUCT]'s [QUALITY FEATURE] gives me [SUPERIOR OUTCOME]!' "
-                    "- Unique Capabilities: 'Only [PRODUCT] can [UNIQUE CAPABILITY] because of [SPECIAL FEATURE]!' "
-                    "- Problem Solving: '[PRODUCT]'s [FEATURE] finally solved my [SPECIFIC PAIN POINT]!' "
-                    "- Time Management: '[PRODUCT]'s [AUTOMATION FEATURE] handles [TASK] while I [OTHER ACTIVITY]!' "
-                    "- Customization: '[PRODUCT] lets me [CUSTOMIZE] with [PERSONALIZATION FEATURE]!' "
-                    "TONE: High-energy product evangelism with concrete proof points. Make viewers think 'I need to try this specific feature!' "
-                    "Use phrases like '[PRODUCT]'s [FEATURE] is incredible because [SPECIFIC REASON]!' and feature-focused enthusiasm. "
-                    "Every character should be genuinely excited about SPECIFIC product capabilities, not just generic brand love. "
-                    "VISUAL STYLE: Dynamic product demonstrations meets viral energy meets educational content. "
-                    "Show the product in action, highlight specific features visually, and make the benefits crystal clear through enthusiastic explanation."
-                )
-            elif ad_type == "informative":
-                ad_type_instructions = (
-                    "Make this ad clear, concise, and focused on delivering key information. Use a trustworthy tone, clear visuals, and step-by-step explanations."
-                )
-            elif ad_type == "emotional":
-                ad_type_instructions = (
-                    "Make this ad emotionally powerful. Use storytelling, music, and visuals to evoke strong feelings—whether it's inspiration, joy, nostalgia, or empathy."
-                )
-            elif ad_type == "cinematic":
-                ad_type_instructions = (
-                    "Make this ad feel like a movie trailer: cinematic, visually stunning, and story-driven. Use dramatic lighting, dynamic camera angles, and a clear story arc."
-                )
-            elif ad_type == "funny":
-                ad_type_instructions = (
-                    "PRIORITY: Make this ad hilarious and memorable. Use clever jokes, visual gags, comedic timing, and unexpected punchlines. "
-                    "Research shows humor is making a major comeback in 2025 - 25% of highest-spending ads use humor. "
-                    "Focus on humor that connects to the product benefit, not just random comedy."
-                )
-            elif ad_type == "heartwarming":
-                ad_type_instructions = (
-                    "Make this ad touching and uplifting. Use real people, authentic moments, and emotional storytelling to create a feel-good, heartwarming experience."
-                )
-            elif ad_type == "aspirational":
-                ad_type_instructions = (
-                    "Make this ad inspiring and visionary. Show how the product helps people achieve their dreams, reach new heights, or become their best selves."
-                )
-            elif ad_type == "testimonial":
-                ad_type_instructions = (
-                    "AUTHENTICITY FOCUS: Make this ad feel like a genuine testimonial. Use authentic voices, real stories, and social proof to build trust and credibility. "
-                    "In 2025, consumers crave authentic human stories over AI-generated content. Feature real people with genuine experiences."
-                )
-            elif ad_type == "product demo":
-                ad_type_instructions = (
-                    "Make this ad a clear, engaging product demonstration. Show the product in action, highlight key features, and make it easy to understand the benefits."
-                )
-            elif ad_type == "viral/meme":
-                ad_type_instructions = (
-                    "Make this ad designed for MAXIMUM VIRALITY using internet culture and memes. Use trending formats like: "
-                    "TikTok dances, viral challenges, popular meme templates (Drake pointing, distracted boyfriend, woman yelling at cat), "
-                    "internet slang and Gen Z language, trending audio clips, popular social media personalities, "
-                    "viral video formats (POV videos, 'Tell me you... without telling me', 'This you?'), "
-                    "internet phenomena, social media trends, popular hashtags, influencer culture, "
-                    "AVOID mythical creatures or cryptids - focus on REAL internet culture, memes, and viral content. "
-                    "Make it feel like something that would naturally go viral on TikTok, Twitter, or Instagram. "
-                    "Use current internet humor, relatable situations, and shareable moments that people actually post online."
-                )
-            elif ad_type == "story-driven":
-                ad_type_instructions = (
-                    "Make this ad a mini-story. Use a clear narrative arc, character development, and a satisfying resolution."
-                )
-            elif ad_type == "minimalist":
-                ad_type_instructions = (
-                    "Make this ad visually simple and focused. Use minimal visuals, clean design, and a single powerful message."
-                )
-            elif ad_type == "high-energy":
-                ad_type_instructions = (
-                    "Make this ad fast-paced, energetic, and exciting. Use quick cuts, upbeat music, and dynamic visuals to keep the viewer engaged."
-                )
-            elif ad_type == "social proof":
-                ad_type_instructions = (
-                    "TRUST-BUILDING FOCUS: Make this ad focus on social proof. Show real people, testimonials, and evidence of popularity or trust. "
-                    "84% of consumers are influenced by user-generated content - emphasize authentic customer experiences."
-                )
-            elif ad_type == "pop culture reference":
-                ad_type_instructions = (
-                    "Make this ad packed with pop culture references, memes, and trending topics. Make it feel current, relevant, and shareable."
-                )
-            elif ad_type == "educational-first":
-                ad_type_instructions = (
-                    "2025 TREND: Lead with education and value before selling. Build trust by teaching something useful first. "
-                    "Introduce the product later (after 40+ seconds) - this addresses consumer skepticism and builds authority. "
-                    "Make the viewer feel smarter for watching."
-                )
-            elif ad_type == "founder-story":
-                ad_type_instructions = (
-                    "2025 AUTHENTICITY TREND: Feature the founder's personal story, passion, and behind-the-scenes journey. "
-                    "Show the human side of the business. Use first-person POV and authentic, relatable moments. "
-                    "Make it feel like a personal conversation, not a corporate pitch."
-                )
-            elif ad_type == "nostalgia-driven":
-                ad_type_instructions = (
-                    "2025 TREND: Use nostalgia marketing to create emotional connections. Reference past eras, childhood memories, "
-                    "or 'simpler times' that resonate with your audience. Blend retro aesthetics with modern sensibilities. "
-                    "Make viewers feel warm and connected to shared cultural memories."
-                )
-            elif ad_type == "brain-rot/escapism":
-                ad_type_instructions = (
-                    "2025 TREND: Create satisfying, low-cognitive-load content that provides mental relief from information overload. "
-                    "Use ASMR-like elements, satisfying visuals, slow movements, calming colors. "
-                    "Make it a palate cleanser from the chaos of social media - give viewers a mental break."
-                )
-            elif ad_type == "micro-moment":
-                ad_type_instructions = (
-                    "2025 TREND: Capture specific micro-moments and pain points. Focus on very specific, relatable situations "
-                    "that make viewers say 'that's exactly what happens to me!' Ultra-targeted, highly specific scenarios."
-                )
-            elif ad_type == "platform-native":
-                ad_type_instructions = (
-                    "2025 CRITICAL: Make this ad feel like organic social content, not an ad. "
-                    "Use smartphone-shot aesthetics, natural lighting, casual framing. "
-                    "Make it look like something a friend would post, not a corporation."
-                )
-            elif ad_type == "normal":
-                ad_type_instructions = (
-                    "CLASSIC PROBLEM-SOLUTION ADVERTISING: Create a traditional but effective ad that introduces a relatable problem in a unique way, then presents the product as the perfect solution. "
-                    "Structure: Problem Introduction → Problem Amplification → Solution Reveal → Product Benefits → Call to Action "
-                    "CORE ELEMENTS: "
-                    "1) UNIQUE PROBLEM INTRODUCTION: Start with a relatable but creatively presented problem that your target audience faces "
-                    "2) EMOTIONAL CONNECTION: Make viewers think 'That's exactly my problem!' through specific, recognizable scenarios "
-                    "3) SMOOTH TRANSITION: Bridge from problem to solution naturally without feeling forced or sales-y "
-                    "4) CLEAR SOLUTION PRESENTATION: Show how the product specifically solves the identified problem "
-                    "5) TANGIBLE BENEFITS: Highlight concrete improvements the product provides "
-                    "PROBLEM PRESENTATION TECHNIQUES: "
-                    "- Start with a frustrating but relatable scenario that your audience knows well "
-                    "- Use visual metaphors or creative analogies to represent the problem "
-                    "- Show the emotional or practical impact of not having a solution "
-                    "- Present multiple angles of the same core problem to increase relatability "
-                    "- Use before/after scenarios to emphasize the problem's effects "
-                    "SOLUTION REVEAL STRATEGIES: "
-                    "- Natural transition: 'But what if there was a way...' or 'Imagine if you could...' "
-                    "- Direct introduction: 'Meet [PRODUCT] - the solution you've been waiting for' "
-                    "- Demonstration approach: Show the product solving the exact problem just presented "
-                    "- Transformation narrative: 'Here's how [PRODUCT] changes everything...' "
-                    "BENEFIT COMMUNICATION: "
-                    "- Connect each product feature directly to solving the specific problem shown "
-                    "- Use concrete examples: 'Instead of [PROBLEM], you get [SPECIFIC BENEFIT]' "
-                    "- Show real-world applications that relate to the initial problem scenario "
-                    "- Emphasize the contrast between the problem state and solution state "
-                    "TONE: Professional yet approachable, empathetic to the problem, confident about the solution "
-                    "Make viewers feel understood and hopeful - 'Finally, someone gets my problem AND has the answer!' "
-                    "VISUAL STYLE: Clean, professional, focused on clear storytelling that guides viewers from problem to solution "
-                    "Use visual contrast between problem scenes (darker, more chaotic) and solution scenes (brighter, more organized)."
-                )
-            # For Gemini, we want to generate each segment separately
-            gemini_script = {}
-            
-            # Extract specific product features and benefits from research (for Gemini path)
-            product_features = extract_key_features_and_benefits(company_info)
-            
-            # Build comprehensive product information string (for Gemini path)
-            product_info_str = f"""
-SPECIFIC PRODUCT INFORMATION (USE THIS IN THE AD):
-What it does: {product_features.get('what_it_does', 'Product information not available')}
-
-Key Features:
-{chr(10).join([f"- {feature}" for feature in product_features.get('features', ['Features not specified'])])}
-
-Benefits:
-{chr(10).join([f"- {benefit}" for benefit in product_features.get('benefits', ['Benefits not specified'])])}
-
-Unique Selling Points:
-{chr(10).join([f"- {usp}" for usp in product_features.get('unique_selling_points', ['USPs not specified'])])}
-
-Problems it Solves:
-{chr(10).join([f"- {pain_point}" for pain_point in product_features.get('target_pain_points', ['Pain points not specified'])])}
-
-CRITICAL: Use these SPECIFIC features and benefits in the dialogue. Don't just say "I love [PRODUCT]" - explain WHY with concrete features like "[PRODUCT]'s [SPECIFIC FEATURE] helps me [SPECIFIC BENEFIT]!"
-"""
-            
-            # Build best ads inspiration string for Gemini with Veo-3 optimization
-            best_ads_str = ""
-            if best_ads:
-                best_ads_str = f"Here are some of the best, most creative, and viral ad scripts and creative principles in history to use as inspiration (be bold, surprising, and memorable!):\n{veo3_framework}\n\n"
-                for ad in best_ads:
-                    scene_desc = ""
-                    if 'scene_descriptions' in ad:
-                        scene_desc = f"\nScene 1: {ad['scene_descriptions']['segment1']['visual']} (Mood: {ad['scene_descriptions']['segment1']['mood']}, Camera: {ad['scene_descriptions']['segment1']['camera']})\n"
-                        scene_desc += f"Scene 2: {ad['scene_descriptions']['segment2']['visual']} (Mood: {ad['scene_descriptions']['segment2']['mood']}, Camera: {ad['scene_descriptions']['segment2']['camera']})"
-                    best_ads_str += f"- {ad['title']}: {ad['script']} (Principle: {ad['principle']}, Slogan: {ad.get('slogan', '')}, Call to Action: {ad.get('call_to_action', '')}){scene_desc}\n"
-            
-            for seg in ['segment1', 'segment2']:
-                segment_prompt = f"""{ad_type_instructions}
-
-{veo3_framework}
-
-Based on this company information (from their website):
-{company_info}
-
-{product_info_str}
-
-And the following creative direction from the user:
-{user_answers}
-
-*** VEO-3 OPTIMIZED 16-SECOND AD GENERATION ***
-Apply the complete Veo-3 framework above for cinematic excellence:
-
-🎬 SEGMENT REQUIREMENTS ({seg}):
-- Use Veo-3 emotion & gesture chaining techniques
-- Apply professional cinematic language (camera movements, compositions)
-- Integrate native audio generation (dialogue with colons, specific SFX, music)
-- Implement physics-accurate interactions and realistic movement
-- Follow hierarchical prompt structure (Primary → Secondary → Technical → Temporal)
-
-🎭 FOR THIS SEGMENT, PROVIDE:
-- 'scene_description': Detailed Veo-3 visual description using cinematic language (NO logos)
-- 'prompt': Complete Veo-3 prompt with emotion chains, camera work, and audio using [voiceover: ...] format (NO logos)
-- 'voiceover_script': Compelling 8-second dialogue using proper Veo-3 format
-- 'mood': Emotional atmosphere with specific lighting/color references
-- 'camera': Professional camera movement with narrative motivation
-- 'veo3_optimization': Explanation of which Veo-3 techniques were applied
-- 'emotion_chain': Specific emotion/gesture sequence for this segment
-- 'audio_design': Detailed audio elements (dialogue, SFX, music) with Veo-3 formatting
-
-{best_ads_str}
-
-CRITICAL: Apply Veo-3's "this then that" sequencing, motivated camera work, professional audio formatting with colons, and physics-accurate interactions. Make every technical choice serve the story and emotional arc.
-
-*** AUDIO REQUIREMENTS - NO DEAD SPACE ***
-- CONTINUOUS DIALOGUE: Ensure non-stop talking throughout the entire 8-second segment
-- RAPID PACING: Pack multiple lines of dialogue or rapid-fire delivery
-- AUDIO LAYERING: Combine dialogue with background music and sound effects
-- SMOOTH FLOW: No awkward pauses or silent moments - fill every second with audio
-- OVERLAPPING ELEMENTS: Layer voice, music, and ambient sounds for rich audio experience
-
-Format your response as valid JSON. Only return the JSON object."""
-                gemini_script[seg] = gemini_generate_segment(segment_prompt)
-            # Slogan and CTA: generate with Gemini as well
-            slogan_cta_prompt = f"Based on the above, generate a creative, memorable slogan and a bold, actionable call-to-action for this ad. Format as JSON: {{'slogan': '...', 'call_to_action': '...'}}. Only return the JSON object."
-            slogan_cta = gemini_generate_segment(slogan_cta_prompt)
-            gemini_script['slogan'] = slogan_cta['slogan']
-            gemini_script['call_to_action'] = slogan_cta['call_to_action']
-            ad_script = gemini_script
-        else:
-            # Default: Use GPT-4 + Gemini improvement flow
-            ad_script = generate_ad_script(company_info, user_answers, best_ads=best_ads)
-            print("Ad script (GPT):", ad_script)
-            try:
-                ad_script = improve_script_with_gemini(company_info, user_answers, ad_script, best_ads=best_ads)
-                print("Ad script (Gemini improved):", ad_script)
-            except Exception as e:
-                print("Gemini improvement failed, using GPT script. Error:", e)
+        # Always use ChatGPT first, then Gemini improvement flow
+        ad_script = generate_ad_script(company_info, user_answers, best_ads=best_ads)
+        print("Ad script (GPT):", ad_script)
+        try:
+            ad_script = improve_script_with_gemini(company_info, user_answers, ad_script, best_ads=best_ads)
+            print("Ad script (Gemini improved):", ad_script)
+        except Exception as e:
+            print("Gemini improvement failed, using GPT script. Error:", e)
         
         # Generate video segments in parallel, with retry on sensitive content
         def get_video_with_session(segment, i, session_id):
@@ -1936,7 +1636,7 @@ def debug_openai():
                 api_call_info['attempted'] = True
                 api_call_info['steps'].append('Attempting API call...')
                 response = test_client.chat.completions.create(
-                    model="gpt-4o-mini",
+                    model="gpt-4.1",
                     messages=[{"role": "user", "content": "Say 'OpenAI test successful'"}]
                 )
                 api_call_info['steps'].append('API call completed successfully')
@@ -1993,7 +1693,7 @@ def test_chatgpt():
             
             # Make a simple API call
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gpt-4.1",
                 messages=[{"role": "user", "content": "Say 'Hello! ChatGPT is working through Railway!' in exactly those words."}],
                 max_tokens=50
             )
