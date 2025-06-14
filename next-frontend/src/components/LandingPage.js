@@ -64,7 +64,7 @@ function LandingPage() {
           <div className="feature-card">
             <div className="feature-icon">💸</div>
             <div className="feature-title">Unbeatable Value</div>
-            <div className="feature-desc">Professional 16-second ads for just <strong>$45</strong> - a fraction of the industry price.</div>
+            <div className="feature-desc">Professional ads for just <strong>$20</strong> — incredible value!</div>
           </div>
         </div>
         
