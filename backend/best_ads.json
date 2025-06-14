@@ -95,25 +95,6 @@
     }
   },
   {
-    "title": "Fun Topic: Bigfoot Sighting",
-    "script": "Imagine your product is so good, even Bigfoot comes out of hiding to get it!",
-    "principle": "Mythical, playful, unexpected, viral potential",
-    "slogan": "Even Bigfoot Can't Hide",
-    "call_to_action": "Act now.",
-    "scene_descriptions": {
-      "segment1": {
-        "visual": "A mysterious forest scene with subtle hints of movement in the shadows, twigs snapping, and leaves rustling",
-        "mood": "Mysterious, playful, suspenseful",
-        "camera": "Slow tracking shots through the forest, close-ups of disturbed foliage, dramatic lighting"
-      },
-      "segment2": {
-        "visual": "Bigfoot emerging from the shadows, carefully examining and then enthusiastically using the product",
-        "mood": "Surprising, humorous, delightful",
-        "camera": "Revealing wide shot of Bigfoot, comedic close-ups of product interaction, dynamic movement"
-      }
-    }
-  },
-  {
     "title": "Fun Topic: Alien Encounter",
     "script": "Aliens land on Earth, but they're only interested in your product.",
     "principle": "Abnormal, sci-fi, humor, universal appeal",

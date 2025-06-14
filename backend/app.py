@@ -5,6 +5,11 @@ import tempfile
 import shutil
 import concurrent.futures
 import numpy as np
+import uuid  # Add UUID for unique file naming
+import threading  # Add threading for thread-safe operations
+import time  # Add time for cleanup scheduling
+import queue  # Add queue for request management
+from collections import defaultdict  # Add for rate limiting
 from flask import Flask, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
@@ -30,8 +35,35 @@ print("DEBUG: Gemini API key set")
 # Configure OpenAI client
 client = None
 
+# Thread-safe file operations
+file_lock = threading.Lock()
+
+# Rate limiting and request management
+request_counts = defaultdict(list)  # Track requests per IP
+request_queue = queue.Queue(maxsize=50)  # Limit concurrent requests
+active_requests = threading.Semaphore(5)  # Max 5 concurrent video generations
+
+def check_rate_limit(client_ip, max_requests=10, time_window=3600):
+    """Check if client has exceeded rate limit (10 requests per hour)."""
+    current_time = time.time()
+    
+    # Clean old requests outside time window
+    request_counts[client_ip] = [
+        req_time for req_time in request_counts[client_ip] 
+        if current_time - req_time < time_window
+    ]
+    
+    # Check if under limit
+    if len(request_counts[client_ip]) >= max_requests:
+        return False
+    
+    # Add current request
+    request_counts[client_ip].append(current_time)
+    return True
+
 def get_openai_client():
     """Get a fresh OpenAI client instance to avoid environment interference."""
+    import os  # Add this import at the function level
     try:
         openai_key = os.getenv("OPENAI_API_KEY")
         if not openai_key:
@@ -284,8 +316,18 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
     ad_type_instructions = ""
     if ad_type == "unhinged":
         ad_type_instructions = (
-            "Make this ad wild, unpredictable, and attention-grabbing. Use surreal humor, unexpected twists, and viral-worthy moments. "
-            "Break conventions, use meme energy, and surprise the viewer at every turn. Think of the most unhinged, meme-worthy ads you've seen online."
+            "Make this ad ABSOLUTELY INSANE and CHAOTIC with MAXIMUM VARIETY. Randomly choose from these wild scenarios: "
+            "1) Apocalyptic: buildings exploding, meteors falling, tornadoes, lightning storms, military helicopters "
+            "2) Celebrity chaos: famous people screaming about the product, politicians giving dramatic speeches "
+            "3) Action movie: explosions, car chases, dramatic zoom-ins, movie trailer voice-overs "
+            "4) Surreal: floating objects, gravity-defying scenes, time distortion, reality glitching "
+            "5) Internet chaos: viral memes gone wrong, social media influencers in panic, trending sounds "
+            "6) Everyday chaos: office workers rioting, suburban moms in dramatic standoffs, pets taking over "
+            "7) Sci-fi madness: aliens, robots, futuristic cities, space battles, time travel "
+            "8) Historical chaos: ancient civilizations, medieval knights, pirates, dinosaurs "
+            "BE CREATIVE AND UNPREDICTABLE - don't always use the same creatures or scenarios. "
+            "Mix and match elements. Make it feel like the most dramatic, over-the-top scenario possible. "
+            "Use phrases like 'IN A WORLD WHERE...' and 'ONE PRODUCT WILL CHANGE EVERYTHING' in ridiculous contexts."
         )
     elif ad_type == "informative":
         ad_type_instructions = (
@@ -325,7 +367,14 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
         )
     elif ad_type == "viral/meme":
         ad_type_instructions = (
-            "Make this ad designed for virality. Use meme formats, trending topics, pop culture references, and shareable moments to maximize engagement."
+            "Make this ad designed for MAXIMUM VIRALITY using internet culture and memes. Use trending formats like: "
+            "TikTok dances, viral challenges, popular meme templates (Drake pointing, distracted boyfriend, woman yelling at cat), "
+            "internet slang and Gen Z language, trending audio clips, popular social media personalities, "
+            "viral video formats (POV videos, 'Tell me you... without telling me', 'This you?'), "
+            "internet phenomena, social media trends, popular hashtags, influencer culture, "
+            "AVOID mythical creatures or cryptids - focus on REAL internet culture, memes, and viral content. "
+            "Make it feel like something that would naturally go viral on TikTok, Twitter, or Instagram. "
+            "Use current internet humor, relatable situations, and shareable moments that people actually post online."
         )
     elif ad_type == "story-driven":
         ad_type_instructions = (
@@ -410,6 +459,7 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
     3. NATIVE AUDIO GENERATION - Dialogue, SFX, and music from single prompt
     4. PHYSICS SIMULATION - Realistic motion and interactions
     5. SEQUENCE UNDERSTANDING - "This then that" emotional/gesture chains
+    6. CREATIVE DIVERSITY - Avoid repetitive scenarios, be unpredictable and varied
 
     🎭 EMOTION & GESTURE CHAINING (Veo-3 Specialty):
     - Use "this then that" sequences for complex emotional arcs
@@ -457,6 +507,14 @@ def generate_ad_script(company_info, user_answers, best_ads=None):
     - Character Emotion: Link physical movements to emotional states
     - Scene Transitions: Plan continuity between segments for longer narratives
     - Director Mindset: Think like filmmaker directing AI crew
+
+    💫 CREATIVE VARIETY MANDATE:
+    - AVOID REPETITIVE SCENARIOS: Don't default to the same creatures, settings, or situations
+    - MIX GENRES: Combine different themes (sci-fi + comedy, horror + romance, etc.)
+    - UNEXPECTED COMBINATIONS: Pair mundane products with epic scenarios
+    - CULTURAL DIVERSITY: Use varied cultural references, not just Western tropes
+    - TEMPORAL VARIETY: Mix modern, historical, futuristic, and timeless elements
+    - SCALE VARIETY: From intimate personal moments to epic cosmic events
 
     💫 PROMPT THEORY APPROACH:
     - Macro Prompt: Establish atmosphere, lighting, cinematic style globally
@@ -655,6 +713,40 @@ def generate_video_segment(prompt, segment_num):
         
         # Save to temporary file
         temp_dir = tempfile.mkdtemp()
+        video_path = os.path.join(temp_dir, f"segment_{segment_num}.mp4")
+        
+        with open(video_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+        
+        return video_path
+    except Exception as e:
+        raise Exception(f"Error generating video segment: {str(e)}")
+
+def generate_video_segment_with_session(prompt, segment_num, session_id):
+    """Generate a 8-second video segment using Veo-3 with session-specific temp files."""
+    try:
+        output = replicate.run(
+            "google/veo-3",
+            input={
+                "prompt": prompt,
+                "num_frames": 16,  # 16 frames for 4 seconds at 4fps
+                "fps": 4,
+                "motion_bucket_id": 127,  # Higher motion
+                "cond_aug": 0.02,
+                "decoding_t": 7,
+                "height": 576,
+                "width": 1024,
+            }
+        )
+        
+        # Download the video
+        video_url = output
+        response = requests.get(video_url, stream=True)
+        
+        # Save to session-specific temporary directory
+        temp_dir = tempfile.mkdtemp(prefix=f"session_{session_id}_")
         video_path = os.path.join(temp_dir, f"segment_{segment_num}.mp4")
         
         with open(video_path, 'wb') as f:
@@ -871,6 +963,51 @@ def ensure_best_ads_embedded():
         import traceback
         traceback.print_exc()
 
+def generate_unique_session_id():
+    """Generate a unique session ID for each user request."""
+    return str(uuid.uuid4())[:8]  # Short UUID for cleaner filenames
+
+def ensure_user_directory(session_id):
+    """Create a unique directory for each user session."""
+    user_dir = os.path.join('static', 'generated', session_id)
+    os.makedirs(user_dir, exist_ok=True)
+    return user_dir
+
+def cleanup_old_sessions(max_age_hours=24):
+    """Clean up user sessions older than max_age_hours to prevent storage overflow."""
+    try:
+        generated_dir = os.path.join('static', 'generated')
+        if not os.path.exists(generated_dir):
+            return
+        
+        current_time = time.time()
+        max_age_seconds = max_age_hours * 3600
+        
+        for session_dir in os.listdir(generated_dir):
+            session_path = os.path.join(generated_dir, session_dir)
+            if os.path.isdir(session_path):
+                # Check if directory is older than max_age
+                dir_age = current_time - os.path.getctime(session_path)
+                if dir_age > max_age_seconds:
+                    try:
+                        shutil.rmtree(session_path)
+                        print(f"DEBUG: Cleaned up old session directory: {session_dir}")
+                    except Exception as e:
+                        print(f"WARNING: Failed to clean up session {session_dir}: {e}")
+    except Exception as e:
+        print(f"ERROR in cleanup_old_sessions: {e}")
+
+def start_cleanup_thread():
+    """Start background cleanup thread."""
+    def periodic_cleanup():
+        while True:
+            time.sleep(3600)  # Run every hour
+            cleanup_old_sessions(max_age_hours=24)  # Clean up files older than 24 hours
+    
+    cleanup_thread = threading.Thread(target=periodic_cleanup, daemon=True)
+    cleanup_thread.start()
+    print("DEBUG: Started background cleanup thread")
+
 @app.route('/')
 def index():
     try:
@@ -895,9 +1032,29 @@ def index():
 
 @app.route('/generate', methods=['POST'])
 def generate_ad():
+    # Rate limiting check
+    client_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
+    if not check_rate_limit(client_ip):
+        return jsonify({
+            'error': 'Rate limit exceeded. Maximum 10 requests per hour.',
+            'retry_after': 3600
+        }), 429
+    
+    # Acquire semaphore for concurrent request limiting
+    if not active_requests.acquire(blocking=False):
+        return jsonify({
+            'error': 'Server is currently processing maximum concurrent requests. Please try again in a few minutes.',
+            'retry_after': 300
+        }), 503
+    
     try:
         print("DEBUG: Generate route called")
         print("Received request to /generate")
+        
+        # Generate unique session ID for this user
+        session_id = generate_unique_session_id()
+        print(f"DEBUG: Generated session ID: {session_id}")
+        
         user_answers = request.json
         company_url = user_answers.get('company_url')
         print("Company URL:", company_url)
@@ -910,19 +1067,19 @@ def generate_ad():
         avoid_topics = extract_avoid_topics(company_info)
         print("Company info:", company_info)
         
-        # Generate company report
-        output_dir = 'static/generated'
-        os.makedirs(output_dir, exist_ok=True)
+        # Create unique user directory
+        user_dir = ensure_user_directory(session_id)
         
-        # Add timestamp to make files unique and prevent overwriting
-        import time
-        timestamp = str(int(time.time()))
+        # Generate company report with unique naming
         company_name = slugify(company_url.split('//')[-1].split('/')[0])
-        unique_name = f"{company_name}_{timestamp}"
+        unique_name = f"{company_name}_{session_id}"
         
-        report_path = os.path.join(output_dir, f'{unique_name}_report.txt')
-        generate_company_report(company_info, report_path)
-        report_url = f'/download/report/{os.path.basename(report_path)}'
+        # Thread-safe file operations
+        with file_lock:
+            report_path = os.path.join(user_dir, f'{unique_name}_report.txt')
+            generate_company_report(company_info, report_path)
+        
+        report_url = f'/download/report/{session_id}/{os.path.basename(report_path)}'
         print(f"Returning report_url: {report_url}")
         
         # Retrieve top best ads for inspiration
@@ -968,8 +1125,18 @@ def generate_ad():
             ad_type_instructions = ""
             if ad_type == "unhinged":
                 ad_type_instructions = (
-                    "Make this ad wild, unpredictable, and attention-grabbing. Use surreal humor, unexpected twists, and viral-worthy moments. "
-                    "Break conventions, use meme energy, and surprise the viewer at every turn. Think of the most unhinged, meme-worthy ads you've seen online."
+                    "Make this ad ABSOLUTELY INSANE and CHAOTIC with MAXIMUM VARIETY. Randomly choose from these wild scenarios: "
+                    "1) Apocalyptic: buildings exploding, meteors falling, tornadoes, lightning storms, military helicopters "
+                    "2) Celebrity chaos: famous people screaming about the product, politicians giving dramatic speeches "
+                    "3) Action movie: explosions, car chases, dramatic zoom-ins, movie trailer voice-overs "
+                    "4) Surreal: floating objects, gravity-defying scenes, time distortion, reality glitching "
+                    "5) Internet chaos: viral memes gone wrong, social media influencers in panic, trending sounds "
+                    "6) Everyday chaos: office workers rioting, suburban moms in dramatic standoffs, pets taking over "
+                    "7) Sci-fi madness: aliens, robots, futuristic cities, space battles, time travel "
+                    "8) Historical chaos: ancient civilizations, medieval knights, pirates, dinosaurs "
+                    "BE CREATIVE AND UNPREDICTABLE - don't always use the same creatures or scenarios. "
+                    "Mix and match elements. Make it feel like the most dramatic, over-the-top scenario possible. "
+                    "Use phrases like 'IN A WORLD WHERE...' and 'ONE PRODUCT WILL CHANGE EVERYTHING' in ridiculous contexts."
                 )
             elif ad_type == "informative":
                 ad_type_instructions = (
@@ -1008,7 +1175,14 @@ def generate_ad():
                 )
             elif ad_type == "viral/meme":
                 ad_type_instructions = (
-                    "Make this ad designed for virality. Use meme formats, trending topics, pop culture references, and shareable moments to maximize engagement."
+                    "Make this ad designed for MAXIMUM VIRALITY using internet culture and memes. Use trending formats like: "
+                    "TikTok dances, viral challenges, popular meme templates (Drake pointing, distracted boyfriend, woman yelling at cat), "
+                    "internet slang and Gen Z language, trending audio clips, popular social media personalities, "
+                    "viral video formats (POV videos, 'Tell me you... without telling me', 'This you?'), "
+                    "internet phenomena, social media trends, popular hashtags, influencer culture, "
+                    "AVOID mythical creatures or cryptids - focus on REAL internet culture, memes, and viral content. "
+                    "Make it feel like something that would naturally go viral on TikTok, Twitter, or Instagram. "
+                    "Use current internet humor, relatable situations, and shareable moments that people actually post online."
                 )
             elif ad_type == "story-driven":
                 ad_type_instructions = (
@@ -1134,10 +1308,11 @@ Format your response as valid JSON. Only return the JSON object."""
                 print("Gemini improvement failed, using GPT script. Error:", e)
         
         # Generate video segments in parallel, with retry on sensitive content
-        def get_video(segment, i):
+        def get_video_with_session(segment, i, session_id):
+            """Generate video with session-specific temporary files."""
             for retry in range(3):
                 try:
-                    return generate_video_segment(ad_script[segment]['prompt'], i)
+                    return generate_video_segment_with_session(ad_script[segment]['prompt'], i, session_id)
                 except Exception as e:
                     if "flagged as sensitive" in str(e).lower() or "E005" in str(e):
                         print(f"Sensitive content detected for {segment}, regenerating script (retry {retry+1})...")
@@ -1150,16 +1325,18 @@ Format your response as valid JSON. Only return the JSON object."""
             raise Exception(f"Failed to generate {segment} after 3 retries due to sensitive content.")
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            future1 = executor.submit(get_video, 'segment1', 1)
-            future2 = executor.submit(get_video, 'segment2', 2)
+            future1 = executor.submit(get_video_with_session, 'segment1', 1, session_id)
+            future2 = executor.submit(get_video_with_session, 'segment2', 2, session_id)
             video_path1 = future1.result()
             video_path2 = future2.result()
 
         video_paths = [video_path1, video_path2]
         
-        # Combine videos
-        output_path = os.path.join(output_dir, f'{unique_name}_ad.mp4')
-        final_video_path = combine_videos(video_paths, output_path)
+        # Combine videos with thread-safe operations
+        with file_lock:
+            output_path = os.path.join(user_dir, f'{unique_name}_ad.mp4')
+            final_video_path = combine_videos(video_paths, output_path)
+        
         print("Final video path:", final_video_path)
         # Check if file exists
         if not os.path.exists(final_video_path):
@@ -1167,13 +1344,16 @@ Format your response as valid JSON. Only return the JSON object."""
             return jsonify({'error': 'Video file was not created.'}), 500
         else:
             print(f"Video file exists at {final_video_path}")
-        video_url = f'/download/video/{os.path.basename(final_video_path)}'
+        
+        video_url = f'/download/video/{session_id}/{os.path.basename(final_video_path)}'
         print(f"Returning video_url: {video_url}")
+        
         return jsonify({
             'status': 'success',
             'video_url': video_url,
             'report_url': report_url,
-            'script': ad_script
+            'script': ad_script,
+            'session_id': session_id  # Return session ID for tracking
         })
         
     except Exception as e:
@@ -1181,6 +1361,9 @@ Format your response as valid JSON. Only return the JSON object."""
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+    finally:
+        # Always release the semaphore
+        active_requests.release()
 
 @app.route('/test')
 def test():
@@ -1203,20 +1386,29 @@ def research_endpoint():
     products_services = extract_products_services(research_text)
     return jsonify({'products_services': products_services})
 
-@app.route('/download/video/<filename>')
-def download_video(filename):
+@app.route('/download/video/<session_id>/<filename>')
+def download_video_session(session_id, filename):
     try:
-        print(f"DEBUG: Download video route called for {filename}")
-        return send_from_directory('static/generated', filename, as_attachment=True)
+        print(f"DEBUG: Download video route called for session {session_id}, file {filename}")
+        session_dir = os.path.join('static', 'generated', session_id)
+        return send_from_directory(session_dir, filename, as_attachment=True)
     except Exception as e:
-        print(f"ERROR in download_video route: {e}")
+        print(f"ERROR in download_video_session route: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
-@app.route('/download/report/<filename>')
-def download_report(filename):
-    return send_from_directory('static/generated', filename, as_attachment=True)
+@app.route('/download/report/<session_id>/<filename>')
+def download_report_session(session_id, filename):
+    try:
+        print(f"DEBUG: Download report route called for session {session_id}, file {filename}")
+        session_dir = os.path.join('static', 'generated', session_id)
+        return send_from_directory(session_dir, filename, as_attachment=True)
+    except Exception as e:
+        print(f"ERROR in download_report_session route: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/health')
 def health():
@@ -1377,6 +1569,9 @@ if __name__ == '__main__':
         print("DEBUG: About to call ensure_best_ads_embedded()")
         ensure_best_ads_embedded()
         print("DEBUG: ensure_best_ads_embedded() completed")
+        
+        print("DEBUG: Starting background cleanup thread...")
+        start_cleanup_thread()
         
         print("DEBUG: Getting port from environment...")
         port = int(os.environ.get('PORT', 5000))
