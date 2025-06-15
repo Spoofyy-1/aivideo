@@ -719,37 +719,21 @@ INDUSTRY INSIGHTS: {improvement_insights.get('industry_insights', {}).get('insig
     ad_type_instructions = ""
     if ad_type == "unhinged":
         ad_type_instructions = (
-            "ENTHUSIASTIC PRODUCT DEMONSTRATION: Create a high-energy, engaging commercial focused on showcasing specific product features and benefits. "
-            "Philosophy: 'Excited characters genuinely sharing their positive product experiences' - build brand recall through authentic enthusiasm and clear product education. "
-            "CORE APPROACH: FEATURE-FOCUSED STORYTELLING - Every scene highlights a specific product capability or benefit. "
+            "HIGH-ENERGY ENTHUSIASTIC AD: Create an extremely energetic, fast-paced commercial with over-the-top excitement about the product. "
+            "CORE APPROACH: Maximum enthusiasm and energy in every second - characters are genuinely excited and can't contain their love for the product. "
             "KEY ELEMENTS: "
-            "1) ENTHUSIASTIC TESTIMONIALS: Characters sharing genuine excitement about specific product features "
-            "2) RAPID PRODUCT BENEFITS: Quick demonstration of different product capabilities and real-world applications "
-            "3) 'THIS WORKS BECAUSE...' APPROACH: Always explain the practical reasons why the product delivers results "
-            "4) SOLUTION-ORIENTED: Show specific problems being solved by specific product features "
-            "5) EDUCATIONAL FOCUS: Every character teaches viewers about a specific product feature or benefit "
-            "POSITIVE TESTIMONIAL EXAMPLES: "
-            "- Happy customer explaining: '[PRODUCT] has this amazing [FEATURE] that helps me [SPECIFIC BENEFIT]!' "
-            "- Satisfied user sharing: 'I love how [PRODUCT] solves [SPECIFIC PROBLEM] with [SPECIFIC FEATURE]!' "
-            "- Enthusiastic reviewer: '[PRODUCT] includes [FEATURE] which means I can [SPECIFIC ACTION/RESULT]!' "
-            "- Grateful customer: 'Before [PRODUCT], I struggled with [PROBLEM]. Now with [FEATURE], everything is easier!' "
-            "- Product advocate: '[PRODUCT]'s [FEATURE] is perfect for people who want [SPECIFIC BENEFIT]!' "
-            "- Delighted user: 'The [SPECIFIC FEATURE] in [PRODUCT] saves me so much [TIME/MONEY/EFFORT]!' "
-            "- Excited fan: '[PRODUCT] is special because it has [UNIQUE FEATURE] that provides [SPECIFIC BENEFIT]!' "
-            "- Happy demonstrator: 'Watch how [PRODUCT]'s [FEATURE] works in [SPECIFIC SCENARIO] - it's incredible!' "
-            "- Satisfied customer: 'I've tried many options, but [PRODUCT]'s [FEATURE] actually delivers [SPECIFIC RESULT]!' "
-            "POSITIVE BENEFIT CATEGORIES: "
-            "- Efficiency: 'With [PRODUCT]'s [FEATURE], I complete [TASK] much faster!' "
-            "- Value: '[PRODUCT]'s [FEATURE] helps me save money on [EXPENSE]!' "
-            "- Simplicity: '[PRODUCT]'s [FEATURE] makes [COMPLEX TASK] really easy!' "
-            "- Results: '[PRODUCT]'s [FEATURE] gives me better [OUTCOME] than anything else!' "
-            "- Innovation: '[PRODUCT] offers [UNIQUE CAPABILITY] through its [SPECIAL FEATURE]!' "
-            "- Problem-Solving: '[PRODUCT]'s [FEATURE] finally addressed my [PAIN POINT]!' "
-            "TONE: Positive, enthusiastic product advocacy with specific proof points. Make viewers think 'I want to experience these benefits!' "
-            "Focus on genuine customer satisfaction and feature-specific enthusiasm. "
-            "Every character should be authentically excited about specific product capabilities and real benefits. "
-            "VISUAL STYLE: Clean product demonstrations with positive energy and clear educational content. "
-            "Show the product working effectively, highlight features visually, and make benefits obvious through happy customer experiences."
+            "1) RAPID-FIRE EXCITEMENT: Characters speak quickly with infectious enthusiasm about specific features "
+            "2) AUTHENTIC TESTIMONIALS: Real people sharing genuine excitement about how the product changed their lives "
+            "3) FEATURE HIGHLIGHTS: Quick demonstrations of what makes this product amazing "
+            "4) POSITIVE ENERGY: Every character is thrilled to share their experience "
+            "5) SPECIFIC BENEFITS: Focus on concrete ways the product helps people "
+            "ENTHUSIASTIC EXAMPLES: "
+            "- 'This product is INCREDIBLE! It has this amazing feature that saves me hours every day!' "
+            "- 'I'm obsessed with this! The way it solves my biggest problem is just perfect!' "
+            "- 'Everyone needs to try this - it's honestly life-changing!' "
+            "TONE: Maximum positive energy, genuine excitement, infectious enthusiasm. Make viewers feel the excitement! "
+            "VISUAL STYLE: Fast-paced, bright, energetic scenes with happy people demonstrating the product's benefits. "
+            "Focus on authentic joy and satisfaction from real product use."
         )
     elif ad_type == "informative":
         ad_type_instructions = (
@@ -926,144 +910,44 @@ CRITICAL: Use these SPECIFIC features and benefits in the dialogue. Don't just s
 
     # VEO-3 OPTIMIZATION FRAMEWORK - Based on Latest Research & Best Practices
     veo3_framework = """
-    *** ADVANCED VEO-3 OPTIMIZATION FRAMEWORK ***
-    CRITICAL: Apply these cutting-edge Veo-3 techniques for cinematic excellence:
-
-    🎬 VEO-3 CORE PRINCIPLES:
-    1. "PROMPT AS BLUEPRINT" - Your prompt is a detailed architectural plan for Veo-3
-    2. CINEMATIC LANGUAGE - Veo-3 understands professional film terminology
-    3. NATIVE AUDIO GENERATION - Dialogue, SFX, and music from single prompt
-    4. PHYSICS SIMULATION - Realistic motion and interactions
-    5. SEQUENCE UNDERSTANDING - "This then that" emotional/gesture chains
-    6. CREATIVE DIVERSITY - Avoid repetitive scenarios, be unpredictable and varied
-
-    🎭 EMOTION & GESTURE CHAINING (Veo-3 Specialty):
-    - Use "this then that" sequences for complex emotional arcs
-    - Chain emotions: "Starts calm, then bursts into laughter, suddenly stops with terror"
-    - Chain gestures: "Spreads arms wide, brings hands to chest, points outward"
-    - Combine gesture + emotion: "Turns head like hearing something, pauses, whips back fast, eyes dart"
-    - Define start/stop points: "Begins composed, flash of violence, returns to calm"
-
-    🎥 CINEMATIC CONTROL OPTIMIZATION:
-    - Camera Motion Keywords: static shot, dolly in/out, pan left/right, tracking shot, crane shot, zoom in/out
-    - Composition Control: close-up, medium shot, wide shot, over-the-shoulder, point-of-view (POV)
-    - Lens Effects: shallow depth of field, rack focus, soft focus, macro lens, wide-angle lens
-    - Motivated Movement: Camera moves serve narrative purpose, not arbitrary
-
-    🎙️ AUDIO MASTERY (Veo-3's Breakthrough Feature):
-    - Dialogue Format: "Character says: 'exact words'" (use colon, not quotes)
-    - Emotional Delivery: "He confessed with trembling voice" / "She announced triumphantly"
-    - Sound Effects: Be specific - "rhythmic clatter of train tracks" not "noise"
-    - Music Description: "melancholic piano melody" / "driving electronic bassline"
-    - Avoid Subtitles: Add "(no subtitles)" and use colon format
-    - Background Audio: Specify explicitly to avoid unwanted studio audience
-    - CONTINUOUS AUDIO: Ensure dialogue, music, or SFX fills every second - NO SILENCE
-    - OVERLAPPING AUDIO: Layer dialogue with background music and ambient sounds
-    - AUDIO TRANSITIONS: Smooth audio bridges between dialogue segments
-    - PACING CONTROL: Use "rapid-fire dialogue" or "conversational pace" specifications
-    - ELIMINATE DEAD AIR: Pack multiple lines of dialogue into each 8-second segment
-    - RAPID-FIRE DELIVERY: Characters speak quickly without pauses between sentences
-    - CONSTANT TALKING: Someone is always speaking - no awkward silence or blank space
-    - PRODUCT INTEGRATION: Weave company/product mentions into every line of dialogue
-
-    🎨 VISUAL ENHANCEMENT:
-    - Style References: film noir, anime, documentary, Wes Anderson style, claymation
-    - Lighting Control: chiaroscuro, golden hour, neon glow, candlelit
-    - Color Palette: desaturated cool blues, warm orange tones, monochromatic
-    - Physics Integration: Fabric movement, water flow, realistic interactions
-
-    📝 HIERARCHICAL PROMPT STRUCTURE:
-    1. Primary Elements: Main characters, core actions, setting
-    2. Secondary Elements: Environmental details, background elements  
-    3. Technical Specifications: Camera angles, lighting, audio
-    4. Temporal Indicators: Scene duration, emotional progression
-
-    ⚡ VEO-3 SPECIFIC OPTIMIZATIONS:
-    - Character Consistency: Use identical detailed descriptions across segments
-    - Sequence Planning: 8-second segments with emotional/narrative progression
-    - Negative Prompts: Describe desired state, avoid "no" or "don't" commands
-    - Iterative Refinement: Analyze output, refine specific elements progressively
-    - Motivated Direction: Every technical choice serves story/emotion
-
-    🔥 ADVANCED TECHNIQUES:
-    - Selfie-Style: "A selfie video of..." with visible arm for authenticity
-    - Dialogue Timing: Perfect for 8-second segments, avoid rushed/gibberish speech
-    - Character Emotion: Link physical movements to emotional states
-    - Scene Transitions: Plan continuity between segments for longer narratives
-    - Director Mindset: Think like filmmaker directing AI crew
-
-    🎙️ CONTINUOUS DIALOGUE EXAMPLES - NO DEAD SPACE:
-    - RAPID-FIRE: "Character says: 'This changed everything!' then immediately: 'I couldn't believe it!' followed by: 'Now I use it daily!' then: 'Everyone should try this!' ending with: 'It's absolutely incredible!'"
-    - OVERLAPPING: "Narrator says: 'Meet Sarah' while Sarah says: 'I love this product' while background voice adds: 'Amazing results' with upbeat music playing"
-    - CONVERSATIONAL: "Person A says: 'What's that?' Person B responds: 'It's amazing!' Person A: 'Tell me more!' Person B: 'It changed my life!' Person A: 'I need this now!'"
-    - LAYERED AUDIO: "Excited customer says: 'This is incredible!' over energetic background music while crowd cheers and someone else shouts: 'I agree completely!'"
-    - NO PAUSES: "Spokesperson says: 'Transform your life today' immediately followed by 'Don't wait another second' then 'Call now' then 'You won't regret it' with no silence between"
-    - PRODUCT INTEGRATION: "Every line mentions the company: 'With [COMPANY] I saved money' then 'On [COMPANY] everything is easy' then '[COMPANY] changed everything' then 'I love [COMPANY] so much'"
-
-    💫 CREATIVE VARIETY MANDATE:
-    - AVOID REPETITIVE SCENARIOS: Don't default to the same creatures, settings, or situations
-    - MIX GENRES: Combine different themes (sci-fi + comedy, horror + romance, etc.)
-    - UNEXPECTED COMBINATIONS: Pair mundane products with epic scenarios
-    - CULTURAL DIVERSITY: Use varied cultural references, not just Western tropes
-    - TEMPORAL VARIETY: Mix modern, historical, futuristic, and timeless elements
-    - SCALE VARIETY: From intimate personal moments to epic cosmic events
-
-    💫 PROMPT THEORY APPROACH:
-    - Macro Prompt: Establish atmosphere, lighting, cinematic style globally
-    - Character Specificity: Novel-level detail - "woman with tired green eyes, scar above eyebrow"
-    - Dialogue Integration: Intersperse speech with facial expressions and actions
-    - Cinematic Language: Use professional film terminology for camera guidance
-    - Emotional Journey: Clear understanding of character's emotional arc
+    *** VEO-3 ADVERTISING OPTIMIZATION ***
+    
+    🎬 CORE PRINCIPLES:
+    - PROMPT AS BLUEPRINT: Detailed instructions = better results
+    - CINEMATIC LANGUAGE: Use film terms (dolly-in, tracking shot, close-up)
+    - NATIVE AUDIO: Format "Character says: exact words" (no subtitles)
+    - MOTIVATED MOVEMENT: Every camera move serves the story
+    
+    🎥 KEY CAMERA MOVES:
+    - Product reveals: "slow dolly-in on product"
+    - Testimonials: "medium close-up for authenticity"  
+    - Call-to-action: "push-in on logo"
+    
+    🎙️ AUDIO EXCELLENCE:
+    - Dialogue: "Spokesperson says: This changed my life!"
+    - Delivery: "announces confidently" / "exclaims excitedly"
+    - Sound: "upbeat commercial music" + "satisfying product click"
+    
+    📝 STRUCTURE: Subject + Action + Camera + Audio + Brand message
     """
 
-    # 2025 Best Practices Section with 16-Second Video Optimization + Veo-3 Framework
+    # 2025 Best Practices Section - Streamlined
     practices_2025 = f"""
-    *** 2025 AD CREATION BEST PRACTICES - OPTIMIZED FOR 16-SECOND FORMAT + VEO-3 ***
-    CRITICAL: Apply these proven 2025 trends and Veo-3 optimization techniques:
-
+    *** 2025 AD CREATION BEST PRACTICES ***
+    
     {veo3_framework}
-
-    1. 3-SECOND HOOK RULE (CRITICAL FOR 16s): The first 3 seconds MUST grab attention immediately. Use:
-       - Immediately recognizable visuals (familiar objects/situations)
-       - Strong opening problem that resonates instantly
-       - Visual that speaks for itself without explanation
-       - Veo-3 Emotion Chain: Start with one emotion, transition to another in 3 seconds
-
-    2. ABCD FRAMEWORK FOR 16-SECOND ADS + VEO-3:
-       A - ATTENTION: Hook with Veo-3 gesture/emotion chains from second 1
-       B - BRANDING: Early integration (5s) using Veo-3 audio generation
-       C - CONNECTION: Veo-3 dialogue with emotional delivery + gesture linking
-       D - DIRECTION: Clear CTA with Veo-3 motivated camera movement
-
-    3. 16-SECOND VEO-3 STRUCTURE OPTIMIZATION:
-       - Seconds 1-3: HOOK using Veo-3 emotion chaining techniques
-       - Seconds 4-8: SETUP with cinematic camera movement keywords 
-       - Seconds 9-13: TRANSFORMATION using gesture + emotion combinations
-       - Seconds 14-16: CTA with motivated dolly/zoom for emphasis
-
-    4. VEO-3 AUDIO INTEGRATION FOR ADS:
-       - Dialogue Format: "Spokesperson says: 'Transform your business today'"
-       - Emotional Delivery: "Excited customer exclaims" / "Expert confidently states"
-       - Brand Audio: Specific SFX for product sounds, branded music cues
-       - Avoid Subtitle Issues: Use "(no subtitles)" religiously in ad context
-
-    5. VEO-3 CINEMATIC AD TECHNIQUES:
-       - Product Reveals: Use "rack focus" from product to user reaction
-       - Testimonials: "Over-the-shoulder" shots for authenticity
-       - Action Sequences: "Tracking shot" following product in use
-       - Emotional Moments: "Close-up" with "shallow depth of field"
-
-    6. AUTHENTICITY WITH VEO-3 PHYSICS:
-       - Real interactions between characters and products
-       - Physics-accurate product demonstrations
-       - Natural fabric/hair movement in testimonials
-       - Believable environmental interactions
-
-    7. VEO-3 CHARACTER CONSISTENCY FOR BRAND:
-       - Identical spokesperson descriptions across segments
-       - Consistent brand character personalities
-       - Visual continuity for multi-part campaigns
-       - Character reference sheets for ongoing use
+    
+    🎯 16-SECOND STRUCTURE:
+    - Seconds 1-3: HOOK with strong visual problem
+    - Seconds 4-8: BRAND INTRODUCTION with solution
+    - Seconds 9-13: TRANSFORMATION showing results
+    - Seconds 14-16: CLEAR CALL-TO-ACTION
+    
+    ⚡ KEY ELEMENTS:
+    - MOBILE-FIRST: Bright visuals, large text, vertical framing
+    - AUTHENTICITY: Real interactions, natural movement
+    - CONTINUOUS AUDIO: No dead space, constant dialogue/music
+    - EMOTION CHAIN: Start calm → excitement → satisfaction
     """
 
     prompt = f"""{ad_type_instructions}
@@ -1084,69 +968,28 @@ And the following creative direction from the user:
 
 When writing the ad, avoid these topics, themes, or words: {avoid_str}
 
-*** VEO-3 OPTIMIZED 16-SECOND AD CREATION FRAMEWORK ***
-Create a 2025-optimized, ultra-short 16-second ad script using the complete Veo-3 framework above:
+*** VEO-3 OPTIMIZED 16-SECOND AD CREATION ***
+Create a 16-second ad script using VEO-3 techniques:
 
-🎬 VEO-3 16-SECOND STRUCTURE:
-Segment 1 (8 seconds): ATTENTION + BRANDING with Veo-3 emotion chains
-- Seconds 1-3: HOOK using Veo-3 gesture/emotion chaining techniques + IMMEDIATE RAPID-FIRE DIALOGUE
-- Seconds 4-5: BRAND INTRODUCTION with native audio generation + CONTINUOUS PRODUCT MENTIONS
-- Seconds 6-8: SETUP with motivated camera movement and character development + NON-STOP TALKING
+🎬 STRUCTURE:
+Segment 1 (8s): HOOK + BRAND INTRO
+Segment 2 (8s): TRANSFORMATION + CALL-TO-ACTION
 
-Segment 2 (8 seconds): CONNECTION + DIRECTION with Veo-3 cinematic mastery
-- Seconds 9-11: TRANSFORMATION using gesture + emotion combinations + RAPID DIALOGUE WITH PRODUCT INTEGRATION
-- Seconds 12-13: EMOTIONAL PAYOFF with physics-accurate interactions + MUSIC + VOICE + COMPANY MENTIONS
-- Seconds 14-16: CLEAR CTA with motivated camera movement and audio reinforcement + CONSTANT PRODUCT TALK
+📝 OUTPUT REQUIREMENTS:
+For each segment provide:
+- "scene_description": Visual description (NO logos)
+- "prompt": Complete VEO-3 prompt with [voiceover: ...] (NO logos)
+- "voiceover_script": 8-second dialogue script
+- "mood": Emotional atmosphere
+- "camera": Camera movement
+- "veo3_optimization": VEO-3 techniques applied
 
-🎭 VEO-3 OPTIMIZATION REQUIREMENTS:
-- Apply emotion & gesture chaining: "Character starts [emotion], then [emotion], finally [emotion]"
-- Use professional cinematic language: dolly in/out, tracking shot, close-up, over-the-shoulder
-- Implement native audio generation: "Character says: 'exact words'" with (no subtitles)
-- Include physics-accurate interactions and realistic movement
-- Follow hierarchical structure: Primary → Secondary → Technical → Temporal
-- Motivated directorial choices: Every camera move and technique serves the story
+🎙️ AUDIO REQUIREMENTS:
+- Continuous dialogue/music (no dead space)
+- Format: "Character says: exact words"
+- Company name mentioned 2-3 times per segment
 
-📝 ENHANCED OUTPUT REQUIREMENTS:
-For each segment, provide these Veo-3 optimized elements:
-- "scene_description": Detailed Veo-3 visual using cinematic language (NO logos)
-- "prompt": Complete Veo-3 prompt with emotion chains, camera work, and [voiceover: ...] (NO logos)
-- "voiceover_script": 8-second RAPID-FIRE dialogue using proper Veo-3 format with emotional delivery
-- "mood": Emotional atmosphere with specific lighting/color references
-- "camera": Professional camera movement with narrative motivation
-- "veo3_optimization": Explanation of which Veo-3 techniques were applied
-- "emotion_chain": Specific emotion/gesture sequence for this segment
-- "audio_design": Detailed audio elements (dialogue, SFX, music) with Veo-3 formatting
-- "hook_strength": Rate 1-10 with explanation (segment1 only)
-- "abcd_elements": ABCD framework integration for this segment
-
-🚀 CINEMATIC EXCELLENCE GUIDELINES:
-- EVERY SECOND COUNTS: No wasted moments, every frame advances story
-- MOBILE-FIRST: Bright, high-contrast visuals, tight framing for small screens
-- AUDIO-VISUAL SYNC: Voice-over and visuals work together using Veo-3 native audio
-- IMMEDIATE IMMERSION: Drop viewers into story from second 1 using emotion chains
-- BRAND EARLY & OFTEN: Introduce within 5 seconds, maintain presence with audio
-- HUMAN CONNECTION: Show real people experiencing product with physics accuracy
-- CLEAR DIRECTION: Final 3 seconds have unmistakable CTA with motivated camera work
-- RAPID-FIRE DIALOGUE: Pack 4-6 lines of dialogue into each 8-second segment
-- CONSTANT PRODUCT MENTIONS: Company/product name mentioned 3-4 times per segment
-- ZERO DEAD AIR: Continuous talking, music, or sound effects - NO SILENCE EVER
-- OVERLAPPING AUDIO: Multiple voices, background music, and ambient sounds simultaneously
-
-*** CRITICAL DIALOGUE REQUIREMENTS - ELIMINATE ALL DEAD SPACE ***
-- PACK DIALOGUE: Each 8-second segment must have 4-6 rapid-fire lines
-- PRODUCT INTEGRATION: Company name mentioned multiple times per segment
-- NO PAUSES: Characters speak immediately after each other with no gaps
-- OVERLAPPING VOICES: Multiple people can talk simultaneously
-- BACKGROUND CHATTER: Add crowd voices, ambient conversations
-- MUSIC + VOICE: Background music plays while people talk
-- SOUND EFFECTS: Layer in relevant sounds while dialogue continues
-- RAPID DELIVERY: Characters speak quickly and enthusiastically
-- COMPANY OBSESSION: Every character is obsessed with mentioning the company
-
-EXAMPLE RAPID-FIRE VOICEOVER STRUCTURE:
-"Person says: 'I love [COMPANY]!' then immediately: 'It changed my life!' while background voice adds: '[COMPANY] is amazing!' then main person continues: 'Everyone needs [COMPANY]!' as music builds and crowd cheers: 'We love [COMPANY] too!'"
-
-Format your response as valid JSON:
+Format as valid JSON:
 {{
     "segment1": {{
         "scene_description": "...",
@@ -1154,11 +997,7 @@ Format your response as valid JSON:
         "voiceover_script": "...",
         "mood": "...",
         "camera": "...",
-        "veo3_optimization": "...",
-        "emotion_chain": "...",
-        "audio_design": "...",
-        "hook_strength": {{"rating": X, "explanation": "..."}},
-        "abcd_elements": "A: ... B: ... C: ... D: ..."
+        "veo3_optimization": "..."
     }},
     "segment2": {{
         "scene_description": "...",
@@ -1166,20 +1005,13 @@ Format your response as valid JSON:
         "voiceover_script": "...",
         "mood": "...",
         "camera": "...",
-        "veo3_optimization": "...",
-        "emotion_chain": "...",
-        "audio_design": "...",
-        "abcd_elements": "A: ... B: ... C: ... D: ..."
+        "veo3_optimization": "..."
     }},
     "slogan": "...",
-    "call_to_action": "...",
-    "ad_strategy_2025": "Brief explanation of 2025 best practices applied",
-    "veo3_framework_application": "Detailed explanation of Veo-3 optimization techniques used",
-    "sixteen_second_optimization": "How this ad maximizes impact in the 16-second format",
-    "feedback_integration": "How user feedback insights were applied to improve this ad"
+    "call_to_action": "..."
 }}
 
-Do not include any text before or after the JSON. Only return the JSON object."""
+Only return the JSON object."""
 
     try:
         response = client.chat.completions.create(
@@ -1189,12 +1021,30 @@ Do not include any text before or after the JSON. Only return the JSON object.""
             max_tokens=4000
         )
     except Exception as api_error:
-        print(f"OpenAI API Error: {api_error}")
+        print(f"OpenAI API Error for ad_type '{ad_type}': {api_error}")
         # Check if it's a content policy violation
         if "content policy" in str(api_error).lower() or "safety" in str(api_error).lower():
-            raise ValueError(f"Content policy violation: The ad prompt was rejected by OpenAI. This may be due to sensitive content in the ad type or prompt. Error: {str(api_error)}")
+            if ad_type == "unhinged":
+                print("Content policy violation detected for 'unhinged' ad type, falling back to 'high-energy'")
+                user_answers_fallback = user_answers.copy()
+                user_answers_fallback['ad_type'] = 'high-energy'
+                try:
+                    return generate_ad_script(company_info, user_answers_fallback, best_ads=best_ads)
+                except Exception as fallback_error:
+                    raise ValueError(f"Both 'unhinged' and 'high-energy' fallback failed. Original error: {str(api_error)}. Fallback error: {str(fallback_error)}")
+            else:
+                raise ValueError(f"Content policy violation: The ad prompt was rejected by OpenAI. This may be due to sensitive content in the ad type or prompt. Error: {str(api_error)}")
         else:
-            raise ValueError(f"OpenAI API Error: {str(api_error)}")
+            if ad_type == "unhinged":
+                print("API error for 'unhinged' ad type, falling back to 'high-energy'")
+                user_answers_fallback = user_answers.copy()
+                user_answers_fallback['ad_type'] = 'high-energy'
+                try:
+                    return generate_ad_script(company_info, user_answers_fallback, best_ads=best_ads)
+                except Exception as fallback_error:
+                    raise ValueError(f"Both 'unhinged' and 'high-energy' fallback failed. Original error: {str(api_error)}. Fallback error: {str(fallback_error)}")
+            else:
+                raise ValueError(f"OpenAI API Error: {str(api_error)}")
 
     content = response.choices[0].message.content.strip()
     print("OpenAI raw response:", repr(content))  # Debug print
@@ -1454,94 +1304,25 @@ def improve_script_with_gemini(company_info, user_answers, gpt_script, best_ads=
     
     # VEO-3 OPTIMIZATION FRAMEWORK - Define here for scope access
     veo3_framework = """
-    *** ADVANCED VEO-3 OPTIMIZATION FRAMEWORK ***
-    CRITICAL: Apply these cutting-edge Veo-3 techniques for cinematic excellence:
-
-    🎬 VEO-3 CORE PRINCIPLES:
-    1. "PROMPT AS BLUEPRINT" - Your prompt is a detailed architectural plan for Veo-3
-    2. CINEMATIC LANGUAGE - Veo-3 understands professional film terminology
-    3. NATIVE AUDIO GENERATION - Dialogue, SFX, and music from single prompt
-    4. PHYSICS SIMULATION - Realistic motion and interactions
-    5. SEQUENCE UNDERSTANDING - "This then that" emotional/gesture chains
-    6. CREATIVE DIVERSITY - Avoid repetitive scenarios, be unpredictable and varied
-
-    🎭 EMOTION & GESTURE CHAINING (Veo-3 Specialty):
-    - Use "this then that" sequences for complex emotional arcs
-    - Chain emotions: "Starts calm, then bursts into laughter, suddenly stops with terror"
-    - Chain gestures: "Spreads arms wide, brings hands to chest, points outward"
-    - Combine gesture + emotion: "Turns head like hearing something, pauses, whips back fast, eyes dart"
-    - Define start/stop points: "Begins composed, flash of violence, returns to calm"
-
-    🎥 CINEMATIC CONTROL OPTIMIZATION:
-    - Camera Motion Keywords: static shot, dolly in/out, pan left/right, tracking shot, crane shot, zoom in/out
-    - Composition Control: close-up, medium shot, wide shot, over-the-shoulder, point-of-view (POV)
-    - Lens Effects: shallow depth of field, rack focus, soft focus, macro lens, wide-angle lens
-    - Motivated Movement: Camera moves serve narrative purpose, not arbitrary
-
-    🎙️ AUDIO MASTERY (Veo-3's Breakthrough Feature):
-    - Dialogue Format: "Character says: 'exact words'" (use colon, not quotes)
-    - Emotional Delivery: "He confessed with trembling voice" / "She announced triumphantly"
-    - Sound Effects: Be specific - "rhythmic clatter of train tracks" not "noise"
-    - Music Description: "melancholic piano melody" / "driving electronic bassline"
-    - Avoid Subtitles: Add "(no subtitles)" and use colon format
-    - Background Audio: Specify explicitly to avoid unwanted studio audience
-    - CONTINUOUS AUDIO: Ensure dialogue, music, or SFX fills every second - NO SILENCE
-    - OVERLAPPING AUDIO: Layer dialogue with background music and ambient sounds
-    - AUDIO TRANSITIONS: Smooth audio bridges between dialogue segments
-    - PACING CONTROL: Use "rapid-fire dialogue" or "conversational pace" specifications
-    - ELIMINATE DEAD AIR: Pack multiple lines of dialogue into each 8-second segment
-    - RAPID-FIRE DELIVERY: Characters speak quickly without pauses between sentences
-    - CONSTANT TALKING: Someone is always speaking - no awkward silence or blank space
-    - PRODUCT INTEGRATION: Weave company/product mentions into every line of dialogue
-
-    🎨 VISUAL ENHANCEMENT:
-    - Style References: film noir, anime, documentary, Wes Anderson style, claymation
-    - Lighting Control: chiaroscuro, golden hour, neon glow, candlelit
-    - Color Palette: desaturated cool blues, warm orange tones, monochromatic
-    - Physics Integration: Fabric movement, water flow, realistic interactions
-
-    📝 HIERARCHICAL PROMPT STRUCTURE:
-    1. Primary Elements: Main characters, core actions, setting
-    2. Secondary Elements: Environmental details, background elements  
-    3. Technical Specifications: Camera angles, lighting, audio
-    4. Temporal Indicators: Scene duration, emotional progression
-
-    ⚡ VEO-3 SPECIFIC OPTIMIZATIONS:
-    - Character Consistency: Use identical detailed descriptions across segments
-    - Sequence Planning: 8-second segments with emotional/narrative progression
-    - Negative Prompts: Describe desired state, avoid "no" or "don't" commands
-    - Iterative Refinement: Analyze output, refine specific elements progressively
-    - Motivated Direction: Every technical choice serves story/emotion
-
-    🔥 ADVANCED TECHNIQUES:
-    - Selfie-Style: "A selfie video of..." with visible arm for authenticity
-    - Dialogue Timing: Perfect for 8-second segments, avoid rushed/gibberish speech
-    - Character Emotion: Link physical movements to emotional states
-    - Scene Transitions: Plan continuity between segments for longer narratives
-    - Director Mindset: Think like filmmaker directing AI crew
-
-    🎙️ CONTINUOUS DIALOGUE EXAMPLES - NO DEAD SPACE:
-    - RAPID-FIRE: "Character says: 'This changed everything!' then immediately: 'I couldn't believe it!' followed by: 'Now I use it daily!' then: 'Everyone should try this!' ending with: 'It's absolutely incredible!'"
-    - OVERLAPPING: "Narrator says: 'Meet Sarah' while Sarah says: 'I love this product' while background voice adds: 'Amazing results' with upbeat music playing"
-    - CONVERSATIONAL: "Person A says: 'What's that?' Person B responds: 'It's amazing!' Person A: 'Tell me more!' Person B: 'It changed my life!' Person A: 'I need this now!'"
-    - LAYERED AUDIO: "Excited customer says: 'This is incredible!' over energetic background music while crowd cheers and someone else shouts: 'I agree completely!'"
-    - NO PAUSES: "Spokesperson says: 'Transform your life today' immediately followed by 'Don't wait another second' then 'Call now' then 'You won't regret it' with no silence between"
-    - PRODUCT INTEGRATION: "Every line mentions the company: 'With [COMPANY] I saved money' then 'On [COMPANY] everything is easy' then '[COMPANY] changed everything' then 'I love [COMPANY] so much'"
-
-    💫 CREATIVE VARIETY MANDATE:
-    - AVOID REPETITIVE SCENARIOS: Don't default to the same creatures, settings, or situations
-    - MIX GENRES: Combine different themes (sci-fi + comedy, horror + romance, etc.)
-    - UNEXPECTED COMBINATIONS: Pair mundane products with epic scenarios
-    - CULTURAL DIVERSITY: Use varied cultural references, not just Western tropes
-    - TEMPORAL VARIETY: Mix modern, historical, futuristic, and timeless elements
-    - SCALE VARIETY: From intimate personal moments to epic cosmic events
-
-    💫 PROMPT THEORY APPROACH:
-    - Macro Prompt: Establish atmosphere, lighting, cinematic style globally
-    - Character Specificity: Novel-level detail - "woman with tired green eyes, scar above eyebrow"
-    - Dialogue Integration: Intersperse speech with facial expressions and actions
-    - Cinematic Language: Use professional film terminology for camera guidance
-    - Emotional Journey: Clear understanding of character's emotional arc
+    *** VEO-3 ADVERTISING OPTIMIZATION ***
+    
+    🎬 CORE PRINCIPLES:
+    - PROMPT AS BLUEPRINT: Detailed instructions = better results
+    - CINEMATIC LANGUAGE: Use film terms (dolly-in, tracking shot, close-up)
+    - NATIVE AUDIO: Format "Character says: exact words" (no subtitles)
+    - MOTIVATED MOVEMENT: Every camera move serves the story
+    
+    🎥 KEY CAMERA MOVES:
+    - Product reveals: "slow dolly-in on product"
+    - Testimonials: "medium close-up for authenticity"  
+    - Call-to-action: "push-in on logo"
+    
+    🎙️ AUDIO EXCELLENCE:
+    - Dialogue: "Spokesperson says: This changed my life!"
+    - Delivery: "announces confidently" / "exclaims excitedly"
+    - Sound: "upbeat commercial music" + "satisfying product click"
+    
+    📝 STRUCTURE: Subject + Action + Camera + Audio + Brand message
     """
     
     # Build best ads inspiration string for Gemini improvements
