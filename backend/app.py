@@ -1300,21 +1300,95 @@ def generate_video_segment_with_session(prompt, segment_num, session_id):
         raise Exception(f"Error generating video segment: {str(e)}")
 
 def combine_videos(video_paths, output_path):
-    """Combine video segments into final ad."""
+    """Combine video segments into final ad with improved audio handling."""
     try:
-        clips = [mp.VideoFileClip(path) for path in video_paths]
-        final_clip = mp.concatenate_videoclips(clips)
-        final_clip.write_videofile(output_path, codec='libx264', audio_codec='aac')
+        print(f"DEBUG: Starting video combination with {len(video_paths)} clips")
+        
+        # Load clips and inspect their properties
+        clips = []
+        for i, path in enumerate(video_paths):
+            clip = mp.VideoFileClip(path)
+            print(f"DEBUG: Clip {i+1} - Duration: {clip.duration:.2f}s, FPS: {clip.fps}, Audio: {clip.audio is not None}")
+            clips.append(clip)
+        
+        # Ensure all clips have audio
+        processed_clips = []
+        for i, clip in enumerate(clips):
+            if clip.audio is None:
+                print(f"WARNING: Clip {i+1} has no audio, adding silent audio")
+                # Add silent audio to match video duration
+                from moviepy.audio.AudioClip import AudioClip
+                silent_audio = AudioClip(lambda t: [0, 0], duration=clip.duration)
+                clip = clip.set_audio(silent_audio)
+            processed_clips.append(clip)
+        
+        # Apply audio cross-fading and normalization
+        final_clips = []
+        for i, clip in enumerate(processed_clips):
+            # Normalize audio levels to prevent volume spikes
+            if clip.audio is not None:
+                # Apply audio normalization (prevent clipping and ensure consistent volume)
+                clip = clip.audio_normalize()
+            
+            # Add slight fade-in/out to prevent audio pops
+            if i == 0:
+                # First clip: fade in at start, fade out at end for smooth transition
+                clip = clip.audio_fadein(0.05).audio_fadeout(0.05)
+            elif i == len(processed_clips) - 1:
+                # Last clip: fade in at start, no fade out at end to prevent cutoff
+                clip = clip.audio_fadein(0.05)
+            else:
+                # Middle clips: fade in and out for smooth transitions
+                clip = clip.audio_fadein(0.05).audio_fadeout(0.05)
+            
+            final_clips.append(clip)
+        
+        print("DEBUG: Concatenating clips with improved audio handling")
+        
+        # Concatenate with method that handles audio transitions better
+        final_clip = mp.concatenate_videoclips(final_clips, method="compose")
+        
+        # Ensure final clip doesn't cut off audio by adding tiny padding
+        final_duration = final_clip.duration
+        if final_clip.audio is not None:
+            # Add 0.1 second padding to prevent audio cutoff
+            final_clip = final_clip.subclip(0, final_duration + 0.1)
+        
+        print(f"DEBUG: Final clip duration: {final_clip.duration:.2f}s")
+        
+        # Write with optimized settings for better audio quality
+        final_clip.write_videofile(
+            output_path, 
+            codec='libx264', 
+            audio_codec='aac',
+            temp_audiofile='temp-audio.m4a',  # Use high-quality temp audio
+            remove_temp=True,  # Clean up temp files
+            audio_bitrate="192k",  # Higher audio bitrate for better quality
+            ffmpeg_params=['-avoid_negative_ts', 'make_zero']  # Fix audio sync issues
+        )
+        
+        print("DEBUG: Video combination completed successfully")
         
         # Cleanup
-        for clip in clips:
+        for clip in final_clips:
             clip.close()
+        for clip in processed_clips:
+            if clip not in final_clips:  # Avoid double-closing
+                clip.close()
         for path in video_paths:
-            os.remove(path)
-        os.rmdir(os.path.dirname(video_paths[0]))
+            if os.path.exists(path):
+                os.remove(path)
+        
+        # Clean up temp directory if it exists and is empty
+        temp_dir = os.path.dirname(video_paths[0])
+        if os.path.exists(temp_dir) and not os.listdir(temp_dir):
+            os.rmdir(temp_dir)
         
         return output_path
     except Exception as e:
+        print(f"ERROR in combine_videos: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise Exception(f"Error combining videos: {str(e)}")
 
 def generate_video_segment_with_retry(prompt, segment_num, max_retries=3):
@@ -1780,7 +1854,10 @@ def generate_ad():
             """Generate video with session-specific temporary files."""
             for retry in range(3):
                 try:
-                    return generate_video_segment_with_session(ad_script[segment]['prompt'], i, session_id)
+                    video_path = generate_video_segment_with_session(ad_script[segment]['prompt'], i, session_id)
+                    # Process the segment to improve audio quality
+                    processed_path = process_video_segment(video_path, i)
+                    return processed_path
                 except Exception as e:
                     if "flagged as sensitive" in str(e).lower() or "E005" in str(e):
                         print(f"Sensitive content detected for {segment}, regenerating script (retry {retry+1})...")
@@ -1792,6 +1869,7 @@ def generate_ad():
                         raise
             raise Exception(f"Failed to generate {segment} after 3 retries due to sensitive content.")
 
+        print("DEBUG: Starting parallel video generation with audio processing")
         with concurrent.futures.ThreadPoolExecutor() as executor:
             future1 = executor.submit(get_video_with_session, 'segment1', 1, session_id)
             future2 = executor.submit(get_video_with_session, 'segment2', 2, session_id)
@@ -1799,10 +1877,12 @@ def generate_ad():
             video_path2 = future2.result()
 
         video_paths = [video_path1, video_path2]
+        print(f"DEBUG: Generated and processed {len(video_paths)} video segments")
         
-        # Combine videos with thread-safe operations
+        # Combine videos with improved audio handling
         with file_lock:
             output_path = os.path.join(user_dir, f'{unique_name}_ad.mp4')
+        print("DEBUG: Starting video combination with improved audio handling")
         final_video_path = combine_videos(video_paths, output_path)
         
         print("Final video path:", final_video_path)
@@ -2269,6 +2349,74 @@ def get_insights_endpoint(ad_type, industry):
     except Exception as e:
         print(f"ERROR in get_insights_endpoint: {e}")
         return jsonify({'error': str(e)}), 500
+
+def process_video_segment(video_path, segment_num):
+    """Process individual video segment to improve audio quality and prevent glitches."""
+    try:
+        print(f"DEBUG: Processing segment {segment_num} at {video_path}")
+        
+        clip = mp.VideoFileClip(video_path)
+        
+        # Check if clip has audio
+        if clip.audio is None:
+            print(f"WARNING: Segment {segment_num} has no audio")
+            clip.close()
+            return video_path
+        
+        # Audio improvements
+        processed_clip = clip
+        
+        # Normalize audio to prevent volume inconsistencies
+        processed_clip = processed_clip.audio_normalize()
+        
+        # Remove any audio artifacts at the very beginning/end
+        # Trim any potential silence or artifacts from start/end
+        audio_start_trim = 0.01  # Remove first 10ms to eliminate pops
+        audio_end_trim = 0.01    # Remove last 10ms to eliminate cutoffs
+        
+        if processed_clip.duration > (audio_start_trim + audio_end_trim):
+            processed_clip = processed_clip.subclip(audio_start_trim, processed_clip.duration - audio_end_trim)
+        
+        # Ensure clip is exactly 8 seconds (standardize duration)
+        target_duration = 8.0
+        if abs(processed_clip.duration - target_duration) > 0.1:  # If more than 100ms off
+            print(f"DEBUG: Adjusting segment {segment_num} duration from {processed_clip.duration:.2f}s to {target_duration}s")
+            if processed_clip.duration < target_duration:
+                # If too short, loop the last frame to reach target duration
+                processed_clip = processed_clip.loop(duration=target_duration)
+            else:
+                # If too long, trim to target duration
+                processed_clip = processed_clip.subclip(0, target_duration)
+        
+        # Add smooth audio fade transitions to prevent pops
+        processed_clip = processed_clip.audio_fadein(0.05).audio_fadeout(0.05)
+        
+        # Save processed segment
+        temp_output = video_path.replace('.mp4', '_processed.mp4')
+        processed_clip.write_videofile(
+            temp_output,
+            codec='libx264',
+            audio_codec='aac',
+            audio_bitrate="192k",
+            verbose=False,
+            logger=None  # Reduce output noise
+        )
+        
+        # Replace original with processed version
+        processed_clip.close()
+        clip.close()
+        
+        if os.path.exists(video_path):
+            os.remove(video_path)
+        os.rename(temp_output, video_path)
+        
+        print(f"DEBUG: Successfully processed segment {segment_num}")
+        return video_path
+        
+    except Exception as e:
+        print(f"ERROR processing segment {segment_num}: {str(e)}")
+        # Return original path if processing fails
+        return video_path
 
 if __name__ == '__main__':
     try:
