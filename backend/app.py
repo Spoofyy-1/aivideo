@@ -934,9 +934,9 @@ CRITICAL: Use these SPECIFIC features and benefits in the dialogue. Don't just s
     # 2025 Best Practices Section - Streamlined
     practices_2025 = f"""
     *** 2025 AD CREATION BEST PRACTICES ***
-    
+
     {veo3_framework}
-    
+
     🎯 16-SECOND STRUCTURE:
     - Seconds 1-3: HOOK with strong visual problem
     - Seconds 4-8: BRAND INTRODUCTION with solution
@@ -1154,85 +1154,46 @@ def combine_videos(video_paths, output_path):
     try:
         print(f"DEBUG: Starting video combination with {len(video_paths)} clips")
         
-        # Load clips and inspect their properties
+        # Load clips with basic error handling
         clips = []
         for i, path in enumerate(video_paths):
+            if not os.path.exists(path):
+                raise Exception(f"Video file {path} does not exist")
+            
             clip = mp.VideoFileClip(path)
             print(f"DEBUG: Clip {i+1} - Duration: {clip.duration:.2f}s, FPS: {clip.fps}, Audio: {clip.audio is not None}")
             clips.append(clip)
         
-        # Ensure all clips have audio
-        processed_clips = []
-        for i, clip in enumerate(clips):
-            if clip.audio is None:
-                print(f"WARNING: Clip {i+1} has no audio, adding silent audio")
-                # Add silent audio to match video duration
-                from moviepy.audio.AudioClip import AudioClip
-                silent_audio = AudioClip(lambda t: [0, 0], duration=clip.duration)
-                clip = clip.set_audio(silent_audio)
-            processed_clips.append(clip)
-        
-        # Apply audio cross-fading and normalization
-        final_clips = []
-        for i, clip in enumerate(processed_clips):
-            # Normalize audio levels to prevent volume spikes
-            if clip.audio is not None:
-                # Apply audio normalization (prevent clipping and ensure consistent volume)
-                clip = clip.audio_normalize()
-            
-            # Add slight fade-in/out to prevent audio pops
-            if i == 0:
-                # First clip: fade in at start, fade out at end for smooth transition
-                clip = clip.audio_fadein(0.05).audio_fadeout(0.05)
-            elif i == len(processed_clips) - 1:
-                # Last clip: fade in at start, no fade out at end to prevent cutoff
-                clip = clip.audio_fadein(0.05)
-            else:
-                # Middle clips: fade in and out for smooth transitions
-                clip = clip.audio_fadein(0.05).audio_fadeout(0.05)
-            
-            final_clips.append(clip)
-        
-        print("DEBUG: Concatenating clips with improved audio handling")
-        
-        # Concatenate with method that handles audio transitions better
-        final_clip = mp.concatenate_videoclips(final_clips, method="compose")
-        
-        # Ensure final clip doesn't cut off audio by adding tiny padding
-        final_duration = final_clip.duration
-        if final_clip.audio is not None:
-            # Add 0.1 second padding to prevent audio cutoff
-            final_clip = final_clip.subclip(0, final_duration + 0.1)
+        # Simple concatenation without complex audio processing
+        print("DEBUG: Concatenating clips")
+        final_clip = mp.concatenate_videoclips(clips, method="compose")
         
         print(f"DEBUG: Final clip duration: {final_clip.duration:.2f}s")
         
-        # Write with optimized settings for better audio quality
+        # Write with basic settings to avoid ffmpeg issues
+        print("DEBUG: Writing final video file")
         final_clip.write_videofile(
             output_path, 
             codec='libx264', 
             audio_codec='aac',
-            temp_audiofile='temp-audio.m4a',  # Use high-quality temp audio
-            remove_temp=True,  # Clean up temp files
-            audio_bitrate="192k",  # Higher audio bitrate for better quality
-            ffmpeg_params=['-avoid_negative_ts', 'make_zero']  # Fix audio sync issues
+            verbose=False,
+            logger=None
         )
         
         print("DEBUG: Video combination completed successfully")
         
         # Cleanup
-        for clip in final_clips:
+        final_clip.close()
+        for clip in clips:
             clip.close()
-        for clip in processed_clips:
-            if clip not in final_clips:  # Avoid double-closing
-                clip.close()
-        for path in video_paths:
-            if os.path.exists(path):
-                os.remove(path)
         
-        # Clean up temp directory if it exists and is empty
-        temp_dir = os.path.dirname(video_paths[0])
-        if os.path.exists(temp_dir) and not os.listdir(temp_dir):
-            os.rmdir(temp_dir)
+        # Clean up temp files
+        for path in video_paths:
+            try:
+                if os.path.exists(path):
+                    os.remove(path)
+            except Exception as e:
+                print(f"WARNING: Could not remove temp file {path}: {e}")
         
         return output_path
     except Exception as e:
