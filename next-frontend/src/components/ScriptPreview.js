@@ -28,124 +28,158 @@ const ScriptPreview = ({
   };
 
   const renderSegment = (segmentName, segment) => (
-    <div key={segmentName} className="script-segment">
-      <h4 style={{ color: '#2c6878', marginBottom: '1rem' }}>
-        {segmentName === 'segment1' ? 'Segment 1 (0-8 seconds)' : 'Segment 2 (8-16 seconds)'}
+    <div key={segmentName} style={{ marginBottom: '2rem' }}>
+      <h4 style={{ 
+        color: '#00d4ff', 
+        marginBottom: '1rem',
+        fontSize: '1.4rem',
+        fontWeight: 'bold',
+        textTransform: 'capitalize'
+      }}>
+        🎥 {segmentName.replace('segment', 'Segment ')}
       </h4>
       
-      <div className="segment-content">
-        <div className="script-field">
-          <label><strong>Scene Description:</strong></label>
-          <p>{segment.scene_description}</p>
-        </div>
-        
-        <div className="script-field">
-          <label><strong>Voiceover Script:</strong></label>
-          <p className="voiceover-text">{segment.voiceover_script}</p>
-          {scriptAnalysis?.length_analysis?.[segmentName] && (
-            <small style={{ 
-              color: scriptAnalysis.length_analysis[segmentName].optimal ? '#28a745' : '#dc3545',
-              display: 'block',
-              marginTop: '0.5rem'
-            }}>
-              {scriptAnalysis.length_analysis[segmentName].word_count} words • 
-              ~{scriptAnalysis.length_analysis[segmentName].estimated_duration}s duration
-              {!scriptAnalysis.length_analysis[segmentName].optimal && " ⚠️"}
-            </small>
+      {typeof segment === 'object' ? (
+        <div style={{ paddingLeft: '1rem' }}>
+          {segment.voiceover_script && (
+            <div style={{ marginBottom: '1.5rem' }}>
+              <strong style={{ color: '#00d4ff' }}>🎙️ Voiceover:</strong>
+              <p style={{ 
+                marginTop: '0.5rem', 
+                fontSize: '1.1rem', 
+                lineHeight: '1.6',
+                color: '#ffffff'
+              }}>
+                "{segment.voiceover_script}"
+              </p>
+            </div>
+          )}
+          
+          {segment.visual_description && (
+            <div style={{ marginBottom: '1.5rem' }}>
+              <strong style={{ color: '#00d4ff' }}>📹 Visual:</strong>
+              <p style={{ 
+                marginTop: '0.5rem', 
+                fontSize: '1rem', 
+                lineHeight: '1.5',
+                color: '#cccccc'
+              }}>
+                {segment.visual_description}
+              </p>
+            </div>
+          )}
+          
+          {segment.camera_direction && (
+            <div style={{ marginBottom: '1.5rem' }}>
+              <strong style={{ color: '#00d4ff' }}>🎬 Camera:</strong>
+              <p style={{ 
+                marginTop: '0.5rem', 
+                fontSize: '1rem', 
+                lineHeight: '1.5',
+                color: '#cccccc'
+              }}>
+                {segment.camera_direction}
+              </p>
+            </div>
           )}
         </div>
-        
-        <div className="script-field">
-          <label><strong>Mood:</strong></label>
-          <p>{segment.mood}</p>
-        </div>
-        
-        <div className="script-field">
-          <label><strong>Camera Movement:</strong></label>
-          <p>{segment.camera}</p>
-        </div>
-        
-        {showAdvanced && (
-          <>
-            <div className="script-field">
-              <label><strong>VEO-3 Prompt:</strong></label>
-              <p className="prompt-text">{segment.prompt}</p>
-            </div>
-            
-            {segment.veo3_optimization && (
-              <div className="script-field">
-                <label><strong>VEO-3 Optimization:</strong></label>
-                <p>{segment.veo3_optimization}</p>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-      
-      {/* Show issues for this segment */}
-      {scriptAnalysis && scriptAnalysis[`${segmentName}_issues`]?.length > 0 && (
-        <div className="segment-issues">
-          <h5 style={{ color: '#dc3545', marginBottom: '0.5rem' }}>⚠️ Potential Issues:</h5>
-          <ul style={{ marginLeft: '1rem', color: '#dc3545' }}>
-            {scriptAnalysis[`${segmentName}_issues`].map((issue, idx) => (
-              <li key={idx}>{issue}</li>
-            ))}
-          </ul>
-        </div>
+      ) : (
+        <p style={{ 
+          fontSize: '1.1rem', 
+          lineHeight: '1.6',
+          color: '#ffffff',
+          fontStyle: 'italic'
+        }}>
+          "{segment}"
+        </p>
       )}
     </div>
   );
 
   return (
-    <div className="script-preview-container">
-      <div className="script-header">
-        <h3 style={{ color: '#2c6878', marginBottom: '1rem' }}>📝 Your AI-Generated Script</h3>
-        
-        {/* Script Quality Analysis */}
-        {scriptAnalysis && (
-          <div className="script-analysis">
-            <div className="quality-score">
-              <span style={{ color: '#666' }}>VEO-3 Optimization Score: </span>
-              <strong style={{ color: getScoreColor(scriptAnalysis.audio_quality_score) }}>
-                {scriptAnalysis.audio_quality_score}/100
-              </strong>
-            </div>
-            
-            {scriptAnalysis.overall_recommendations?.length > 0 && (
-              <div className="recommendations">
-                <strong style={{ color: '#ffc107' }}>💡 Recommendations:</strong>
-                <ul style={{ marginLeft: '1rem', marginTop: '0.5rem' }}>
-                  {scriptAnalysis.overall_recommendations.map((rec, idx) => (
-                    <li key={idx} style={{ color: '#666' }}>{rec}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+    <div style={{
+      background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
+      borderRadius: '20px',
+      padding: '2rem',
+      margin: '2rem 0',
+      color: '#fff',
+      fontFamily: 'Orbitron, sans-serif',
+      boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+      minHeight: '80vh',
+      width: '100%',
+      maxWidth: 'none'
+    }}>
+      <h2 style={{ 
+        fontSize: '2.5rem', 
+        marginBottom: '2rem', 
+        textAlign: 'center',
+        background: 'linear-gradient(45deg, #00d4ff, #ffffff)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        fontWeight: 'bold'
+      }}>
+        📝 Your AI-Generated Script
+      </h2>
 
-      {/* Script Content */}
-      <div className="script-content">
-        {script.segment1 && renderSegment('segment1', script.segment1)}
-        {script.segment2 && renderSegment('segment2', script.segment2)}
-        
-        {/* Overall Script Elements */}
-        <div className="script-overall">
-          <h4 style={{ color: '#2c6878', marginBottom: '1rem' }}>Overall Elements</h4>
+      {/* Script Quality Analysis */}
+      {scriptAnalysis && (
+        <div className="script-analysis">
+          <div className="quality-score">
+            <span style={{ color: '#666' }}>VEO-3 Optimization Score: </span>
+            <strong style={{ color: getScoreColor(scriptAnalysis.audio_quality_score) }}>
+              {scriptAnalysis.audio_quality_score}/100
+            </strong>
+          </div>
           
-          {script.slogan && (
-            <div className="script-field">
-              <label><strong>Slogan:</strong></label>
-              <p>{script.slogan}</p>
+          {scriptAnalysis.overall_recommendations?.length > 0 && (
+            <div className="recommendations">
+              <strong style={{ color: '#ffc107' }}>💡 Recommendations:</strong>
+              <ul style={{ marginLeft: '1rem', marginTop: '0.5rem' }}>
+                {scriptAnalysis.overall_recommendations.map((rec, idx) => (
+                  <li key={idx} style={{ color: '#666' }}>{rec}</li>
+                ))}
+              </ul>
             </div>
           )}
-          
-          {script.call_to_action && (
-            <div className="script-field">
-              <label><strong>Call to Action:</strong></label>
-              <p>{script.call_to_action}</p>
-            </div>
+        </div>
+      )}
+
+      {/* Script Content */}
+      <div style={{
+        background: 'rgba(255,255,255,0.1)',
+        borderRadius: '15px',
+        padding: '2.5rem',
+        marginBottom: '2rem',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255,255,255,0.2)'
+      }}>
+        <h3 style={{ 
+          color: '#00d4ff', 
+          marginBottom: '2rem',
+          fontSize: '1.8rem',
+          fontWeight: 'bold'
+        }}>
+          🎬 Video Script
+        </h3>
+        
+        <div style={{
+          background: 'rgba(0,0,0,0.3)',
+          borderRadius: '12px',
+          padding: '2rem',
+          fontSize: '1.2rem',
+          lineHeight: '1.8',
+          fontFamily: 'system-ui, sans-serif',
+          color: '#ffffff',
+          whiteSpace: 'pre-wrap',
+          border: '2px solid rgba(0,212,255,0.3)',
+          minHeight: '200px'
+        }}>
+          {typeof script === 'object' ? (
+            Object.entries(script).map(([segmentName, segment]) => 
+              renderSegment(segmentName, segment)
+            )
+          ) : (
+            script || 'No script content available'
           )}
         </div>
       </div>
@@ -162,48 +196,86 @@ const ScriptPreview = ({
       </div>
 
       {/* Improvement Section */}
-      <div className="improvement-section">
-        <h4 style={{ color: '#2c6878', marginBottom: '1rem' }}>🚀 Improve Your Script</h4>
+      <div style={{
+        background: 'rgba(255,255,255,0.1)',
+        borderRadius: '15px',
+        padding: '2.5rem',
+        marginBottom: '2rem',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255,255,255,0.2)'
+      }}>
+        <h3 style={{ 
+          color: '#00d4ff', 
+          marginBottom: '2rem',
+          fontSize: '1.8rem',
+          fontWeight: 'bold'
+        }}>
+          ✨ Improve Your Script
+        </h3>
         
-        <div className="improvement-input">
+        <div style={{ marginBottom: '2rem' }}>
           <textarea
             value={improvementRequest}
             onChange={(e) => setImprovementRequest(e.target.value)}
-            placeholder="Tell us how you'd like to improve the script... 
-Examples:
-• Make it more humorous
-• Focus more on the product features
-• Make the tone more professional
-• Shorten the voiceover in segment 1
-• Add more emotion to segment 2"
-            rows={4}
+            placeholder="Tell me how to improve this script... (e.g., 'Make it more emotional', 'Add more humor', 'Focus on the product benefits', etc.)"
             style={{
               width: '100%',
-              padding: '1rem',
-              borderRadius: '8px',
-              border: '1px solid #ccc',
-              fontFamily: 'inherit',
-              fontSize: '14px',
-              resize: 'vertical'
+              minHeight: '120px',
+              padding: '1.5rem',
+              borderRadius: '12px',
+              border: '2px solid rgba(0,212,255,0.3)',
+              background: 'rgba(0,0,0,0.3)',
+              color: '#fff',
+              fontSize: '1.1rem',
+              fontFamily: 'system-ui, sans-serif',
+              resize: 'vertical',
+              lineHeight: '1.6'
             }}
           />
         </div>
         
-        <div className="improvement-buttons">
+        <div style={{ 
+          display: 'flex', 
+          gap: '1.5rem', 
+          flexWrap: 'wrap',
+          justifyContent: 'center'
+        }}>
           <button
-            type="button"
             onClick={handleImprove}
-            disabled={!improvementRequest.trim() || loading}
-            className="improve-button"
+            disabled={loading || !improvementRequest.trim()}
+            style={{
+              background: loading ? '#666' : 'linear-gradient(45deg, #ff6b35, #f7931e)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '12px',
+              padding: '1rem 2.5rem',
+              fontSize: '1.2rem',
+              fontWeight: 'bold',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'all 0.3s ease',
+              fontFamily: 'Orbitron, sans-serif',
+              minWidth: '200px'
+            }}
           >
-            {loading ? '🔄 Improving...' : '✨ Improve with AI'}
+            {loading ? '🔄 Improving...' : '🚀 Improve Script'}
           </button>
           
           <button
-            type="button"
             onClick={onApprove}
             disabled={loading}
-            className="approve-button"
+            style={{
+              background: loading ? '#666' : 'linear-gradient(45deg, #4CAF50, #45a049)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '12px',
+              padding: '1rem 2.5rem',
+              fontSize: '1.2rem',
+              fontWeight: 'bold',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'all 0.3s ease',
+              fontFamily: 'Orbitron, sans-serif',
+              minWidth: '200px'
+            }}
           >
             {loading ? '⏳ Please wait...' : '✅ Approve & Generate Video'}
           </button>
