@@ -157,9 +157,10 @@ function Chatbot() {
   // Handle product selection
   const handleProductSelect = (product) => {
     setMessages(msgs => [...msgs, { sender: 'user', text: product }]);
-    setAnswers(ans => ({ ...ans, product }));
+    const updatedAnswers = { ...answers, product };
+    setAnswers(updatedAnswers);
     setProductSelected(true);
-    maybeGenerateScript({ ...answers, product });
+    maybeGenerateScript(updatedAnswers);
   };
 
   // Handle custom product input
@@ -445,9 +446,10 @@ function Chatbot() {
                     }}
                     onClick={() => {
                       setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
-                      setAnswers(ans => ({ ...ans, product: opt }));
+                      const updatedAnswers = { ...answers, product: opt };
+                      setAnswers(updatedAnswers);
                       setProductSelected(true);
-                      maybeGenerateScript({ ...answers, product: opt });
+                      maybeGenerateScript(updatedAnswers);
                     }}
                   >
                     {opt}
