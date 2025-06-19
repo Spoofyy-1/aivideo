@@ -979,22 +979,28 @@ Segment 2 (8s): TRANSFORMATION + CALL-TO-ACTION
 For each segment provide:
 - "scene_description": Visual description (NO logos)
 - "prompt": Complete VEO-3 prompt with [voiceover: ...] (NO logos)
-- "voiceover_script": 8-second dialogue script
+- "voiceover_script": EXACTLY 10 words maximum for perfect 8-second timing
 - "mood": Emotional atmosphere
 - "camera": Camera movement
 - "veo3_optimization": VEO-3 techniques applied
 
-🎙️ AUDIO REQUIREMENTS:
-- Continuous dialogue/music (no dead space)
+🎙️ CRITICAL AUDIO REQUIREMENTS:
+- EXACTLY 10 WORDS PER SEGMENT: This prevents voiceover cutoff in VEO-3
+- 10 words = ~4 seconds speech + 4 seconds visual development = perfect 8s clip
+- Every word must be impactful and necessary
 - Format: "Character says: exact words"
-- Company name mentioned 2-3 times per segment
+- Company name mentioned 1-2 times per segment (within the 10-word limit)
+- Continuous background music/sounds throughout
+
+⚠️ TIMING CRITICAL: VEO-3 cuts off voiceovers longer than 10 words in 8-second clips.
+Make every word count. Be concise and powerful.
 
 Format as valid JSON:
 {{
     "segment1": {{
         "scene_description": "...",
         "prompt": "... [voiceover: ...]",
-        "voiceover_script": "...",
+        "voiceover_script": "10 words maximum here",
         "mood": "...",
         "camera": "...",
         "veo3_optimization": "..."
@@ -1002,16 +1008,14 @@ Format as valid JSON:
     "segment2": {{
         "scene_description": "...",
         "prompt": "... [voiceover: ...]",
-        "voiceover_script": "...",
+        "voiceover_script": "10 words maximum here",
         "mood": "...",
         "camera": "...",
         "veo3_optimization": "..."
     }},
     "slogan": "...",
     "call_to_action": "..."
-}}
-
-Only return the JSON object."""
+}}"""
 
     try:
         response = client.chat.completions.create(
@@ -2171,7 +2175,7 @@ def generate_script_only():
         }), 429
     
     try:
-        print("DEBUG: Generate script route called")
+        print("DEBUG: Generate script route called with auto-optimization")
         user_answers = request.json
         company_url = user_answers.get('company_url')
         
@@ -2185,20 +2189,22 @@ def generate_script_only():
         user_text = f"Company info: {company_info}\nUser wants: {json.dumps(user_answers)}"
         best_ads = get_top_best_ads(user_text)
         
-        # Generate script with GPT first
+        # Generate initial script with GPT first
+        print("DEBUG: Generating initial script with GPT")
         ad_script = generate_ad_script(company_info, user_answers, best_ads=best_ads)
-        print("Generated script:", ad_script)
+        print("Generated initial script:", ad_script)
         
-        # Apply VEO-3 optimization for timing
-        if isinstance(ad_script, dict):
-            ad_script = optimize_script_for_veo3(ad_script)
+        # Apply automatic optimization until reaching 80/100 VEO-3 readiness
+        print("DEBUG: Starting automatic optimization to reach 80/100 VEO-3 readiness")
+        optimized_script, script_analysis = auto_optimize_script_until_ready(
+            ad_script, company_info, user_answers, best_ads, target_score=80
+        )
         
-        # Enhanced analysis with timing considerations
-        script_analysis = analyze_script_quality(ad_script, user_answers)
+        print(f"DEBUG: Final optimization complete - VEO-3 readiness: {script_analysis.get('veo3_readiness', 0)}/100")
         
         return jsonify({
             'status': 'success',
-            'script': ad_script,
+            'script': optimized_script,
             'company_info': company_info,
             'script_analysis': script_analysis
         })
@@ -2213,7 +2219,7 @@ def generate_script_only():
 def improve_script():
     """Improve an existing script by fully regenerating with GPT + Gemini using user feedback"""
     try:
-        print("DEBUG: Improve script route called")
+        print("DEBUG: Improve script route called with auto-optimization")
         data = request.json
         current_script = data.get('script')
         company_info = data.get('company_info')
@@ -2249,16 +2255,17 @@ def improve_script():
             print(f"Gemini improvement failed, using GPT regenerated script. Error: {e}")
             final_script = regenerated_script
         
-        # Apply VEO-3 optimization for timing
-        if isinstance(final_script, dict):
-            final_script = optimize_script_for_veo3(final_script)
+        # Step 4: Apply automatic optimization until reaching 80/100 VEO-3 readiness
+        print("DEBUG: Starting automatic optimization to reach 80/100 VEO-3 readiness")
+        optimized_script, script_analysis = auto_optimize_script_until_ready(
+            final_script, company_info, enhanced_user_answers, best_ads, target_score=80
+        )
         
-        # Analyze final script with enhanced timing analysis
-        script_analysis = analyze_script_quality(final_script, enhanced_user_answers)
+        print(f"DEBUG: Final improvement complete - VEO-3 readiness: {script_analysis.get('veo3_readiness', 0)}/100")
         
         return jsonify({
             'status': 'success',
-            'script': final_script,
+            'script': optimized_script,
             'script_analysis': script_analysis
         })
         
@@ -2719,22 +2726,28 @@ Segment 2 (8s): TRANSFORMATION + CALL-TO-ACTION
 For each segment provide:
 - "scene_description": Visual description (NO logos)
 - "prompt": Complete VEO-3 prompt with [voiceover: ...] (NO logos)
-- "voiceover_script": 8-second dialogue script
+- "voiceover_script": EXACTLY 10 words maximum for perfect 8-second timing
 - "mood": Emotional atmosphere
 - "camera": Camera movement
 - "veo3_optimization": VEO-3 techniques applied
 
-🎙️ AUDIO REQUIREMENTS:
-- Continuous dialogue/music (no dead space)
+🎙️ CRITICAL AUDIO REQUIREMENTS:
+- EXACTLY 10 WORDS PER SEGMENT: This prevents voiceover cutoff in VEO-3
+- 10 words = ~4 seconds speech + 4 seconds visual development = perfect 8s clip
+- Every word must be impactful and necessary
 - Format: "Character says: exact words"
-- Company name mentioned 2-3 times per segment
+- Company name mentioned 1-2 times per segment (within the 10-word limit)
+- Continuous background music/sounds throughout
+
+⚠️ TIMING CRITICAL: VEO-3 cuts off voiceovers longer than 10 words in 8-second clips.
+Make every word count. Be concise and powerful.
 
 Format as valid JSON:
 {{
     "segment1": {{
         "scene_description": "...",
         "prompt": "... [voiceover: ...]",
-        "voiceover_script": "...",
+        "voiceover_script": "10 words maximum here",
         "mood": "...",
         "camera": "...",
         "veo3_optimization": "..."
@@ -2742,16 +2755,14 @@ Format as valid JSON:
     "segment2": {{
         "scene_description": "...",
         "prompt": "... [voiceover: ...]",
-        "voiceover_script": "...",
+        "voiceover_script": "10 words maximum here",
         "mood": "...",
         "camera": "...",
         "veo3_optimization": "..."
     }},
     "slogan": "...",
     "call_to_action": "..."
-}}
-
-Only return the JSON object."""
+}}"""
 
     try:
         response = client.chat.completions.create(
@@ -2942,6 +2953,336 @@ def analyze_script_quality(script, user_answers):
             recommendations.append("🎭 Consider pacing slower or adding content for full 8-second clips")
         if total_issues >= 4:
             recommendations.append("⚠️ Multiple timing issues detected - consider script revision")
+    
+    analysis['overall_recommendations'] = recommendations
+    
+    return analysis
+
+def auto_optimize_script_until_ready(script, company_info, user_answers, best_ads=None, target_score=80):
+    """
+    Automatically optimize script until it reaches target VEO-3 readiness score.
+    Target: 10 words per segment for perfect timing (4-5 seconds speech in 8-second clips).
+    """
+    print(f"DEBUG: Starting auto-optimization targeting {target_score}/100 VEO-3 readiness")
+    
+    max_iterations = 5
+    current_script = script
+    
+    for iteration in range(max_iterations):
+        print(f"DEBUG: Auto-optimization iteration {iteration + 1}/{max_iterations}")
+        
+        # Apply VEO-3 optimization
+        optimized_script = optimize_script_for_veo3_precise(current_script)
+        
+        # Analyze quality
+        analysis = analyze_script_quality(optimized_script, user_answers)
+        current_score = analysis.get('veo3_readiness', 0)
+        
+        print(f"DEBUG: Current VEO-3 readiness: {current_score}/100")
+        
+        # Check if we've reached target
+        if current_score >= target_score:
+            print(f"DEBUG: ✅ Reached target score {current_score}/100 in {iteration + 1} iterations")
+            return optimized_script, analysis
+        
+        # If not good enough, regenerate problematic segments
+        if current_score < target_score and iteration < max_iterations - 1:
+            print(f"DEBUG: Score {current_score} below target {target_score}, improving...")
+            current_script = auto_improve_problematic_segments(
+                optimized_script, analysis, company_info, user_answers, best_ads
+            )
+    
+    print(f"DEBUG: ⚠️ Reached max iterations, final score: {current_score}/100")
+    return optimized_script, analysis
+
+def optimize_script_for_veo3_precise(script_segments):
+    """
+    Optimize script for VEO-3's 8-second segments with PRECISE 10-word targeting.
+    Target: 10 words = ~4-5 seconds speech + 3-4 seconds for visual/music = perfect 8s clip
+    """
+    optimized_segments = {}
+    
+    for segment_name, segment in script_segments.items():
+        if isinstance(segment, dict) and 'voiceover_script' in segment:
+            voiceover = segment['voiceover_script']
+            
+            # Calculate optimal timing for 8-second clips
+            words = voiceover.split()
+            word_count = len(words)
+            
+            # CRITICAL: Target exactly 10 words for optimal VEO-3 timing
+            # 10 words = ~4 seconds speech + 4 seconds for visual pacing = perfect 8s clip
+            target_word_count = 10
+            
+            if word_count > 12:
+                # Too long - truncate to exactly 10 words
+                words = words[:target_word_count]
+                voiceover = ' '.join(words)
+                timing_note = "✅ Optimized to 10 words for perfect timing"
+            elif word_count < 8:
+                # Too short - this is actually fine, just pace slower
+                timing_note = "✅ Short script - pace very slowly for full 8 seconds"
+            else:
+                timing_note = "✅ Good length for 8-second VEO-3 segment"
+            
+            # Add precise timing markers with 10-word optimization
+            voiceover_timing = {
+                "start_time": "0:00",
+                "end_time": "0:08", 
+                "duration": "8 seconds",
+                "delivery_note": f"Deliver {len(voiceover.split())} words in 4-5 seconds, leaving 3-4s for visuals",
+                "pacing": "Speak clearly and pause between words - visual needs time to develop",
+                "target_speech_duration": "4-5 seconds maximum",
+                "visual_time": "3-4 seconds for visual development"
+            }
+            
+            optimized_segments[segment_name] = {
+                **segment,
+                'voiceover_script': voiceover,
+                'voiceover_timing': voiceover_timing,
+                'word_count': len(voiceover.split()),
+                'timing_analysis': timing_note,
+                'veo3_optimization': f"Optimized to {len(voiceover.split())} words for 8-second VEO-3 clip"
+            }
+        else:
+            optimized_segments[segment_name] = segment
+    
+    return optimized_segments
+
+def auto_improve_problematic_segments(script, analysis, company_info, user_answers, best_ads):
+    """
+    Automatically improve segments that have issues identified in analysis.
+    Focus on word count optimization and VEO-3 readiness.
+    """
+    print("DEBUG: Auto-improving problematic segments")
+    
+    improved_script = script.copy()
+    
+    # Check each segment for issues
+    for segment_name in ['segment1', 'segment2']:
+        if segment_name not in script:
+            continue
+            
+        segment_issues = analysis.get(f'{segment_name}_issues', [])
+        if not segment_issues:
+            continue
+            
+        print(f"DEBUG: Improving {segment_name} - issues: {segment_issues}")
+        
+        # Create improvement request based on issues
+        improvement_requests = []
+        
+        for issue in segment_issues:
+            if "too long" in issue.lower():
+                improvement_requests.append("Make the voiceover much shorter - target exactly 10 words maximum")
+            elif "too short" in issue.lower():
+                improvement_requests.append("The voiceover length is fine - optimize pacing instructions") 
+            elif "visual description" in issue.lower():
+                improvement_requests.append("Make the visual description more detailed and specific")
+            elif "truncated" in issue.lower():
+                improvement_requests.append("Rewrite to be naturally shorter - exactly 10 words maximum")
+        
+        if improvement_requests:
+            # Improve this specific segment
+            improved_segment = improve_single_segment_with_ai(
+                script[segment_name], 
+                improvement_requests,
+                company_info,
+                user_answers,
+                best_ads,
+                segment_name
+            )
+            if improved_segment:
+                improved_script[segment_name] = improved_segment
+    
+    return improved_script
+
+def improve_single_segment_with_ai(segment, improvement_requests, company_info, user_answers, best_ads, segment_name):
+    """
+    Use AI to improve a single segment based on specific issues.
+    """
+    client = get_openai_client()
+    if client is None:
+        print("DEBUG: OpenAI client not available for segment improvement")
+        return None
+    
+    # Build context
+    improvement_text = "; ".join(improvement_requests)
+    
+    prompt = f"""You are a VEO-3 video generation expert. Improve this ad segment based on the specific issues identified.
+
+CRITICAL REQUIREMENTS:
+- Voiceover must be EXACTLY 10 words or fewer
+- Each word should be impactful and necessary
+- Focus on the most important message only
+- Use clear, simple language
+- Ensure proper VEO-3 audio formatting
+
+CURRENT SEGMENT:
+{json.dumps(segment, indent=2)}
+
+SPECIFIC IMPROVEMENTS NEEDED:
+{improvement_text}
+
+COMPANY INFO: {company_info}
+USER PREFERENCES: {json.dumps(user_answers)}
+
+Improve this segment while maintaining the JSON format. Focus on:
+1. EXACTLY 10 words maximum in voiceover_script
+2. Clear, impactful visual description
+3. Proper VEO-3 formatting in prompt field
+4. Natural, powerful messaging
+
+Return only the improved segment in JSON format."""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4.1",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,  # Lower temperature for more focused improvements
+            max_tokens=1000
+        )
+        
+        content = response.choices[0].message.content.strip()
+        
+        # Parse JSON response
+        import re
+        match = re.search(r'\{.*\}', content, re.DOTALL)
+        if match:
+            improved_segment = json.loads(match.group(0))
+            
+            # Verify word count
+            voiceover = improved_segment.get('voiceover_script', '')
+            word_count = len(voiceover.split())
+            
+            if word_count <= 10:
+                print(f"DEBUG: Successfully improved {segment_name} to {word_count} words")
+                return improved_segment
+            else:
+                print(f"DEBUG: AI improvement still too long ({word_count} words), forcing truncation")
+                # Force truncation to 10 words
+                words = voiceover.split()[:10]
+                improved_segment['voiceover_script'] = ' '.join(words)
+                return improved_segment
+        
+        print("DEBUG: Could not parse AI improvement response")
+        return None
+        
+    except Exception as e:
+        print(f"DEBUG: Error in AI segment improvement: {e}")
+        return None
+
+def analyze_script_quality(script, user_answers):
+    """Enhanced script analysis with stricter 10-word targeting for VEO-3 optimization"""
+    analysis = {
+        'segment1_issues': [],
+        'segment2_issues': [],
+        'overall_recommendations': [],
+        'timing_analysis': {},
+        'audio_quality_score': 0,
+        'veo3_readiness': 0
+    }
+    
+    total_issues = 0
+    total_segments = 0
+    
+    for segment_name in ['segment1', 'segment2']:
+        if segment_name not in script:
+            continue
+            
+        total_segments += 1
+        segment = script[segment_name]
+        issues = []
+        
+        # Strict 10-word analysis for VEO-3
+        voiceover = segment.get('voiceover_script', '')
+        word_count = len(voiceover.split())
+        
+        # Enhanced timing analysis with 10-word targeting
+        if 'voiceover_timing' in segment:
+            timing = segment['voiceover_timing']
+            
+            analysis['timing_analysis'][segment_name] = {
+                'start_time': timing['start_time'],
+                'end_time': timing['end_time'],
+                'word_count': word_count,
+                'delivery_note': timing['delivery_note'],
+                'timing_status': segment.get('timing_analysis', 'Unknown'),
+                'optimal_for_veo3': 8 <= word_count <= 12,  # Stricter range
+                'perfect_veo3': word_count == 10  # Ideal target
+            }
+            
+            # Stricter timing issues for 10-word targeting
+            if word_count > 12:
+                issues.append(f"Voiceover too long ({word_count} words). Must be 10 words max for VEO-3.")
+                total_issues += 3  # Higher penalty for being too long
+            elif word_count < 8:
+                issues.append(f"Voiceover short ({word_count} words). Pace slowly to fill 8 seconds.")
+                total_issues += 1  # Minor issue
+            elif word_count == 10:
+                # Perfect!
+                pass
+            else:
+                # 8-12 range but not perfect 10
+                total_issues += 0.5  # Very minor issue
+        else:
+            # Fallback analysis
+            if word_count > 12:
+                issues.append(f"Voiceover too long ({word_count} words). Target 10 words maximum.")
+                total_issues += 3
+            elif word_count < 8:
+                issues.append(f"Voiceover short ({word_count} words). Consider pacing adjustment.")
+                total_issues += 1
+        
+        # Check VEO-3 prompt optimization
+        if 'veo3_optimization' in segment:
+            if '⚠️' in segment.get('timing_analysis', ''):
+                issues.append("Script was truncated - consider rewriting more naturally.")
+                total_issues += 1
+        
+        # Check visual description quality
+        scene_desc = segment.get('scene_description', '')
+        if len(scene_desc) < 50:
+            issues.append("Visual description may be too brief for clear VEO-3 generation.")
+            total_issues += 1
+        
+        # Check for proper VEO-3 formatting
+        prompt = segment.get('prompt', '')
+        if '[voiceover:' not in prompt:
+            issues.append("Missing proper VEO-3 voiceover formatting in prompt.")
+            total_issues += 2
+        
+        analysis[f'{segment_name}_issues'] = issues
+    
+    # Calculate VEO-3 readiness score with stricter criteria
+    if total_segments > 0:
+        # Perfect score: both segments have exactly 10 words + no other issues
+        perfect_word_counts = sum(1 for seg in ['segment1', 'segment2'] 
+                                  if seg in script and len(script[seg].get('voiceover_script', '').split()) == 10)
+        
+        # Base score calculation
+        max_possible_issues = total_segments * 6  # Increased max issues
+        base_score = max(0, 100 - (total_issues * 100 / max_possible_issues))
+        
+        # Bonus for perfect 10-word targeting
+        word_count_bonus = (perfect_word_counts / total_segments) * 20  # Up to 20 point bonus
+        
+        veo3_score = min(100, base_score + word_count_bonus)
+        analysis['veo3_readiness'] = round(veo3_score)
+        analysis['audio_quality_score'] = round(veo3_score)
+    
+    # Enhanced recommendations
+    recommendations = []
+    if total_issues == 0 and all(len(script[seg].get('voiceover_script', '').split()) == 10 
+                                for seg in ['segment1', 'segment2'] if seg in script):
+        recommendations.append("🎯 Perfect! Script optimized for VEO-3 with ideal 10-word segments!")
+    else:
+        if any('too long' in str(issues) for issues in [analysis['segment1_issues'], analysis['segment2_issues']]):
+            recommendations.append("📝 Critical: Shorten voiceovers to exactly 10 words to prevent cutoff")
+        if any('too short' in str(issues) for issues in [analysis['segment1_issues'], analysis['segment2_issues']]):
+            recommendations.append("🎭 Pace slowly and add pauses to fill full 8-second clips")
+        if total_issues >= 3:
+            recommendations.append("⚠️ Multiple optimization needed - automatic improvements will be applied")
     
     analysis['overall_recommendations'] = recommendations
     

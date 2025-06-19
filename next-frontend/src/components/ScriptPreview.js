@@ -62,18 +62,25 @@ const ScriptPreview = ({
                   padding: '1rem',
                   marginTop: '1rem'
                 }}>
-                  <strong style={{ color: '#00d4ff' }}>⏰ Timing Instructions for VEO-3:</strong>
+                  <strong style={{ color: '#00d4ff' }}>🎯 VEO-3 Timing Optimization:</strong>
                   <div style={{ marginTop: '0.5rem', fontSize: '0.95rem' }}>
                     <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
-                      📍 <strong>Start:</strong> {segment.voiceover_timing.start_time} | 
-                      <strong> End:</strong> {segment.voiceover_timing.end_time} | 
-                      <strong> Words:</strong> {segment.word_count || 'N/A'}
+                      📍 <strong>Duration:</strong> {segment.voiceover_timing.start_time} - {segment.voiceover_timing.end_time} (8 seconds) | 
+                      <strong> Words:</strong> {segment.word_count || 'N/A'}/10
+                      {segment.word_count === 10 && (
+                        <span style={{ color: '#4CAF50', marginLeft: '0.5rem', fontWeight: 'bold' }}>
+                          🎯 Perfect!
+                        </span>
+                      )}
                     </p>
                     <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
-                      🎯 <strong>Delivery:</strong> {segment.voiceover_timing.delivery_note}
+                      🎭 <strong>Target Speech Time:</strong> {segment.voiceover_timing.target_speech_duration || '4-5 seconds'} (leaves {segment.voiceover_timing.visual_time || '3-4 seconds'} for visuals)
                     </p>
                     <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
-                      🎭 <strong>Pacing:</strong> {segment.voiceover_timing.pacing}
+                      🎙️ <strong>Delivery:</strong> {segment.voiceover_timing.delivery_note}
+                    </p>
+                    <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
+                      ⏱️ <strong>Pacing:</strong> {segment.voiceover_timing.pacing}
                     </p>
                     {segment.timing_analysis && (
                       <p style={{ 
@@ -84,6 +91,16 @@ const ScriptPreview = ({
                         📊 {segment.timing_analysis}
                       </p>
                     )}
+                    <div style={{
+                      marginTop: '0.75rem',
+                      padding: '0.5rem',
+                      background: 'rgba(0,212,255,0.1)',
+                      borderRadius: '4px',
+                      fontSize: '0.85rem',
+                      color: '#a0e7ff'
+                    }}>
+                      💡 <strong>VEO-3 Tip:</strong> Exactly 10 words ensures perfect timing with no voice cutoff in 8-second clips
+                    </div>
                   </div>
                 </div>
               )}
@@ -207,9 +224,19 @@ const ScriptPreview = ({
               }}>
                 {scriptAnalysis.veo3_readiness || scriptAnalysis.audio_quality_score}/100
               </p>
+              {(scriptAnalysis.veo3_readiness >= 80) && (
+                <div style={{ 
+                  color: '#4CAF50', 
+                  fontSize: '0.9rem', 
+                  marginTop: '0.5rem',
+                  fontWeight: 'bold'
+                }}>
+                  🎯 Optimized!
+                </div>
+              )}
             </div>
             
-            {/* Timing Analysis Overview */}
+            {/* 10-Word Targeting Summary */}
             {scriptAnalysis.timing_analysis && (
               <div style={{
                 background: 'rgba(0,0,0,0.3)',
@@ -218,22 +245,44 @@ const ScriptPreview = ({
                 flex: 1,
                 minWidth: '300px'
               }}>
-                <strong style={{ color: '#00d4ff' }}>⏰ Timing Summary</strong>
+                <strong style={{ color: '#00d4ff' }}>🎯 Word Count Analysis</strong>
                 <div style={{ marginTop: '0.5rem' }}>
-                  {Object.entries(scriptAnalysis.timing_analysis).map(([segment, timing]) => (
-                    <div key={segment} style={{ margin: '0.25rem 0', fontSize: '0.9rem' }}>
-                      <span style={{ color: '#ffffff' }}>
-                        {segment.replace('segment', 'Segment ')}: {timing.word_count} words
-                      </span>
-                      <span style={{ 
-                        color: timing.optimal_for_veo3 ? '#4CAF50' : '#ff6b35',
-                        marginLeft: '0.5rem',
-                        fontWeight: 'bold'
-                      }}>
-                        {timing.optimal_for_veo3 ? '✅' : '⚠️'}
-                      </span>
-                    </div>
-                  ))}
+                  {Object.entries(scriptAnalysis.timing_analysis).map(([segment, timing]) => {
+                    const isPerfect = timing.word_count === 10;
+                    const isOptimal = timing.optimal_for_veo3;
+                    
+                    return (
+                      <div key={segment} style={{ margin: '0.25rem 0', fontSize: '0.9rem' }}>
+                        <span style={{ color: '#ffffff' }}>
+                          {segment.replace('segment', 'Segment ')}: {timing.word_count}/10 words
+                        </span>
+                        <span style={{ 
+                          color: isPerfect ? '#4CAF50' : isOptimal ? '#FFC107' : '#ff6b35',
+                          marginLeft: '0.5rem',
+                          fontWeight: 'bold'
+                        }}>
+                          {isPerfect ? '🎯 Perfect!' : isOptimal ? '✅ Good' : '⚠️ Fix needed'}
+                        </span>
+                        {timing.perfect_veo3 && (
+                          <span style={{ 
+                            color: '#4CAF50', 
+                            marginLeft: '0.5rem',
+                            fontSize: '0.8rem'
+                          }}>
+                            (Ideal for VEO-3)
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div style={{ 
+                  marginTop: '0.75rem', 
+                  fontSize: '0.8rem', 
+                  color: '#cccccc',
+                  fontStyle: 'italic'
+                }}>
+                  🎯 Target: Exactly 10 words per segment for perfect VEO-3 timing
                 </div>
               </div>
             )}
