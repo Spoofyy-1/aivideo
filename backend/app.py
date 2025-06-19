@@ -992,6 +992,27 @@ For each segment provide:
 - Company name mentioned 1-2 times per segment (within the 10-word limit)
 - Continuous background music/sounds throughout
 
+🎭 NARRATOR EXCELLENCE REQUIREMENTS:
+- VOICE CHARACTERISTICS: Specify narrator type (confident professional, warm storyteller, energetic presenter, etc.)
+- DELIVERY STYLE: Include specific instructions like "speaks with genuine excitement", "delivers with authority", "whispers intimately"
+- EMOTIONAL PROGRESSION: Each word should build emotion - start calm, build excitement, end with satisfaction
+- PACING INSTRUCTIONS: "Speaks slowly for emphasis", "builds tempo", "pauses for impact"
+- TONE MATCHING: Match narrator personality to brand (corporate = professional, startup = energetic, luxury = sophisticated)
+
+🎵 AUDIO PRODUCTION MASTERY:
+- BACKGROUND MUSIC: Always specify mood-appropriate music (upbeat electronic, warm acoustic, dramatic orchestral)
+- SOUND EFFECTS: Include specific SFX that enhance the message (whoosh for speed, click for precision, chime for success)
+- AUDIO LAYERING: "Confident narrator over upbeat music with subtle product sounds"
+- VOLUME DYNAMICS: "Music fades under narrator, then swells during visual moments"
+- AUDIO TRANSITIONS: Smooth bridges between speech and music
+
+🎬 TIMING PERFECTION:
+- SPEECH TIMING: 0:00-0:04 narrator speaks (10 words in 4 seconds = 2.5 words/second)
+- MUSIC TIMING: 0:00-0:08 continuous background music throughout
+- EMPHASIS TIMING: Key product name gets 0.5 second emphasis
+- PAUSE TIMING: Strategic 0.2 second pauses between key phrases
+- OVERLAP TIMING: Final word overlaps with music swell for seamless transition
+
 ⚠️ TIMING CRITICAL: VEO-3 cuts off voiceovers longer than 10 words in 8-second clips.
 Make every word count. Be concise and powerful.
 
@@ -1597,23 +1618,24 @@ def generate_ad():
         
         # Generate video segments in parallel, with retry on sensitive content
         def get_video_with_session(segment, i, session_id):
-            """Generate video with session-specific temporary files."""
+            """Generate video with session-specific temporary files and enhanced narrator prompts."""
             for retry in range(3):
                 try:
-                    video_path = generate_video_segment_with_session(ad_script[segment]['prompt'], i, session_id)
-                    # Process the segment to improve audio quality
+                    # First enhance prompt with narrator details
+                    enhanced_prompt = enhance_veo3_prompt_with_narrator(ad_script[segment])
+                    # Then optimize for VEO-3 length limits
+                    optimized_prompt = optimize_prompt_for_veo3(enhanced_prompt)
+                    print(f"DEBUG: Using enhanced narrator prompt for {segment}: {optimized_prompt[:100]}...")
+                    video_path = generate_video_segment_with_session(optimized_prompt, i, session_id)
                     processed_path = process_video_segment(video_path, i)
                     return processed_path
                 except Exception as e:
                     if "flagged as sensitive" in str(e).lower() or "E005" in str(e):
-                        print(f"Sensitive content detected for {segment}, regenerating script (retry {retry+1})...")
-                        # Regenerate script and try again
-                        ad_script_new = generate_ad_script(company_info, user_answers, best_ads=best_ads)
-                        ad_script[segment] = ad_script_new[segment]
+                        print(f"Sensitive content detected for {segment}, retry {retry+1}...")
                         continue
                     else:
                         raise
-            raise Exception(f"Failed to generate {segment} after 3 retries due to sensitive content.")
+            raise Exception(f"Failed to generate {segment} after 3 retries.")
 
         print("DEBUG: Starting parallel video generation with audio processing")
         with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -2431,7 +2453,7 @@ def analyze_script_for_veo3(script):
     return analysis
 
 def optimize_prompt_for_veo3(prompt):
-    """Optimize prompt length and structure for VEO-3"""
+    """Optimize prompt length and structure for VEO-3 with enhanced narrator and audio production"""
     # If prompt is too long, intelligently truncate while preserving key elements
     if len(prompt) > 450:
         # Extract key components
@@ -2445,7 +2467,7 @@ def optimize_prompt_for_veo3(prompt):
         sentences = prompt.split('.')
         core_visual = sentences[0] + '.' if sentences else prompt[:100]
         
-        # Rebuild optimized prompt
+        # Rebuild optimized prompt with enhanced audio production
         optimized = f"{core_visual} {voiceover_text}"
         
         # Add essential elements if space allows
@@ -2453,70 +2475,47 @@ def optimize_prompt_for_veo3(prompt):
             if 'medium close-up' not in optimized and len(optimized) < 250:
                 optimized += " Medium close-up shot."
             if 'upbeat' not in optimized and 'music' not in optimized and len(optimized) < 200:
-                optimized += " Upbeat background music."
+                optimized += " Professional narrator with upbeat background music."
         
         print(f"DEBUG: Optimized prompt from {len(prompt)} to {len(optimized)} characters")
         return optimized
     
     return prompt
 
-def improve_script_with_gemini_and_feedback(company_info, user_answers, current_script, best_ads, improvement_request):
-    """Improve script with specific user feedback using Gemini"""
-    import copy
-    improved_script = copy.deepcopy(current_script)
-    
-    # Build context for Gemini
-    best_ads_str = ""
-    if best_ads:
-        best_ads_str = "\n\nBest ads inspiration:\n"
-        for ad in best_ads:
-            best_ads_str += f"- {ad['title']}: {ad['script']} (Principle: {ad['principle']})\n"
-    
-    improvement_prompt = f"""
-    You are an expert ad script editor. The user has requested specific improvements to their current script.
-    
-    USER'S IMPROVEMENT REQUEST: {improvement_request}
-    
-    CURRENT SCRIPT:
-    {json.dumps(current_script, indent=2)}
-    
-    COMPANY INFO: {company_info}
-    USER PREFERENCES: {json.dumps(user_answers)}
-    {best_ads_str}
-    
-    CRITICAL VEO-3 OPTIMIZATION RULES:
-    1. Each segment's voiceover_script should be 15-20 words max (for 8-second timing)
-    2. Prompts should be under 400 characters for optimal VEO-3 processing
-    3. Include "[voiceover: text]" format in prompts
-    4. Ensure continuous audio (music/sounds) throughout
-    5. Use specific, actionable language
-    
-    Please improve the script based on the user's request while maintaining the JSON format and optimizing for VEO-3. Focus specifically on addressing their feedback while keeping segments concise and effective.
-    
-    Return only the improved JSON script.
-    """
-    
+def enhance_veo3_prompt_with_narrator(segment):
+    """Enhance VEO-3 prompt with professional narrator and audio production details"""
     try:
-        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-06-05:generateContent?key=" + GEMINI_API_KEY
-        headers = {"Content-Type": "application/json"}
-        data = {"contents": [{"parts": [{"text": improvement_prompt}]}]}
-        response = requests.post(url, headers=headers, json=data)
-        response.raise_for_status()
-        result = response.json()
+        # Extract existing prompt
+        base_prompt = segment.get('prompt', '')
         
+        # Get narrator characteristics
+        narrator_type = segment.get('narrator_characteristics', 'confident professional narrator')
+        delivery_style = segment.get('delivery_instructions', 'speaks with authority and enthusiasm')
+        audio_production = segment.get('audio_production', 'upbeat background music with subtle sound effects')
+        timing = segment.get('timing_breakdown', '0:00-0:04 narrator speaks, 0:04-0:08 music swells')
+        
+        # Extract voiceover text
         import re
-        text = result["candidates"][0]["content"]["parts"][0]["text"]
-        match = re.search(r'\{.*\}', text, re.DOTALL)
-        if match:
-            improved_data = json.loads(match.group())
-            improved_script.update(improved_data)
-            print("Script improved with Gemini and user feedback")
-        else:
-            print("Could not extract JSON from Gemini response")
+        voiceover_match = re.search(r'\[voiceover:([^\]]+)\]', base_prompt)
+        voiceover_text = voiceover_match.group(1).strip() if voiceover_match else segment.get('voiceover_script', '')
+        
+        # Clean base prompt (remove existing voiceover)
+        clean_prompt = re.sub(r'\[voiceover:[^\]]+\]', '', base_prompt).strip()
+        
+        # Build enhanced VEO-3 prompt with professional narrator instructions
+        enhanced_prompt = f"{clean_prompt} [{narrator_type} {delivery_style} says: '{voiceover_text}'] with {audio_production}. {timing}."
+        
+        # Optimize length for VEO-3
+        if len(enhanced_prompt) > 450:
+            # Simplify while keeping key elements
+            enhanced_prompt = f"{clean_prompt} [Professional narrator says: '{voiceover_text}'] with background music."
+        
+        print(f"DEBUG: Enhanced prompt from {len(base_prompt)} to {len(enhanced_prompt)} characters")
+        return enhanced_prompt
+        
     except Exception as e:
-        print(f"Gemini improvement failed: {e}")
-    
-    return improved_script
+        print(f"DEBUG: Error enhancing prompt with narrator: {e}")
+        return segment.get('prompt', '')
 
 def generate_ad_script_with_feedback(company_info, user_answers, current_script, improvement_request, best_ads=None):
     """
@@ -2739,6 +2738,27 @@ For each segment provide:
 - Company name mentioned 1-2 times per segment (within the 10-word limit)
 - Continuous background music/sounds throughout
 
+🎭 NARRATOR EXCELLENCE REQUIREMENTS:
+- VOICE CHARACTERISTICS: Specify narrator type (confident professional, warm storyteller, energetic presenter, etc.)
+- DELIVERY STYLE: Include specific instructions like "speaks with genuine excitement", "delivers with authority", "whispers intimately"
+- EMOTIONAL PROGRESSION: Each word should build emotion - start calm, build excitement, end with satisfaction
+- PACING INSTRUCTIONS: "Speaks slowly for emphasis", "builds tempo", "pauses for impact"
+- TONE MATCHING: Match narrator personality to brand (corporate = professional, startup = energetic, luxury = sophisticated)
+
+🎵 AUDIO PRODUCTION MASTERY:
+- BACKGROUND MUSIC: Always specify mood-appropriate music (upbeat electronic, warm acoustic, dramatic orchestral)
+- SOUND EFFECTS: Include specific SFX that enhance the message (whoosh for speed, click for precision, chime for success)
+- AUDIO LAYERING: "Confident narrator over upbeat music with subtle product sounds"
+- VOLUME DYNAMICS: "Music fades under narrator, then swells during visual moments"
+- AUDIO TRANSITIONS: Smooth bridges between speech and music
+
+🎬 TIMING PERFECTION:
+- SPEECH TIMING: 0:00-0:04 narrator speaks (10 words in 4 seconds = 2.5 words/second)
+- MUSIC TIMING: 0:00-0:08 continuous background music throughout
+- EMPHASIS TIMING: Key product name gets 0.5 second emphasis
+- PAUSE TIMING: Strategic 0.2 second pauses between key phrases
+- OVERLAP TIMING: Final word overlaps with music swell for seamless transition
+
 ⚠️ TIMING CRITICAL: VEO-3 cuts off voiceovers longer than 10 words in 8-second clips.
 Make every word count. Be concise and powerful.
 
@@ -2746,16 +2766,24 @@ Format as valid JSON:
 {{
     "segment1": {{
         "scene_description": "...",
-        "prompt": "... [voiceover: ...]",
+        "prompt": "... [voiceover: Character says: 'exact 10 words with delivery style'] with [specific background music] and [sound effects]",
         "voiceover_script": "10 words maximum here",
+        "narrator_characteristics": "Professional voice type and personality (e.g., confident professional, warm storyteller, energetic presenter)",
+        "delivery_instructions": "Specific delivery style and emotional progression (e.g., speaks with genuine excitement, delivers with authority, whispers intimately)",
+        "audio_production": "Background music, sound effects, and volume dynamics (e.g., upbeat electronic music, whoosh sound effects, music fades under narrator)",
+        "timing_breakdown": "Detailed timing: 0:00-0:04 narrator speaks, 0:04-0:08 music swells, pauses at key moments",
         "mood": "...",
         "camera": "...",
         "veo3_optimization": "..."
     }},
     "segment2": {{
         "scene_description": "...",
-        "prompt": "... [voiceover: ...]",
+        "prompt": "... [voiceover: Character says: 'exact 10 words with delivery style'] with [specific background music] and [sound effects]",
         "voiceover_script": "10 words maximum here",
+        "narrator_characteristics": "Professional voice type and personality (e.g., confident professional, warm storyteller, energetic presenter)",
+        "delivery_instructions": "Specific delivery style and emotional progression (e.g., speaks with genuine excitement, delivers with authority, whispers intimately)",
+        "audio_production": "Background music, sound effects, and volume dynamics (e.g., upbeat electronic music, whoosh sound effects, music fades under narrator)",
+        "timing_breakdown": "Detailed timing: 0:00-0:04 narrator speaks, 0:04-0:08 music swells, pauses at key moments",
         "mood": "...",
         "camera": "...",
         "veo3_optimization": "..."
@@ -3287,6 +3315,65 @@ def analyze_script_quality(script, user_answers):
     analysis['overall_recommendations'] = recommendations
     
     return analysis
+
+def improve_script_with_gemini_and_feedback(company_info, user_answers, current_script, best_ads, improvement_request):
+    """Improve script with specific user feedback using Gemini"""
+    import copy
+    improved_script = copy.deepcopy(current_script)
+    
+    # Build context for Gemini
+    best_ads_str = ""
+    if best_ads:
+        best_ads_str = "\n\nBest ads inspiration:\n"
+        for ad in best_ads:
+            best_ads_str += f"- {ad['title']}: {ad['script']} (Principle: {ad['principle']})\n"
+    
+    improvement_prompt = f"""
+    You are an expert ad script editor. The user has requested specific improvements to their current script.
+    
+    USER'S IMPROVEMENT REQUEST: {improvement_request}
+    
+    CURRENT SCRIPT:
+    {json.dumps(current_script, indent=2)}
+    
+    COMPANY INFO: {company_info}
+    USER PREFERENCES: {json.dumps(user_answers)}
+    {best_ads_str}
+    
+    CRITICAL VEO-3 OPTIMIZATION RULES:
+    1. Each segment's voiceover_script should be 10 words max (for perfect 8-second timing)
+    2. Include narrator_characteristics, delivery_instructions, audio_production, and timing_breakdown
+    3. Prompts should be under 400 characters for optimal VEO-3 processing
+    4. Include "[voiceover: text]" format in prompts
+    5. Ensure continuous audio (music/sounds) throughout
+    6. Use specific, actionable language
+    
+    Please improve the script based on the user's request while maintaining the JSON format and optimizing for VEO-3. Focus specifically on addressing their feedback while keeping segments concise and effective.
+    
+    Return only the improved JSON script.
+    """
+    
+    try:
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-06-05:generateContent?key=" + GEMINI_API_KEY
+        headers = {"Content-Type": "application/json"}
+        data = {"contents": [{"parts": [{"text": improvement_prompt}]}]}
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status()
+        result = response.json()
+        
+        import re
+        text = result["candidates"][0]["content"]["parts"][0]["text"]
+        match = re.search(r'\{.*\}', text, re.DOTALL)
+        if match:
+            improved_data = json.loads(match.group())
+            improved_script.update(improved_data)
+            print("Script improved with Gemini and user feedback")
+        else:
+            print("Could not extract JSON from Gemini response")
+    except Exception as e:
+        print(f"Gemini improvement failed: {e}")
+    
+    return improved_script
 
 if __name__ == '__main__':
     try:

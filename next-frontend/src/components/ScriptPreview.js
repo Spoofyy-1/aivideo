@@ -53,6 +53,41 @@ const ScriptPreview = ({
                 "{segment.voiceover_script}"
               </p>
               
+              {/* Show narrator and audio production information */}
+              {(segment.narrator_characteristics || segment.delivery_instructions || segment.audio_production) && (
+                <div style={{
+                  background: 'rgba(255,165,0,0.1)',
+                  border: '1px solid rgba(255,165,0,0.3)',
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  marginTop: '1rem'
+                }}>
+                  <strong style={{ color: '#ffa500' }}>🎭 Professional Narrator & Audio Production:</strong>
+                  <div style={{ marginTop: '0.5rem', fontSize: '0.95rem' }}>
+                    {segment.narrator_characteristics && (
+                      <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
+                        <strong>Voice Type:</strong> {segment.narrator_characteristics}
+                      </p>
+                    )}
+                    {segment.delivery_instructions && (
+                      <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
+                        <strong>Delivery Style:</strong> {segment.delivery_instructions}
+                      </p>
+                    )}
+                    {segment.audio_production && (
+                      <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
+                        <strong>Audio Production:</strong> {segment.audio_production}
+                      </p>
+                    )}
+                    {segment.timing_breakdown && (
+                      <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
+                        <strong>Timing:</strong> {segment.timing_breakdown}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Show timing information */}
               {segment.voiceover_timing && (
                 <div style={{
