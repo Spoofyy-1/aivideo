@@ -2189,8 +2189,12 @@ def generate_script_only():
         ad_script = generate_ad_script(company_info, user_answers, best_ads=best_ads)
         print("Generated script:", ad_script)
         
-        # Analyze script for potential VEO-3 issues
-        script_analysis = analyze_script_for_veo3(ad_script)
+        # Apply VEO-3 optimization for timing
+        if isinstance(ad_script, dict):
+            ad_script = optimize_script_for_veo3(ad_script)
+        
+        # Enhanced analysis with timing considerations
+        script_analysis = analyze_script_quality(ad_script, user_answers)
         
         return jsonify({
             'status': 'success',
@@ -2245,8 +2249,12 @@ def improve_script():
             print(f"Gemini improvement failed, using GPT regenerated script. Error: {e}")
             final_script = regenerated_script
         
-        # Analyze final script
-        script_analysis = analyze_script_for_veo3(final_script)
+        # Apply VEO-3 optimization for timing
+        if isinstance(final_script, dict):
+            final_script = optimize_script_for_veo3(final_script)
+        
+        # Analyze final script with enhanced timing analysis
+        script_analysis = analyze_script_quality(final_script, enhanced_user_answers)
         
         return jsonify({
             'status': 'success',
@@ -2782,6 +2790,162 @@ Only return the JSON object."""
                 print("Failed to parse extracted JSON from regeneration:", e2)
         print("Failed to parse OpenAI regeneration response as JSON:", e)
         raise ValueError("Failed to parse OpenAI regeneration response as JSON. Raw response: " + repr(content))
+
+def optimize_script_for_veo3(script_segments):
+    """
+    Optimize script for VEO-3's 8-second segments with precise timing.
+    Each segment is independent with no working memory between clips.
+    """
+    optimized_segments = {}
+    
+    for segment_name, segment in script_segments.items():
+        if isinstance(segment, dict) and 'voiceover_script' in segment:
+            voiceover = segment['voiceover_script']
+            
+            # Calculate optimal timing for 8-second clips
+            words = voiceover.split()
+            word_count = len(words)
+            
+            # Target: 2-3 words per second for clear delivery (16-24 words for 8 seconds)
+            optimal_word_count = 20  # Sweet spot for 8 seconds
+            
+            if word_count > 24:
+                # Too long - needs truncation
+                words = words[:20]
+                voiceover = ' '.join(words) + '...'
+                timing_note = "⚠️ Script truncated for timing"
+            elif word_count < 12:
+                # Too short - might need pacing adjustment
+                timing_note = "✅ Good length - pace slowly for full 8 seconds"
+            else:
+                timing_note = "✅ Optimal length for 8-second segment"
+            
+            # Add precise timing markers
+            if segment_name == 'segment1':
+                voiceover_timing = {
+                    "start_time": "0:00",
+                    "end_time": "0:08",
+                    "duration": "8 seconds",
+                    "delivery_note": "Begin voiceover immediately at 0:00",
+                    "pacing": "Steady pace - complete before 8-second mark"
+                }
+            else:  # segment2
+                voiceover_timing = {
+                    "start_time": "0:00", 
+                    "end_time": "0:08",
+                    "duration": "8 seconds", 
+                    "delivery_note": "New clip - begin voiceover immediately at 0:00",
+                    "pacing": "Steady pace - complete before 8-second mark"
+                }
+            
+            optimized_segments[segment_name] = {
+                **segment,
+                'voiceover_script': voiceover,
+                'voiceover_timing': voiceover_timing,
+                'word_count': len(voiceover.split()),
+                'timing_analysis': timing_note,
+                'veo3_optimization': f"Optimized for 8-second clip with {len(voiceover.split())} words"
+            }
+        else:
+            optimized_segments[segment_name] = segment
+    
+    return optimized_segments
+
+def analyze_script_quality(script, user_answers):
+    """Enhanced script analysis including timing and VEO-3 optimization"""
+    analysis = {
+        'segment1_issues': [],
+        'segment2_issues': [],
+        'overall_recommendations': [],
+        'timing_analysis': {},
+        'audio_quality_score': 0,
+        'veo3_readiness': 0
+    }
+    
+    total_issues = 0
+    total_segments = 0
+    
+    for segment_name in ['segment1', 'segment2']:
+        if segment_name not in script:
+            continue
+            
+        total_segments += 1
+        segment = script[segment_name]
+        issues = []
+        
+        # Enhanced timing analysis
+        if 'voiceover_timing' in segment:
+            timing = segment['voiceover_timing']
+            word_count = segment.get('word_count', 0)
+            
+            analysis['timing_analysis'][segment_name] = {
+                'start_time': timing['start_time'],
+                'end_time': timing['end_time'],
+                'word_count': word_count,
+                'delivery_note': timing['delivery_note'],
+                'timing_status': segment.get('timing_analysis', 'Unknown'),
+                'optimal_for_veo3': 12 <= word_count <= 24
+            }
+            
+            # Check timing issues
+            if word_count > 24:
+                issues.append(f"Voiceover too long ({word_count} words). Risk of cutoff in 8-second clip.")
+                total_issues += 2
+            elif word_count < 12:
+                issues.append(f"Voiceover too short ({word_count} words). May need pacing adjustment.")
+                total_issues += 1
+        else:
+            # Fallback for scripts without timing optimization
+            voiceover = segment.get('voiceover_script', '')
+            word_count = len(voiceover.split())
+            estimated_duration = word_count / 2.5
+            
+            if estimated_duration > 9:
+                issues.append(f"Voiceover too long ({estimated_duration:.1f}s estimated). May get cut off.")
+                total_issues += 2
+            elif estimated_duration < 6:
+                issues.append(f"Voiceover too short ({estimated_duration:.1f}s estimated).")
+                total_issues += 1
+        
+        # Check VEO-3 prompt optimization
+        if 'veo3_optimization' in segment:
+            if '⚠️' in segment.get('timing_analysis', ''):
+                issues.append("Script was truncated for optimal timing.")
+                total_issues += 1
+        
+        # Check visual description clarity
+        visual = segment.get('visual_description', '')
+        if len(visual) < 50:
+            issues.append("Visual description may be too brief for clear VEO-3 generation.")
+            total_issues += 1
+        
+        analysis[f'{segment_name}_issues'] = issues
+    
+    # Calculate quality scores
+    if total_segments > 0:
+        # VEO-3 readiness score (0-100)
+        max_possible_issues = total_segments * 5  # Max 5 issues per segment
+        veo3_score = max(0, 100 - (total_issues * 100 / max_possible_issues))
+        analysis['veo3_readiness'] = round(veo3_score)
+        
+        # Audio quality score (legacy compatibility)
+        analysis['audio_quality_score'] = round(veo3_score)
+    
+    # Overall recommendations
+    recommendations = []
+    if total_issues == 0:
+        recommendations.append("✅ Script is well-optimized for VEO-3 generation!")
+    else:
+        if any('too long' in str(issues) for issues in [analysis['segment1_issues'], analysis['segment2_issues']]):
+            recommendations.append("📝 Consider shortening voiceovers to prevent cutoff")
+        if any('too short' in str(issues) for issues in [analysis['segment1_issues'], analysis['segment2_issues']]):
+            recommendations.append("🎭 Consider pacing slower or adding content for full 8-second clips")
+        if total_issues >= 4:
+            recommendations.append("⚠️ Multiple timing issues detected - consider script revision")
+    
+    analysis['overall_recommendations'] = recommendations
+    
+    return analysis
 
 if __name__ == '__main__':
     try:

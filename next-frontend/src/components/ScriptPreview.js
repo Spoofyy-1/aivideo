@@ -36,7 +36,7 @@ const ScriptPreview = ({
         fontWeight: 'bold',
         textTransform: 'capitalize'
       }}>
-        🎥 {segmentName.replace('segment', 'Segment ')}
+        🎥 {segmentName.replace('segment', 'Segment ')} (8-second clip)
       </h4>
       
       {typeof segment === 'object' ? (
@@ -52,6 +52,41 @@ const ScriptPreview = ({
               }}>
                 "{segment.voiceover_script}"
               </p>
+              
+              {/* Show timing information */}
+              {segment.voiceover_timing && (
+                <div style={{
+                  background: 'rgba(0,212,255,0.1)',
+                  border: '1px solid rgba(0,212,255,0.3)',
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  marginTop: '1rem'
+                }}>
+                  <strong style={{ color: '#00d4ff' }}>⏰ Timing Instructions for VEO-3:</strong>
+                  <div style={{ marginTop: '0.5rem', fontSize: '0.95rem' }}>
+                    <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
+                      📍 <strong>Start:</strong> {segment.voiceover_timing.start_time} | 
+                      <strong> End:</strong> {segment.voiceover_timing.end_time} | 
+                      <strong> Words:</strong> {segment.word_count || 'N/A'}
+                    </p>
+                    <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
+                      🎯 <strong>Delivery:</strong> {segment.voiceover_timing.delivery_note}
+                    </p>
+                    <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
+                      🎭 <strong>Pacing:</strong> {segment.voiceover_timing.pacing}
+                    </p>
+                    {segment.timing_analysis && (
+                      <p style={{ 
+                        color: segment.timing_analysis.includes('⚠️') ? '#ff6b35' : '#4CAF50',
+                        margin: '0.25rem 0',
+                        fontWeight: 'bold'
+                      }}>
+                        📊 {segment.timing_analysis}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
           
@@ -82,6 +117,21 @@ const ScriptPreview = ({
               </p>
             </div>
           )}
+          
+          {segment.veo3_optimization && (
+            <div style={{ marginBottom: '1.5rem' }}>
+              <strong style={{ color: '#00d4ff' }}>🤖 VEO-3 Optimization:</strong>
+              <p style={{ 
+                marginTop: '0.5rem', 
+                fontSize: '0.9rem', 
+                lineHeight: '1.4',
+                color: '#999999',
+                fontStyle: 'italic'
+              }}>
+                {segment.veo3_optimization}
+              </p>
+            </div>
+          )}
         </div>
       ) : (
         <p style={{ 
@@ -105,9 +155,10 @@ const ScriptPreview = ({
       color: '#fff',
       fontFamily: 'Orbitron, sans-serif',
       boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-      minHeight: '80vh',
       width: '100%',
-      maxWidth: 'none'
+      maxWidth: 'none',
+      position: 'relative',
+      zIndex: 1
     }}>
       <h2 style={{ 
         fontSize: '2.5rem', 
@@ -123,20 +174,82 @@ const ScriptPreview = ({
 
       {/* Script Quality Analysis */}
       {scriptAnalysis && (
-        <div className="script-analysis">
-          <div className="quality-score">
-            <span style={{ color: '#666' }}>VEO-3 Optimization Score: </span>
-            <strong style={{ color: getScoreColor(scriptAnalysis.audio_quality_score) }}>
-              {scriptAnalysis.audio_quality_score}/100
-            </strong>
+        <div style={{
+          background: 'rgba(255,255,255,0.1)',
+          borderRadius: '15px',
+          padding: '2rem',
+          marginBottom: '2rem',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255,255,255,0.2)'
+        }}>
+          <h3 style={{ 
+            color: '#00d4ff', 
+            marginBottom: '1.5rem',
+            fontSize: '1.6rem',
+            fontWeight: 'bold'
+          }}>
+            📊 VEO-3 Optimization Analysis
+          </h3>
+          
+          <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+            <div style={{
+              background: 'rgba(0,0,0,0.3)',
+              borderRadius: '8px',
+              padding: '1rem',
+              minWidth: '150px'
+            }}>
+              <strong style={{ color: '#00d4ff' }}>VEO-3 Readiness</strong>
+              <p style={{ 
+                color: getScoreColor(scriptAnalysis.veo3_readiness || scriptAnalysis.audio_quality_score),
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+                margin: '0.5rem 0 0 0'
+              }}>
+                {scriptAnalysis.veo3_readiness || scriptAnalysis.audio_quality_score}/100
+              </p>
+            </div>
+            
+            {/* Timing Analysis Overview */}
+            {scriptAnalysis.timing_analysis && (
+              <div style={{
+                background: 'rgba(0,0,0,0.3)',
+                borderRadius: '8px',
+                padding: '1rem',
+                flex: 1,
+                minWidth: '300px'
+              }}>
+                <strong style={{ color: '#00d4ff' }}>⏰ Timing Summary</strong>
+                <div style={{ marginTop: '0.5rem' }}>
+                  {Object.entries(scriptAnalysis.timing_analysis).map(([segment, timing]) => (
+                    <div key={segment} style={{ margin: '0.25rem 0', fontSize: '0.9rem' }}>
+                      <span style={{ color: '#ffffff' }}>
+                        {segment.replace('segment', 'Segment ')}: {timing.word_count} words
+                      </span>
+                      <span style={{ 
+                        color: timing.optimal_for_veo3 ? '#4CAF50' : '#ff6b35',
+                        marginLeft: '0.5rem',
+                        fontWeight: 'bold'
+                      }}>
+                        {timing.optimal_for_veo3 ? '✅' : '⚠️'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           
           {scriptAnalysis.overall_recommendations?.length > 0 && (
-            <div className="recommendations">
+            <div style={{
+              background: 'rgba(255,193,7,0.1)',
+              border: '1px solid rgba(255,193,7,0.3)',
+              borderRadius: '8px',
+              padding: '1rem'
+            }}>
               <strong style={{ color: '#ffc107' }}>💡 Recommendations:</strong>
-              <ul style={{ marginLeft: '1rem', marginTop: '0.5rem' }}>
+              <ul style={{ marginLeft: '1rem', marginTop: '0.5rem', color: '#ffffff' }}>
                 {scriptAnalysis.overall_recommendations.map((rec, idx) => (
-                  <li key={idx} style={{ color: '#666' }}>{rec}</li>
+                  <li key={idx} style={{ margin: '0.25rem 0' }}>{rec}</li>
                 ))}
               </ul>
             </div>
@@ -172,14 +285,48 @@ const ScriptPreview = ({
           color: '#ffffff',
           whiteSpace: 'pre-wrap',
           border: '2px solid rgba(0,212,255,0.3)',
-          minHeight: '200px'
+          maxHeight: '500px',
+          overflowY: 'auto'
         }}>
-          {typeof script === 'object' ? (
-            Object.entries(script).map(([segmentName, segment]) => 
-              renderSegment(segmentName, segment)
+          {typeof script === 'object' && script !== null ? (
+            script.segment1 || script.segment2 ? (
+              // Handle segmented script format
+              <div>
+                {script.segment1 && renderSegment('segment1', script.segment1)}
+                {script.segment2 && renderSegment('segment2', script.segment2)}
+                
+                {/* Show slogan and CTA if available */}
+                {(script.slogan || script.call_to_action) && (
+                  <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: '8px' }}>
+                    {script.slogan && (
+                      <div style={{ marginBottom: '1rem' }}>
+                        <strong style={{ color: '#00d4ff' }}>💫 Slogan:</strong>
+                        <p style={{ color: '#ffffff', fontSize: '1.1rem', marginTop: '0.5rem' }}>"{script.slogan}"</p>
+                      </div>
+                    )}
+                    {script.call_to_action && (
+                      <div>
+                        <strong style={{ color: '#00d4ff' }}>📢 Call to Action:</strong>
+                        <p style={{ color: '#ffffff', fontSize: '1.1rem', marginTop: '0.5rem' }}>"{script.call_to_action}"</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              // Handle other object formats
+              Object.entries(script).map(([key, value]) => (
+                <div key={key} style={{ marginBottom: '1.5rem' }}>
+                  <strong style={{ color: '#00d4ff', textTransform: 'capitalize' }}>{key.replace('_', ' ')}:</strong>
+                  <p style={{ color: '#ffffff', marginTop: '0.5rem' }}>{String(value)}</p>
+                </div>
+              ))
             )
           ) : (
-            script || 'No script content available'
+            // Handle string script or fallback
+            <p style={{ color: '#ffffff', fontSize: '1.1rem', lineHeight: '1.6' }}>
+              {script || 'No script content available'}
+            </p>
           )}
         </div>
       </div>
