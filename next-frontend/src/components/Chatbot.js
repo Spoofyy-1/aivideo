@@ -373,18 +373,18 @@ function Chatbot() {
       setMessages(msgs => [...msgs, { sender: 'bot', text: 'Your AI video ad is ready! 🎉' }]);
       
       // Show rating modal after a short delay
-      setTimeout(() => {
-        if (!hasRated) {
-          setShowRatingModal(true);
-        }
-      }, 3000);
-    } catch (err) {
+        setTimeout(() => {
+          if (!hasRated) {
+            setShowRatingModal(true);
+          }
+        }, 3000);
+      } catch (err) {
       console.error('Video generation error:', err);
       setMessages(msgs => [...msgs, { sender: 'bot', text: 'Sorry, something went wrong generating your video. Please try again or contact support.' }]);
-    }
+      }
     
-    setLoading(false);
-    setLoadingMessage('');
+      setLoading(false);
+      setLoadingMessage('');
   };
 
   // Handle rating submission
@@ -601,14 +601,14 @@ function Chatbot() {
                   <button
                     key={opt}
                     type="button"
-                    style={{
+                style={{
                       background: 'var(--button-bg)',
                       color: 'var(--button-text)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      padding: '0.6rem 1.2rem',
-                      fontFamily: 'Orbitron, sans-serif',
-                      fontWeight: 'bold',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '0.6rem 1.2rem',
+                  fontFamily: 'Orbitron, sans-serif',
+                  fontWeight: 'bold',
                       cursor: 'pointer'
                     }}
                     onClick={() => {
@@ -628,21 +628,23 @@ function Chatbot() {
                   <button
                     key={opt}
                     type="button"
-                    style={{
+                  style={{
                       background: 'var(--button-bg)',
                       color: 'var(--button-text)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      padding: '0.6rem 1.2rem',
-                      fontFamily: 'Orbitron, sans-serif',
-                      fontWeight: 'bold',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '0.6rem 1.2rem',
+                    fontFamily: 'Orbitron, sans-serif',
+                    fontWeight: 'bold',
                       cursor: 'pointer'
                     }}
                     onClick={() => {
+                      console.log('Button clicked:', opt, 'Current step:', step, 'Question:', creativeQuestions[step - 1]);
                       setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
                       const currentQuestion = creativeQuestions[step - 1];
-                      const newAnswers = { ...answers, [currentQuestion.key]: opt };
-                      setAnswers(newAnswers);
+                      const updatedAnswers = { ...answers, [currentQuestion.key]: opt };
+                      console.log('Updating answers:', updatedAnswers);
+                      setAnswers(updatedAnswers);
                       
                       if (step < creativeQuestions.length) {
                         setStep(step + 1);
@@ -662,13 +664,13 @@ function Chatbot() {
                   >
                     {opt}
                   </button>
-                ))}
+                  ))}
               </div>
-            ) : (
-              <input
-                value={input}
+              ) : (
+                <input
+                  value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Type your answer..."
+                  placeholder="Type your answer..."
                 style={{
                   width: '100%',
                   padding: '1rem',
@@ -678,7 +680,7 @@ function Chatbot() {
                   color: 'var(--text-light)',
                   fontSize: '1rem'
                 }}
-              />
+                />
             )}
             
             {/* Only show submit button for text inputs */}
@@ -691,12 +693,12 @@ function Chatbot() {
             )}
           </form>
         )}
-        
+      
         {/* Show rating modal */}
-        <RatingModal
+      <RatingModal
           show={showRatingModal}
-          onClose={handleRatingClose}
-          onSubmit={handleRatingSubmit}
+        onClose={handleRatingClose}
+        onSubmit={handleRatingSubmit}
         />
         
         <style jsx>{`
