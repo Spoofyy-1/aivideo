@@ -222,7 +222,7 @@ function Chatbot() {
         ...msgs,
         { sender: 'bot', text: creativeQuestions[0].text }
       ]);
-      setStep(0);
+      setStep(1);
       return;
     }
 
@@ -234,15 +234,15 @@ function Chatbot() {
     }
 
     // Handle other questions
-    if (step < creativeQuestions.length) {
-      const currentQuestion = creativeQuestions[step];
+    if (step <= creativeQuestions.length) {
+      const currentQuestion = creativeQuestions[step - 1];
       const newAnswers = { ...answers, [currentQuestion.key]: input };
       setAnswers(newAnswers);
       setInput('');
       
-      if (step < creativeQuestions.length - 1) {
+      if (step < creativeQuestions.length) {
         setStep(step + 1);
-        const nextQuestion = creativeQuestions[step + 1];
+        const nextQuestion = creativeQuestions[step];
         setMessages(msgs => [...msgs, { sender: 'bot', text: nextQuestion.text }]);
       } else {
         setStep(step + 1);
