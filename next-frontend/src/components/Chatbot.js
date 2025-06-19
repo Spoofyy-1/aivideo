@@ -266,16 +266,49 @@ function Chatbot() {
 
   // Generate script first (instead of full ad)
   const maybeGenerateScript = async (finalAnswers) => {
-    if (
-      creativeQuestions.every(q => (finalAnswers || answers)[q.key]) &&
-      ((finalAnswers || answers).product)
-    ) {
+    const answersToCheck = finalAnswers || answers;
+    
+    // Debug logging
+    console.log('maybeGenerateScript called with:', {
+      finalAnswers,
+      currentAnswers: answers,
+      answersToCheck,
+      hasProduct: !!answersToCheck.product,
+      creativeQuestionsStatus: creativeQuestions.map(q => ({
+        key: q.key,
+        value: answersToCheck[q.key],
+        hasValue: !!answersToCheck[q.key]
+      }))
+    });
+    
+    // Check if all creative questions are answered and product is selected
+    const allQuestionsAnswered = creativeQuestions.every(q => {
+      const value = answersToCheck[q.key];
+      return value && value.trim() !== '';
+    });
+    
+    const hasProduct = answersToCheck.product && answersToCheck.product.trim() !== '';
+    const hasCompanyUrl = answersToCheck.company_url && answersToCheck.company_url.trim() !== '';
+    const hasIndustry = answersToCheck.industry && answersToCheck.industry.trim() !== '';
+    
+    console.log('Generation conditions:', {
+      allQuestionsAnswered,
+      hasProduct,
+      hasCompanyUrl,
+      hasIndustry,
+      shouldGenerate: allQuestionsAnswered && hasProduct && hasCompanyUrl && hasIndustry
+    });
+    
+    if (allQuestionsAnswered && hasProduct && hasCompanyUrl && hasIndustry) {
       setLoadingMessage('Generating your script...');
       setLoading(true);
       setMessages(msgs => [...msgs, { sender: 'bot', text: 'Generating your ad script, please wait...' }]);
       
       try {
-        const data = await generateScript(finalAnswers || answers);
+        console.log('Calling generateScript API with:', answersToCheck);
+        const data = await generateScript(answersToCheck);
+        console.log('Script generation successful:', data);
+        
         setCurrentScript(data.script);
         setScriptAnalysis(data.script_analysis);
         setCompanyInfo(data.company_info);
@@ -283,10 +316,12 @@ function Chatbot() {
         setMessages(msgs => [...msgs, { sender: 'bot', text: 'Your script is ready! Review it below and make any improvements you want before generating the video.' }]);
       } catch (err) {
         console.error('Script generation error:', err);
-        setMessages(msgs => [...msgs, { sender: 'bot', text: 'Sorry, something went wrong generating your script. Please try again.' }]);
+        setMessages(msgs => [...msgs, { sender: 'bot', text: `Sorry, something went wrong generating your script: ${err.message}. Please try again.` }]);
       }
       setLoading(false);
       setLoadingMessage('');
+    } else {
+      console.log('Not ready to generate script yet. Missing requirements.');
     }
   };
 
