@@ -297,7 +297,11 @@ function Chatbot() {
       hasProduct,
       hasCompanyUrl,
       hasIndustry,
-      shouldGenerate: allQuestionsAnswered && hasProduct && hasCompanyUrl && hasIndustry
+      shouldGenerate: allQuestionsAnswered && hasProduct && hasCompanyUrl && hasIndustry,
+      missingQuestions: creativeQuestions.filter(q => {
+        const value = answersToCheck[q.key];
+        return !(value && value.trim() !== '');
+      }).map(q => q.key)
     });
     
     if (allQuestionsAnswered && hasProduct && hasCompanyUrl && hasIndustry) {
