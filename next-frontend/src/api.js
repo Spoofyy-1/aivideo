@@ -118,4 +118,58 @@ export async function testAPI() {
       console.error('Test API error:', error);
       throw error;
     }
-} 
+}
+
+export const generateScript = async (answers) => {
+  console.log('Generating script with answers:', answers);
+  const response = await fetch(`${API_BASE_URL}/generate-script`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(answers),
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to generate script');
+  }
+  
+  return response.json();
+};
+
+export const improveScript = async (scriptData) => {
+  console.log('Improving script with data:', scriptData);
+  const response = await fetch(`${API_BASE_URL}/improve-script`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(scriptData),
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to improve script');
+  }
+  
+  return response.json();
+};
+
+export const generateVideoFromScript = async (scriptData) => {
+  console.log('Generating video from script:', scriptData);
+  const response = await fetch(`${API_BASE_URL}/generate-video-from-script`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(scriptData),
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to generate video from script');
+  }
+  
+  return response.json();
+}; 

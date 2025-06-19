@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { generateAd, researchCompany, testAPI } from '../api';
+import { generateAd, researchCompany, testAPI, generateScript, improveScript, generateVideoFromScript } from '../api';
 import RatingModal from './RatingModal';
+import ScriptPreview from './ScriptPreview';
 
 // API base URL - need to reuse this for downloads
 const getApiBaseUrl = () => {
@@ -110,6 +111,12 @@ function Chatbot() {
   const [productAsked, setProductAsked] = useState(false);
   const [productSelected, setProductSelected] = useState(false);
 
+  // Script preview state
+  const [scriptGenerated, setScriptGenerated] = useState(false);
+  const [currentScript, setCurrentScript] = useState(null);
+  const [scriptAnalysis, setScriptAnalysis] = useState(null);
+  const [companyInfo, setCompanyInfo] = useState(null);
+
   // Rating modal state
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [hasRated, setHasRated] = useState(false);
@@ -145,14 +152,14 @@ function Chatbot() {
     if (chatRef.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }
-  }, [messages, result]);
+  }, [messages, result, currentScript]);
 
   // Handle product selection
   const handleProductSelect = (product) => {
     setMessages(msgs => [...msgs, { sender: 'user', text: product }]);
     setAnswers(ans => ({ ...ans, product }));
     setProductSelected(true);
-    maybeGenerateAd({ ...answers, product });
+    maybeGenerateScript({ ...answers, product });
   };
 
   // Handle custom product input
@@ -162,7 +169,7 @@ function Chatbot() {
     setProductSelected(false);
   };
 
-  // Main send handler
+  // Updated send handler to generate script first
   const handleSend = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -196,19 +203,12 @@ function Chatbot() {
         ]);
       } catch (error) {
         console.error('Research failed with error:', error);
-        console.error('Error details:', {
-          message: error.message,
-          stack: error.stack,
-          name: error.name
-        });
-        
-        setLoading(false);
-        setLoadingMessage('');
         setMessages(msgs => [
           ...msgs,
-          { sender: 'bot', text: `Research failed: ${error.message}. We can continue without it. What industry is your company in?` }
+          { sender: 'bot', text: 'Research failed. Please check the URL and try again.' }
         ]);
-        setResearchDone(true);
+        setLoading(false);
+        setLoadingMessage('');
       }
       return;
     }
@@ -232,64 +232,119 @@ function Chatbot() {
       return;
     }
 
-    // Creative questions
+    // Handle other questions
     if (step < creativeQuestions.length) {
-      setAnswers(ans => ({ ...ans, [creativeQuestions[step].key]: input }));
+      const currentQuestion = creativeQuestions[step];
+      const newAnswers = { ...answers, [currentQuestion.key]: input };
+      setAnswers(newAnswers);
       setInput('');
+      
       if (step < creativeQuestions.length - 1) {
-        setTimeout(() => {
-          setMessages(msgs => [...msgs, { sender: 'bot', text: creativeQuestions[step + 1].text }]);
-        }, 400);
         setStep(step + 1);
+        const nextQuestion = creativeQuestions[step + 1];
+        setMessages(msgs => [...msgs, { sender: 'bot', text: nextQuestion.text }]);
       } else {
-        // After last creative question, wait for research if not done, then show product options
         setStep(step + 1);
-        if (researchDone) {
+        // Show product selection instead of generating ad immediately
+        if (!productAsked && productsList.length > 0) {
+          setMessages(msgs => [...msgs, { sender: 'bot', text: 'Select a product or service to promote:' }]);
+          setProductAsked(true);
+        } else if (!productAsked) {
+          setMessages(msgs => [...msgs, { sender: 'bot', text: 'Type your product or service:' }]);
           setProductAsked(true);
         }
       }
+    } else if (productAsked && !productSelected) {
+      // Handle custom product input
+      const newAnswers = { ...answers, product: input };
+      setAnswers(newAnswers);
+      setProductSelected(true);
+      setInput('');
+      maybeGenerateScript(newAnswers);
     }
   };
 
-  // Show product options after creative questions and research is done
-  useEffect(() => {
-    if (step >= creativeQuestions.length && researchDone && !productSelected && productAsked) {
-      if (productsList.length > 0) {
-        setMessages(msgs => [...msgs, { sender: 'bot', text: 'Select a product or service to promote:' }]);
-      } else {
-        setMessages(msgs => [...msgs, { sender: 'bot', text: 'Type your product or service:' }]);
-      }
-      setProductAsked(true);
-    }
-    // eslint-disable-next-line
-  }, [researchDone, step]);
-
-  // Generate ad if all creative questions and product are answered
-  const maybeGenerateAd = async (finalAnswers) => {
+  // Generate script first (instead of full ad)
+  const maybeGenerateScript = async (finalAnswers) => {
     if (
       creativeQuestions.every(q => (finalAnswers || answers)[q.key]) &&
       ((finalAnswers || answers).product)
     ) {
-      setLoadingMessage('Generating your ad...');
+      setLoadingMessage('Generating your script...');
       setLoading(true);
-      setMessages(msgs => [...msgs, { sender: 'bot', text: 'Generating your ad, please wait...' }]);
+      setMessages(msgs => [...msgs, { sender: 'bot', text: 'Generating your ad script, please wait...' }]);
+      
       try {
-        const data = await generateAd(finalAnswers || answers);
-        setResult(data);
-        setMessages(msgs => [...msgs, { sender: 'bot', text: 'Here is your generated ad!' }]);
-        
-        // Show rating modal after a short delay to let user see the result
-        setTimeout(() => {
-          if (!hasRated) {
-            setShowRatingModal(true);
-          }
-        }, 3000);
+        const data = await generateScript(finalAnswers || answers);
+        setCurrentScript(data.script);
+        setScriptAnalysis(data.script_analysis);
+        setCompanyInfo(data.company_info);
+        setScriptGenerated(true);
+        setMessages(msgs => [...msgs, { sender: 'bot', text: 'Your script is ready! Review it below and make any improvements you want before generating the video.' }]);
       } catch (err) {
-        setMessages(msgs => [...msgs, { sender: 'bot', text: 'Sorry, something went wrong generating your ad.' }]);
+        console.error('Script generation error:', err);
+        setMessages(msgs => [...msgs, { sender: 'bot', text: 'Sorry, something went wrong generating your script. Please try again.' }]);
       }
       setLoading(false);
       setLoadingMessage('');
     }
+  };
+
+  // Handle script improvement
+  const handleScriptImprovement = async (improvementRequest) => {
+    setLoading(true);
+    setLoadingMessage('Improving your script...');
+    setMessages(msgs => [...msgs, { sender: 'bot', text: `Improving script: "${improvementRequest}"...` }]);
+    
+    try {
+      const data = await improveScript({
+        script: currentScript,
+        company_info: companyInfo,
+        user_answers: answers,
+        improvement_request: improvementRequest
+      });
+      
+      setCurrentScript(data.script);
+      setScriptAnalysis(data.script_analysis);
+      setMessages(msgs => [...msgs, { sender: 'bot', text: 'Script improved! Review the changes below.' }]);
+    } catch (err) {
+      console.error('Script improvement error:', err);
+      setMessages(msgs => [...msgs, { sender: 'bot', text: 'Sorry, something went wrong improving your script. Please try again.' }]);
+    }
+    
+    setLoading(false);
+    setLoadingMessage('');
+  };
+
+  // Handle script approval and video generation
+  const handleScriptApproval = async () => {
+    setLoading(true);
+    setLoadingMessage('Generating your video...');
+    setMessages(msgs => [...msgs, { sender: 'bot', text: 'Great! Now generating your video from the approved script. This may take a few minutes...' }]);
+    
+    try {
+      const data = await generateVideoFromScript({
+        script: currentScript,
+        company_info: companyInfo,
+        user_answers: answers
+      });
+      
+      setResult(data);
+      setMessages(msgs => [...msgs, { sender: 'bot', text: 'Your AI video ad is ready! 🎉' }]);
+      
+      // Show rating modal after a short delay
+      setTimeout(() => {
+        if (!hasRated) {
+          setShowRatingModal(true);
+        }
+      }, 3000);
+    } catch (err) {
+      console.error('Video generation error:', err);
+      setMessages(msgs => [...msgs, { sender: 'bot', text: 'Sorry, something went wrong generating your video. Please try again or contact support.' }]);
+    }
+    
+    setLoading(false);
+    setLoadingMessage('');
   };
 
   // Handle rating submission
@@ -317,6 +372,23 @@ function Chatbot() {
               <div className="bubble">{msg.text}</div>
             </div>
           ))}
+          
+          {/* Loading indicator */}
+          {loading && (
+            <div className="msg bot">
+              <div className="bubble">
+                {loadingMessage}
+                <div style={{ 
+                  display: 'inline-block', 
+                  marginLeft: '0.5rem',
+                  animation: 'spin 1s linear infinite' 
+                }}>
+                  ⚡
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Product options */}
           {step >= creativeQuestions.length && researchDone && !productSelected && productAsked && productsList.length > 0 && (
             <div className="msg bot">
@@ -336,7 +408,12 @@ function Chatbot() {
                       cursor: 'pointer',
                       marginBottom: '0.3rem'
                     }}
-                    onClick={() => handleProductSelect(opt)}
+                    onClick={() => {
+                      setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
+                      setAnswers(ans => ({ ...ans, product: opt }));
+                      setProductSelected(true);
+                      maybeGenerateScript({ ...answers, product: opt });
+                    }}
                   >
                     {opt}
                   </button>
@@ -360,10 +437,25 @@ function Chatbot() {
               </div>
             </div>
           )}
+          
+          {/* Script Preview */}
+          {scriptGenerated && currentScript && (
+            <ScriptPreview
+              script={currentScript}
+              scriptAnalysis={scriptAnalysis}
+              companyInfo={companyInfo}
+              userAnswers={answers}
+              onImprove={handleScriptImprovement}
+              onApprove={handleScriptApproval}
+              loading={loading}
+            />
+          )}
+          
+          {/* Final Result */}
           {result && (
             <div>
               <div style={{ margin: '1em 0', padding: '1em', background: '#f0f0f0', borderRadius: '8px' }}>
-                <h3 style={{ color: '#333', marginBottom: '1em' }}>Your AI Video Ad is Ready!</h3>
+                <h3 style={{ color: '#333', marginBottom: '1em' }}>🎉 Your AI Video Ad is Ready!</h3>
                 
                 <div style={{ margin: '1em 0' }}>
                   <a
@@ -423,18 +515,15 @@ function Chatbot() {
                 </div>
                 
                 <p style={{ color: '#666', fontSize: '14px', marginTop: '1em' }}>
-                  Click the buttons above to download your AI-generated video ad and detailed report.
+                  Your video was generated from the script you approved. Download and share your AI-created ad!
                 </p>
-              </div>
-              
-              <div id="video-error" style={{ display: 'none', color: '#fff', background: '#c00', padding: '1em', borderRadius: '8px', marginTop: '1em' }}>
-                Video could not be loaded. Please check your server logs or try again.
               </div>
             </div>
           )}
         </div>
+        
         {/* Input form */}
-        {!result && !loading && (
+        {!result && !loading && !scriptGenerated && (
           <form className="input-row" onSubmit={handleSend}>
             {!answers.company_url ? (
               <div>
@@ -448,93 +537,134 @@ function Chatbot() {
                   color: '#1976d2'
                 }}>
                   💡 <strong>Tip:</strong> Just enter the website domain (e.g., "apple.com" or "nike.com"). 
-                  No need to include "https://" - we'll handle that automatically!
+                  Our AI will research your company automatically.
                 </div>
                 <input
-                  type="text"
                   value={input}
-                  onChange={e => setInput(e.target.value)}
-                  placeholder="Enter company website (e.g., apple.com, nike.com, tesla.com)"
-                  autoFocus
-                />
-                <div style={{ 
-                  fontSize: '12px', 
-                  color: '#666', 
-                  marginTop: '8px' 
-                }}>
-                  ✅ Supported formats: apple.com, www.apple.com, https://apple.com
-                </div>
-              </div>
-            ) : !answers.industry ? (
-              <select
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                style={{
-                  background: 'var(--input-bg)',
-                  color: 'var(--input-text)',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '0.6rem 1.2rem',
-                  fontFamily: 'Orbitron, sans-serif',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  marginBottom: '0.3rem'
-                }}
-              >
-                <option value="">Select your industry</option>
-                {industryOptions.map(option => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-            ) : (
-              step < creativeQuestions.length && creativeQuestions[step].options ? (
-                <select
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Enter your company website URL..."
                   style={{
+                    width: '100%',
+                    padding: '1rem',
+                    borderRadius: '12px',
+                    border: '1px solid var(--teal-mid)',
                     background: 'var(--input-bg)',
-                    color: 'var(--input-text)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '0.6rem 1.2rem',
-                    fontFamily: 'Orbitron, sans-serif',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    marginBottom: '0.3rem'
+                    color: 'var(--text-light)',
+                    fontSize: '1rem'
                   }}
-                >
-                  <option value="">Select an option</option>
-                  {creativeQuestions[step].options.map(option => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  type="text"
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  placeholder="Type your answer..."
-                  autoFocus
                 />
-              )
+              </div>
+            ) : step === 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {industryOptions.map(opt => (
+                  <button
+                    key={opt}
+                    type="button"
+                    style={{
+                      background: 'var(--button-bg)',
+                      color: 'var(--button-text)',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '0.6rem 1.2rem',
+                      fontFamily: 'Orbitron, sans-serif',
+                      fontWeight: 'bold',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => {
+                      setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
+                      setAnswers(ans => ({ ...ans, industry: opt }));
+                      setStep(1);
+                      setMessages(msgs => [...msgs, { sender: 'bot', text: creativeQuestions[0].text }]);
+                    }}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            ) : step <= creativeQuestions.length && creativeQuestions[step - 1]?.options ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {creativeQuestions[step - 1].options.map(opt => (
+                  <button
+                    key={opt}
+                    type="button"
+                    style={{
+                      background: 'var(--button-bg)',
+                      color: 'var(--button-text)',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '0.6rem 1.2rem',
+                      fontFamily: 'Orbitron, sans-serif',
+                      fontWeight: 'bold',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => {
+                      setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
+                      const currentQuestion = creativeQuestions[step - 1];
+                      const newAnswers = { ...answers, [currentQuestion.key]: opt };
+                      setAnswers(newAnswers);
+                      
+                      if (step < creativeQuestions.length) {
+                        setStep(step + 1);
+                        const nextQuestion = creativeQuestions[step];
+                        setMessages(msgs => [...msgs, { sender: 'bot', text: nextQuestion.text }]);
+                      } else {
+                        setStep(step + 1);
+                        if (!productAsked && productsList.length > 0) {
+                          setMessages(msgs => [...msgs, { sender: 'bot', text: 'Select a product or service to promote:' }]);
+                          setProductAsked(true);
+                        } else if (!productAsked) {
+                          setMessages(msgs => [...msgs, { sender: 'bot', text: 'Type your product or service:' }]);
+                          setProductAsked(true);
+                        }
+                      }
+                    }}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type your answer..."
+                style={{
+                  width: '100%',
+                  padding: '1rem',
+                  borderRadius: '12px',
+                  border: '1px solid var(--teal-mid)',
+                  background: 'var(--input-bg)',
+                  color: 'var(--text-light)',
+                  fontSize: '1rem'
+                }}
+              />
             )}
-            <button type="submit">Send</button>
+            
+            {/* Only show submit button for text inputs */}
+            {((answers.company_url && step === 0) || 
+              (step > 0 && step <= creativeQuestions.length && !creativeQuestions[step - 1]?.options) ||
+              (productAsked && !productSelected)) && (
+              <button type="submit" className="send-btn">
+                Send
+              </button>
+            )}
           </form>
         )}
-        {loading && <div className="loading">{loadingMessage}</div>}
+        
+        {/* Show rating modal */}
+        <RatingModal
+          show={showRatingModal}
+          onClose={handleRatingClose}
+          onSubmit={handleRatingSubmit}
+        />
+        
+        <style jsx>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
-      
-      {/* Rating Modal */}
-      <RatingModal
-        isOpen={showRatingModal}
-        onClose={handleRatingClose}
-        onSubmit={handleRatingSubmit}
-        sessionId={result?.session_id}
-        adType={answers.ad_type}
-        industry={answers.industry}
-        companyUrl={answers.company_url}
-        adScript={result?.script}
-      />
     </div>
   );
 }

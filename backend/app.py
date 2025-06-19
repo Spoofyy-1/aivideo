@@ -1018,7 +1018,7 @@ Only return the JSON object."""
             model="gpt-4.1",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
-            max_tokens=4000
+            max_tokens=20000
         )
     except Exception as api_error:
         print(f"OpenAI API Error for ad_type '{ad_type}': {api_error}")
@@ -2159,6 +2159,629 @@ def process_video_segment(video_path, segment_num):
         print(f"ERROR processing segment {segment_num}: {str(e)}")
         # Return original path if processing fails
         return video_path
+
+@app.route('/generate-script', methods=['POST'])
+def generate_script_only():
+    """Generate just the script for preview and editing, without video generation"""
+    client_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
+    if not check_rate_limit(client_ip):
+        return jsonify({
+            'error': 'Rate limit exceeded. Maximum 10 requests per hour.',
+            'retry_after': 3600
+        }), 429
+    
+    try:
+        print("DEBUG: Generate script route called")
+        user_answers = request.json
+        company_url = user_answers.get('company_url')
+        
+        if not company_url:
+            return jsonify({'error': 'Company URL is required'}), 400
+        
+        # Research company
+        company_info = research_company(company_url)
+        
+        # Retrieve top best ads for inspiration
+        user_text = f"Company info: {company_info}\nUser wants: {json.dumps(user_answers)}"
+        best_ads = get_top_best_ads(user_text)
+        
+        # Generate script with GPT first
+        ad_script = generate_ad_script(company_info, user_answers, best_ads=best_ads)
+        print("Generated script:", ad_script)
+        
+        # Analyze script for potential VEO-3 issues
+        script_analysis = analyze_script_for_veo3(ad_script)
+        
+        return jsonify({
+            'status': 'success',
+            'script': ad_script,
+            'company_info': company_info,
+            'script_analysis': script_analysis
+        })
+        
+    except Exception as e:
+        print(f"ERROR in generate_script route: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/improve-script', methods=['POST'])
+def improve_script():
+    """Improve an existing script by fully regenerating with GPT + Gemini using user feedback"""
+    try:
+        print("DEBUG: Improve script route called")
+        data = request.json
+        current_script = data.get('script')
+        company_info = data.get('company_info')
+        user_answers = data.get('user_answers')
+        improvement_request = data.get('improvement_request', '')
+        
+        if not current_script or not company_info:
+            return jsonify({'error': 'Script and company info are required'}), 400
+        
+        # Get best ads for context
+        user_text = f"Company info: {company_info}\nUser wants: {json.dumps(user_answers)}"
+        best_ads = get_top_best_ads(user_text)
+        
+        # FULL REGENERATION WORKFLOW (GPT + Gemini)
+        # Step 1: Modify user answers to include the improvement request
+        enhanced_user_answers = user_answers.copy()
+        enhanced_user_answers['improvement_feedback'] = improvement_request
+        
+        # Step 2: Regenerate script with GPT incorporating the feedback
+        print("DEBUG: Regenerating script with GPT incorporating user feedback")
+        regenerated_script = generate_ad_script_with_feedback(
+            company_info, enhanced_user_answers, current_script, improvement_request, best_ads=best_ads
+        )
+        
+        # Step 3: Improve the regenerated script with Gemini
+        print("DEBUG: Improving regenerated script with Gemini")
+        try:
+            final_script = improve_script_with_gemini(
+                company_info, enhanced_user_answers, regenerated_script, best_ads=best_ads
+            )
+            print("DEBUG: Script regeneration and improvement completed")
+        except Exception as e:
+            print(f"Gemini improvement failed, using GPT regenerated script. Error: {e}")
+            final_script = regenerated_script
+        
+        # Analyze final script
+        script_analysis = analyze_script_for_veo3(final_script)
+        
+        return jsonify({
+            'status': 'success',
+            'script': final_script,
+            'script_analysis': script_analysis
+        })
+        
+    except Exception as e:
+        print(f"ERROR in improve_script route: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/generate-video-from-script', methods=['POST'])
+def generate_video_from_script():
+    """Generate video from an approved script"""
+    client_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
+    if not check_rate_limit(client_ip):
+        return jsonify({
+            'error': 'Rate limit exceeded. Maximum 10 requests per hour.',
+            'retry_after': 3600
+        }), 429
+    
+    # Acquire semaphore for concurrent request limiting
+    if not active_requests.acquire(blocking=False):
+        return jsonify({
+            'error': 'Server is currently processing maximum concurrent requests. Please try again in a few minutes.',
+            'retry_after': 300
+        }), 503
+    
+    try:
+        print("DEBUG: Generate video from script route called")
+        data = request.json
+        ad_script = data.get('script')
+        company_info = data.get('company_info')
+        user_answers = data.get('user_answers')
+        
+        if not ad_script or not company_info:
+            return jsonify({'error': 'Script and company info are required'}), 400
+        
+        # Generate unique session ID
+        session_id = generate_unique_session_id()
+        print(f"DEBUG: Generated session ID: {session_id}")
+        
+        # Create unique user directory
+        user_dir = ensure_user_directory(session_id)
+        
+        # Generate company report
+        company_url = user_answers.get('company_url', 'unknown')
+        company_name = slugify(company_url.split('//')[-1].split('/')[0])
+        unique_name = f"{company_name}_{session_id}"
+        
+        with file_lock:
+            report_path = os.path.join(user_dir, f'{unique_name}_report.txt')
+        generate_company_report(company_info, report_path)
+        
+        report_url = f'/download/report/{session_id}/{os.path.basename(report_path)}'
+        
+        # Generate video segments in parallel with optimized script
+        def get_video_with_session(segment, i, session_id):
+            """Generate video with session-specific temporary files and optimized prompts."""
+            for retry in range(3):
+                try:
+                    # Optimize prompt for VEO-3 length limits
+                    optimized_prompt = optimize_prompt_for_veo3(ad_script[segment]['prompt'])
+                    video_path = generate_video_segment_with_session(optimized_prompt, i, session_id)
+                    processed_path = process_video_segment(video_path, i)
+                    return processed_path
+                except Exception as e:
+                    if "flagged as sensitive" in str(e).lower() or "E005" in str(e):
+                        print(f"Sensitive content detected for {segment}, retry {retry+1}...")
+                        continue
+                    else:
+                        raise
+            raise Exception(f"Failed to generate {segment} after 3 retries.")
+
+        print("DEBUG: Starting parallel video generation with optimized prompts")
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future1 = executor.submit(get_video_with_session, 'segment1', 1, session_id)
+            future2 = executor.submit(get_video_with_session, 'segment2', 2, session_id)
+            video_path1 = future1.result()
+            video_path2 = future2.result()
+
+        video_paths = [video_path1, video_path2]
+        
+        # Combine videos with improved audio handling
+        with file_lock:
+            output_path = os.path.join(user_dir, f'{unique_name}_ad.mp4')
+        final_video_path = combine_videos(video_paths, output_path)
+        
+        if not os.path.exists(final_video_path):
+            return jsonify({'error': 'Video file was not created.'}), 500
+        
+        video_url = f'/download/video/{session_id}/{os.path.basename(final_video_path)}'
+        
+        return jsonify({
+            'status': 'success',
+            'video_url': video_url,
+            'report_url': report_url,
+            'script': ad_script,
+            'session_id': session_id
+        })
+        
+    except Exception as e:
+        print(f"ERROR in generate_video_from_script route: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        active_requests.release()
+
+def analyze_script_for_veo3(script):
+    """Analyze script for potential VEO-3 issues and provide recommendations"""
+    analysis = {
+        'segment1_issues': [],
+        'segment2_issues': [],
+        'overall_recommendations': [],
+        'length_analysis': {},
+        'audio_quality_score': 0
+    }
+    
+    for segment_name in ['segment1', 'segment2']:
+        if segment_name not in script:
+            continue
+            
+        segment = script[segment_name]
+        issues = []
+        
+        # Check voiceover script length (should be ~8 seconds of speech)
+        voiceover = segment.get('voiceover_script', '')
+        word_count = len(voiceover.split())
+        estimated_duration = word_count / 2.5  # ~2.5 words per second for natural speech
+        
+        if estimated_duration > 9:
+            issues.append(f"Voiceover too long ({estimated_duration:.1f}s estimated). May get cut off.")
+        elif estimated_duration < 6:
+            issues.append(f"Voiceover too short ({estimated_duration:.1f}s estimated). Consider adding content.")
+        
+        # Check prompt complexity
+        prompt = segment.get('prompt', '')
+        if len(prompt) > 500:
+            issues.append("Prompt very complex. Consider simplifying for better VEO-3 results.")
+        
+        # Check for proper VEO-3 audio formatting
+        if '[voiceover:' not in prompt:
+            issues.append("Missing VEO-3 voiceover formatting in prompt.")
+        
+        # Check for continuous audio
+        if 'music' not in prompt.lower() and 'sound' not in prompt.lower():
+            issues.append("No background audio specified. May create awkward silence.")
+        
+        analysis[f'{segment_name}_issues'] = issues
+        analysis['length_analysis'][segment_name] = {
+            'word_count': word_count,
+            'estimated_duration': round(estimated_duration, 1),
+            'optimal': 6 <= estimated_duration <= 8
+        }
+    
+    # Overall recommendations
+    if any(analysis['segment1_issues']) or any(analysis['segment2_issues']):
+        analysis['overall_recommendations'].append("Consider script optimization before video generation.")
+    
+    # Calculate audio quality score
+    total_issues = len(analysis['segment1_issues']) + len(analysis['segment2_issues'])
+    analysis['audio_quality_score'] = max(0, 100 - (total_issues * 15))
+    
+    return analysis
+
+def optimize_prompt_for_veo3(prompt):
+    """Optimize prompt length and structure for VEO-3"""
+    # If prompt is too long, intelligently truncate while preserving key elements
+    if len(prompt) > 450:
+        # Extract key components
+        import re
+        
+        # Find voiceover section
+        voiceover_match = re.search(r'\[voiceover:([^\]]+)\]', prompt)
+        voiceover_text = voiceover_match.group(0) if voiceover_match else ""
+        
+        # Extract core visual description (first sentence usually)
+        sentences = prompt.split('.')
+        core_visual = sentences[0] + '.' if sentences else prompt[:100]
+        
+        # Rebuild optimized prompt
+        optimized = f"{core_visual} {voiceover_text}"
+        
+        # Add essential elements if space allows
+        if len(optimized) < 300:
+            if 'medium close-up' not in optimized and len(optimized) < 250:
+                optimized += " Medium close-up shot."
+            if 'upbeat' not in optimized and 'music' not in optimized and len(optimized) < 200:
+                optimized += " Upbeat background music."
+        
+        print(f"DEBUG: Optimized prompt from {len(prompt)} to {len(optimized)} characters")
+        return optimized
+    
+    return prompt
+
+def improve_script_with_gemini_and_feedback(company_info, user_answers, current_script, best_ads, improvement_request):
+    """Improve script with specific user feedback using Gemini"""
+    import copy
+    improved_script = copy.deepcopy(current_script)
+    
+    # Build context for Gemini
+    best_ads_str = ""
+    if best_ads:
+        best_ads_str = "\n\nBest ads inspiration:\n"
+        for ad in best_ads:
+            best_ads_str += f"- {ad['title']}: {ad['script']} (Principle: {ad['principle']})\n"
+    
+    improvement_prompt = f"""
+    You are an expert ad script editor. The user has requested specific improvements to their current script.
+    
+    USER'S IMPROVEMENT REQUEST: {improvement_request}
+    
+    CURRENT SCRIPT:
+    {json.dumps(current_script, indent=2)}
+    
+    COMPANY INFO: {company_info}
+    USER PREFERENCES: {json.dumps(user_answers)}
+    {best_ads_str}
+    
+    CRITICAL VEO-3 OPTIMIZATION RULES:
+    1. Each segment's voiceover_script should be 15-20 words max (for 8-second timing)
+    2. Prompts should be under 400 characters for optimal VEO-3 processing
+    3. Include "[voiceover: text]" format in prompts
+    4. Ensure continuous audio (music/sounds) throughout
+    5. Use specific, actionable language
+    
+    Please improve the script based on the user's request while maintaining the JSON format and optimizing for VEO-3. Focus specifically on addressing their feedback while keeping segments concise and effective.
+    
+    Return only the improved JSON script.
+    """
+    
+    try:
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-06-05:generateContent?key=" + GEMINI_API_KEY
+        headers = {"Content-Type": "application/json"}
+        data = {"contents": [{"parts": [{"text": improvement_prompt}]}]}
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status()
+        result = response.json()
+        
+        import re
+        text = result["candidates"][0]["content"]["parts"][0]["text"]
+        match = re.search(r'\{.*\}', text, re.DOTALL)
+        if match:
+            improved_data = json.loads(match.group())
+            improved_script.update(improved_data)
+            print("Script improved with Gemini and user feedback")
+        else:
+            print("Could not extract JSON from Gemini response")
+    except Exception as e:
+        print(f"Gemini improvement failed: {e}")
+    
+    return improved_script
+
+def generate_ad_script_with_feedback(company_info, user_answers, current_script, improvement_request, best_ads=None):
+    """
+    Regenerate ad script with GPT incorporating user feedback and previous script context.
+    This ensures the script is rebuilt from scratch with the user's suggestions.
+    """
+    client = get_openai_client()
+    if client is None:
+        raise Exception("OpenAI client not available. Please check API key configuration.")
+    
+    # Get AI-powered improvement insights based on user feedback
+    ad_type = user_answers.get('ad_type', '').lower()
+    industry = user_answers.get('industry', '')
+    
+    # Normalize ad_type to handle frontend formatting
+    ad_type_mapping = {
+        '✨ educational-first (2025 trend)': 'educational-first',
+        '✨ founder-story (2025 trend)': 'founder-story', 
+        '✨ nostalgia-driven (2025 trend)': 'nostalgia-driven',
+        '✨ brain-rot/escapism (2025 trend)': 'brain-rot/escapism',
+        '✨ micro-moment (2025 trend)': 'micro-moment',
+        '✨ platform-native (2025 trend)': 'platform-native'
+    }
+    
+    # Check if the ad_type needs to be normalized
+    for key, value in ad_type_mapping.items():
+        if key in ad_type:
+            ad_type = value
+            break
+    
+    # Get improvement insights from user feedback
+    improvement_insights = get_improvement_insights(ad_type, industry)
+    feedback_improvements = ""
+    
+    if improvement_insights:
+        print(f"DEBUG: Using feedback insights for {ad_type}/{industry}")
+        feedback_improvements = f"""
+*** AI-POWERED FEEDBACK INSIGHTS - APPLY THESE LEARNINGS ***
+Based on user ratings and feedback for {ad_type} ads in {industry} industry:
+
+OVERALL SENTIMENT: {improvement_insights.get('overall_sentiment', 'neutral')}
+
+AVOID THESE PATTERNS (User Complaints):
+{chr(10).join([f"- {complaint}" for complaint in improvement_insights.get('main_complaints', [])])}
+
+EMPHASIZE THESE ELEMENTS (What Users Love):
+{chr(10).join([f"- {element}" for element in improvement_insights.get('successful_elements', [])])}
+
+HIGH-PRIORITY IMPROVEMENTS:
+{chr(10).join([f"- {rec['issue']}: {rec['solution']}" for rec in improvement_insights.get('improvement_recommendations', []) if rec.get('priority') == 'high'])}
+
+*** CRITICAL: Apply these user-validated improvements to create better ads ***
+"""
+    
+    creative_notes = []
+    if user_answers.get('product'):
+        creative_notes.append(f"Main product/service to promote: {user_answers['product']}")
+    if user_answers.get('mood'):
+        creative_notes.append(f"Desired mood/vibe: {user_answers['mood']}")
+    
+    # Add main character if specified
+    main_character = user_answers.get('main_character')
+    if main_character and not normalize_na(main_character):
+        creative_notes.append(f"Main character for the ad: {main_character}")
+    
+    # Only use slogan if it's not 'N/A', 'na', etc.
+    slogan_val = user_answers.get('slogan')
+    if slogan_val and not normalize_na(slogan_val):
+        creative_notes.append(f"User's preferred slogan: {slogan_val}")
+    
+    # Only use CTA if it's not 'N/A', 'na', etc.
+    cta_val = user_answers.get('cta')
+    if cta_val and not normalize_na(cta_val):
+        creative_notes.append(f"Call to action: {cta_val}")
+    
+    if user_answers.get('features'):
+        creative_notes.append(f"Features/benefits to highlight: {user_answers['features']}")
+    
+    # Add industry and target audience
+    if industry:
+        creative_notes.append(f"Industry: {industry}")
+    target_audience = get_target_audience_for_industry(industry)
+    if target_audience:
+        creative_notes.append(f"Target audience: {target_audience}")
+    
+    creative_notes_str = "\n".join(creative_notes) if creative_notes else "No additional creative direction provided by the user."
+
+    # Extract specific product features and benefits from research
+    product_features = extract_key_features_and_benefits(company_info)
+    
+    # Build comprehensive product information string
+    product_info_str = f"""
+SPECIFIC PRODUCT INFORMATION (USE THIS IN THE AD):
+What it does: {product_features.get('what_it_does', 'Product information not available')}
+
+Key Features:
+{chr(10).join([f"- {feature}" for feature in product_features.get('features', ['Features not specified'])])}
+
+Benefits:
+{chr(10).join([f"- {benefit}" for benefit in product_features.get('benefits', ['Benefits not specified'])])}
+
+Unique Selling Points:
+{chr(10).join([f"- {usp}" for usp in product_features.get('unique_selling_points', ['USPs not specified'])])}
+
+Problems it Solves:
+{chr(10).join([f"- {pain_point}" for pain_point in product_features.get('target_pain_points', ['Pain points not specified'])])}
+
+CRITICAL: Use these SPECIFIC features and benefits in the dialogue. Don't just say "I love [PRODUCT]" - explain WHY with concrete features like "[PRODUCT]'s [SPECIFIC FEATURE] helps me [SPECIFIC BENEFIT]!"
+"""
+
+    # Add best ads inspiration
+    best_ads_str = ""
+    if best_ads:
+        best_ads_str = "Here are some of the best, most creative, and viral ad scripts and creative principles in history to use as inspiration:\n"
+        for ad in best_ads:
+            scene_desc = ""
+            if 'scene_descriptions' in ad:
+                scene_desc = f"\nScene 1: {ad['scene_descriptions']['segment1']['visual']} (Mood: {ad['scene_descriptions']['segment1']['mood']}, Camera: {ad['scene_descriptions']['segment1']['camera']})\n"
+                scene_desc += f"Scene 2: {ad['scene_descriptions']['segment2']['visual']} (Mood: {ad['scene_descriptions']['segment2']['mood']}, Camera: {ad['scene_descriptions']['segment2']['camera']})"
+            best_ads_str += f"- {ad['title']}: {ad['script']} (Principle: {ad['principle']}, Slogan: {ad.get('slogan', '')}, Call to Action: {ad.get('call_to_action', '')}){scene_desc}\n"
+
+    avoid_topics = extract_avoid_topics(company_info)
+    avoid_str = ", ".join(avoid_topics) if avoid_topics else "None"
+
+    # Include current script context and user feedback
+    current_script_context = f"""
+*** PREVIOUS SCRIPT FOR REFERENCE ***
+The user has reviewed this previous script and wants improvements:
+{json.dumps(current_script, indent=2)}
+
+*** USER'S SPECIFIC IMPROVEMENT REQUEST ***
+{improvement_request}
+
+*** REGENERATION INSTRUCTIONS ***
+Create a completely NEW script that addresses the user's feedback while maintaining the core elements they liked.
+Don't just modify the existing script - rebuild it from the ground up with their suggestions in mind.
+"""
+
+    # VEO-3 OPTIMIZATION FRAMEWORK
+    veo3_framework = """
+    *** VEO-3 ADVERTISING OPTIMIZATION ***
+    
+    🎬 CORE PRINCIPLES:
+    - PROMPT AS BLUEPRINT: Detailed instructions = better results
+    - CINEMATIC LANGUAGE: Use film terms (dolly-in, tracking shot, close-up)
+    - NATIVE AUDIO: Format "Character says: exact words" (no subtitles)
+    - MOTIVATED MOVEMENT: Every camera move serves the story
+    
+    🎥 KEY CAMERA MOVES:
+    - Product reveals: "slow dolly-in on product"
+    - Testimonials: "medium close-up for authenticity"  
+    - Call-to-action: "push-in on logo"
+    
+    🎙️ AUDIO EXCELLENCE:
+    - Dialogue: "Spokesperson says: This changed my life!"
+    - Delivery: "announces confidently" / "exclaims excitedly"
+    - Sound: "upbeat commercial music" + "satisfying product click"
+    
+    📝 STRUCTURE: Subject + Action + Camera + Audio + Brand message
+    """
+
+    # 2025 Best Practices Section
+    practices_2025 = f"""
+    *** 2025 AD CREATION BEST PRACTICES ***
+
+    {veo3_framework}
+
+    🎯 16-SECOND STRUCTURE:
+    - Seconds 1-3: HOOK with strong visual problem
+    - Seconds 4-8: BRAND INTRODUCTION with solution
+    - Seconds 9-13: TRANSFORMATION showing results
+    - Seconds 14-16: CLEAR CALL-TO-ACTION
+    
+    ⚡ KEY ELEMENTS:
+    - MOBILE-FIRST: Bright visuals, large text, vertical framing
+    - AUTHENTICITY: Real interactions, natural movement
+    - CONTINUOUS AUDIO: No dead space, constant dialogue/music
+    - EMOTION CHAIN: Start calm → excitement → satisfaction
+    """
+
+    prompt = f"""{current_script_context}
+
+{feedback_improvements}
+
+{practices_2025}
+
+{best_ads_str}
+
+Based on this company information (from their website):
+{company_info}
+
+{product_info_str}
+
+And the following creative direction from the user:
+{creative_notes_str}
+
+When writing the ad, avoid these topics, themes, or words: {avoid_str}
+
+*** VEO-3 OPTIMIZED 16-SECOND AD REGENERATION ***
+Create a completely NEW 16-second ad script that addresses the user's feedback while using VEO-3 techniques:
+
+🎬 STRUCTURE:
+Segment 1 (8s): HOOK + BRAND INTRO
+Segment 2 (8s): TRANSFORMATION + CALL-TO-ACTION
+
+📝 OUTPUT REQUIREMENTS:
+For each segment provide:
+- "scene_description": Visual description (NO logos)
+- "prompt": Complete VEO-3 prompt with [voiceover: ...] (NO logos)
+- "voiceover_script": 8-second dialogue script
+- "mood": Emotional atmosphere
+- "camera": Camera movement
+- "veo3_optimization": VEO-3 techniques applied
+
+🎙️ AUDIO REQUIREMENTS:
+- Continuous dialogue/music (no dead space)
+- Format: "Character says: exact words"
+- Company name mentioned 2-3 times per segment
+
+Format as valid JSON:
+{{
+    "segment1": {{
+        "scene_description": "...",
+        "prompt": "... [voiceover: ...]",
+        "voiceover_script": "...",
+        "mood": "...",
+        "camera": "...",
+        "veo3_optimization": "..."
+    }},
+    "segment2": {{
+        "scene_description": "...",
+        "prompt": "... [voiceover: ...]",
+        "voiceover_script": "...",
+        "mood": "...",
+        "camera": "...",
+        "veo3_optimization": "..."
+    }},
+    "slogan": "...",
+    "call_to_action": "..."
+}}
+
+Only return the JSON object."""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4.1",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=20000
+        )
+    except Exception as api_error:
+        print(f"OpenAI API Error in regeneration for ad_type '{ad_type}': {api_error}")
+        # Check if it's a content policy violation
+        if "content policy" in str(api_error).lower() or "safety" in str(api_error).lower():
+            raise ValueError(f"Content policy violation: The regenerated script was rejected by OpenAI. Error: {str(api_error)}")
+        else:
+            raise ValueError(f"OpenAI API Error during script regeneration: {str(api_error)}")
+
+    content = response.choices[0].message.content.strip()
+    print("OpenAI regeneration response:", repr(content))
+
+    # Check if OpenAI refused the request
+    if "I'm sorry, I can't assist" in content or "I cannot help" in content or "I'm unable to" in content:
+        raise ValueError(f"OpenAI refused the regeneration request. Response: {repr(content)}")
+
+    # Try to extract JSON from the response
+    try:
+        if not content:
+            raise ValueError("OpenAI returned an empty response during regeneration.")
+        return json.loads(content)
+    except Exception as e:
+        import re
+        match = re.search(r'\{.*\}', content, re.DOTALL)
+        if match:
+            try:
+                return json.loads(match.group(0))
+            except Exception as e2:
+                print("Failed to parse extracted JSON from regeneration:", e2)
+        print("Failed to parse OpenAI regeneration response as JSON:", e)
+        raise ValueError("Failed to parse OpenAI regeneration response as JSON. Raw response: " + repr(content))
 
 if __name__ == '__main__':
     try:
