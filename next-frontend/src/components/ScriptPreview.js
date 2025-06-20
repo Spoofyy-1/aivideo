@@ -35,10 +35,27 @@ const ScriptPreview = ({
 
   const getTotalWordCount = () => {
     if (typeof script === 'object') {
-      return (script.segment1?.voiceover_script?.split(' ').length || 0) +
-             (script.segment2?.voiceover_script?.split(' ').length || 0);
+      let totalWords = 0;
+      // Count words from all segments dynamically
+      Object.keys(script).forEach(key => {
+        if (key.startsWith('segment') && script[key]?.voiceover_script) {
+          totalWords += script[key].voiceover_script.split(' ').length;
+        }
+      });
+      return totalWords;
     }
     return 0;
+  };
+
+  const getSegmentCount = () => {
+    if (typeof script === 'object') {
+      return Object.keys(script).filter(key => key.startsWith('segment')).length;
+    }
+    return 0;
+  };
+
+  const getTargetWordCount = () => {
+    return getSegmentCount() * 15; // 15 words per segment
   };
 
   const renderSegment = (segmentName, segment) => (
@@ -339,10 +356,10 @@ const ScriptPreview = ({
                 fontWeight: 'bold',
                 margin: '0.5rem 0 0 0'
               }}>
-                {getTotalWordCount()}/30
+                {getTotalWordCount()}/{getTargetWordCount()}
               </p>
               <div style={{ fontSize: '0.8rem', color: '#cccccc', marginTop: '0.25rem' }}>
-                Target: 12-15 per segment
+                Target: 12-15 per segment ({getSegmentCount()} segments)
               </div>
             </div>
           </div>
@@ -367,76 +384,31 @@ const ScriptPreview = ({
 
       {/* Script Content */}
       <div style={{
-        background: 'rgba(255,255,255,0.1)',
-        borderRadius: '15px',
-        padding: '2.5rem',
-        marginBottom: '2rem',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255,255,255,0.2)'
+        background: 'linear-gradient(135deg, rgba(0,0,0,0.8), rgba(30,30,30,0.9))',
+        borderRadius: '16px',
+        padding: '2rem',
+        border: '1px solid rgba(255,255,255,0.1)',
+        marginBottom: '2rem'
       }}>
-        <h3 style={{ 
-          color: '#00d4ff', 
-          marginBottom: '2rem',
+        <h2 style={{ 
+          color: '#ffffff', 
+          marginBottom: '1.5rem',
           fontSize: '1.8rem',
-          fontWeight: 'bold'
+          textAlign: 'center'
         }}>
-          🎬 Video Script
-        </h3>
+          📝 Generated Script ({getSegmentCount()} segments - {getSegmentCount() * 8} seconds)
+        </h2>
         
-        <div style={{
-          background: 'rgba(0,0,0,0.3)',
-          borderRadius: '12px',
-          padding: '2rem',
-          fontSize: '1.2rem',
-          lineHeight: '1.8',
-          fontFamily: 'system-ui, sans-serif',
-          color: '#ffffff',
-          whiteSpace: 'pre-wrap',
-          border: '2px solid rgba(0,212,255,0.3)',
-          maxHeight: '500px',
-          overflowY: 'auto'
-        }}>
-          {typeof script === 'object' && script !== null ? (
-            script.segment1 || script.segment2 ? (
-              // Handle segmented script format
-              <div>
-                {script.segment1 && renderSegment('segment1', script.segment1)}
-                {script.segment2 && renderSegment('segment2', script.segment2)}
-                
-                {/* Show slogan and CTA if available */}
-                {(script.slogan || script.call_to_action) && (
-                  <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: '8px' }}>
-                    {script.slogan && (
-                      <div style={{ marginBottom: '1rem' }}>
-                        <strong style={{ color: '#00d4ff' }}>💫 Slogan:</strong>
-                        <p style={{ color: '#ffffff', fontSize: '1.1rem', marginTop: '0.5rem' }}>"{script.slogan}"</p>
-                      </div>
-                    )}
-                    {script.call_to_action && (
-                      <div>
-                        <strong style={{ color: '#00d4ff' }}>📢 Call to Action:</strong>
-                        <p style={{ color: '#ffffff', fontSize: '1.1rem', marginTop: '0.5rem' }}>"{script.call_to_action}"</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            ) : (
-              // Handle other object formats
-              Object.entries(script).map(([key, value]) => (
-                <div key={key} style={{ marginBottom: '1.5rem' }}>
-                  <strong style={{ color: '#00d4ff', textTransform: 'capitalize' }}>{key.replace('_', ' ')}:</strong>
-                  <p style={{ color: '#ffffff', marginTop: '0.5rem' }}>{String(value)}</p>
-                </div>
-              ))
-            )
-          ) : (
-            // Handle string script or fallback
-            <p style={{ color: '#ffffff', fontSize: '1.1rem', lineHeight: '1.6' }}>
-              {script || 'No script content available'}
-            </p>
-          )}
-        </div>
+        {/* Render all segments dynamically */}
+        {Object.keys(script)
+          .filter(key => key.startsWith('segment'))
+          .sort()
+          .map(segmentKey => {
+            const segment = script[segmentKey];
+            const segmentNumber = segmentKey.replace('segment', '');
+            return renderSegment(`Segment ${segmentNumber}`, segment);
+          })
+        }
       </div>
 
       {/* Advanced Toggle */}

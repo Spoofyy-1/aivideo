@@ -84,7 +84,15 @@ const industryOptions = [
   'Other'
 ];
 
+const durationOptions = [
+  '8 seconds (1 segment - Quick & Punchy)',
+  '16 seconds (2 segments - Standard)',
+  '24 seconds (3 segments - Detailed)',
+  '32 seconds (4 segments - Comprehensive)'
+];
+
 const creativeQuestions = [
+  { key: 'duration', text: "How long should your ad be?", options: durationOptions },
   { key: 'ad_type', text: "What type of ad do you want? (e.g., Normal, Unhinged, Informative, Emotional, Cinematic, Funny, Heartwarming, Aspirational, Testimonial, Product Demo, Viral/Meme, Story-Driven, Minimalist, High-Energy, Social Proof, Pop Culture Reference, etc.)", options: adTypeOptions },
   { key: 'mood', text: 'What is the mood or vibe you want for your ad? (e.g., energetic, trustworthy, fun, etc.)' },
   { key: 'main_character', text: "Who should be the main character in your ad? (e.g., CEO, satisfied customer, everyday person, celebrity, animated character, etc. Type 'N/A' if no specific preference)" },

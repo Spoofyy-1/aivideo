@@ -605,381 +605,96 @@ def get_target_audience_for_industry(industry):
     else:
         return 'A broad audience interested in this industry.'
 
+def generate_segment_template(num_segments):
+    """Generate JSON template for additional segments beyond segment1"""
+    template = ""
+    
+    for i in range(2, num_segments + 1):
+        template += f"""
+    "segment{i}": {{
+        "scene_description": "...",
+        "prompt": "... [voiceover: Professional male narrator with warm, authoritative tone says: 'exact 15 words with perfect timing'] with [specific background music] and [sound effects]",
+        "voiceover_script": "15 words maximum here with strategic word placement",
+        "narrator_characteristics": "Professional male narrator with warm, authoritative tone (IDENTICAL TO SEGMENT1)",
+        "delivery_instructions": "Speaks with steady confidence and natural pacing, no awkward pauses (SAME AS SEGMENT1)",
+        "audio_production": "Continuous upbeat background music with strategic volume swells during speech pauses",
+        "timing_breakdown": "0:00-0:06 narrator speaks 15 words, 0:06-0:08 music bridge, no blank space",
+        "word_timing": "Strategic placement: words 1-3 at 0:00-1:00, words 4-7 at 1:00-2:50, words 8-11 at 2:50-4:30, words 12-15 at 4:30-6:00",
+        "mood": "...",
+        "camera": "...",
+        "veo3_optimization": "..."
+    }},"""
+    
+    return template
+
 def generate_ad_script(company_info, user_answers, best_ads=None):
     """
-    Generate a cinematic, story-driven, and entertaining ad script with two 8-second segments, plus a creative slogan and a call-to-action line.
-    Updated for 2025 best practices: authenticity, 3-second hooks, humor comeback, educational content.
-    Now includes AI-powered feedback insights for continuous improvement.
+    Generate ad script with variable duration support (8, 16, 24, 32 seconds).
+    Each segment is 8 seconds with 15 words maximum for optimal VEO-3 timing.
     """
     client = get_openai_client()
     if client is None:
-        raise Exception("OpenAI client not available. Please check API key configuration.")
+        print("DEBUG: OpenAI client not available")
+        return {"error": "OpenAI client not available"}
+
+    # Extract duration from user answers
+    duration_text = user_answers.get('duration', '16 seconds (2 segments - Standard)')
     
-    # Get AI-powered improvement insights based on user feedback
-    ad_type = user_answers.get('ad_type', '').lower()
-    industry = user_answers.get('industry', '')
-    
-    # Normalize ad_type to handle frontend formatting
-    ad_type_mapping = {
-        '✨ educational-first (2025 trend)': 'educational-first',
-        '✨ founder-story (2025 trend)': 'founder-story', 
-        '✨ nostalgia-driven (2025 trend)': 'nostalgia-driven',
-        '✨ brain-rot/escapism (2025 trend)': 'brain-rot/escapism',
-        '✨ micro-moment (2025 trend)': 'micro-moment',
-        '✨ platform-native (2025 trend)': 'platform-native'
-    }
-    
-    # Check if the ad_type needs to be normalized
-    for key, value in ad_type_mapping.items():
-        if key in ad_type:
-            ad_type = value
-            break
-    
-    # Get improvement insights from user feedback
-    improvement_insights = get_improvement_insights(ad_type, industry)
-    feedback_improvements = ""
-    
-    if improvement_insights:
-        print(f"DEBUG: Using feedback insights for {ad_type}/{industry}")
-        feedback_improvements = f"""
-*** AI-POWERED FEEDBACK INSIGHTS - APPLY THESE LEARNINGS ***
-Based on user ratings and feedback for {ad_type} ads in {industry} industry:
-
-OVERALL SENTIMENT: {improvement_insights.get('overall_sentiment', 'neutral')}
-
-AVOID THESE PATTERNS (User Complaints):
-{chr(10).join([f"- {complaint}" for complaint in improvement_insights.get('main_complaints', [])])}
-
-EMPHASIZE THESE ELEMENTS (What Users Love):
-{chr(10).join([f"- {element}" for element in improvement_insights.get('successful_elements', [])])}
-
-HIGH-PRIORITY IMPROVEMENTS:
-{chr(10).join([f"- {rec['issue']}: {rec['solution']}" for rec in improvement_insights.get('improvement_recommendations', []) if rec.get('priority') == 'high'])}
-
-CONTENT PATTERNS TO FOLLOW:
-- AVOID: {', '.join(improvement_insights.get('content_patterns', {}).get('avoid', []))}
-- EMPHASIZE: {', '.join(improvement_insights.get('content_patterns', {}).get('emphasize', []))}
-
-PROMPT IMPROVEMENTS FROM USER FEEDBACK:
-{chr(10).join([f"- {improvement}" for improvement in improvement_insights.get('prompt_improvements', [])])}
-
-AD TYPE INSIGHTS: {improvement_insights.get('ad_type_insights', {}).get('insight', 'No specific insights available')}
-INDUSTRY INSIGHTS: {improvement_insights.get('industry_insights', {}).get('insight', 'No specific insights available')}
-
-*** CRITICAL: Apply these user-validated improvements to create better ads ***
-"""
+    # Parse duration to get number of segments
+    if '8 seconds' in duration_text:
+        num_segments = 1
+        total_duration = 8
+        structure_description = "Single 8-second segment: HOOK + BRAND + CTA"
+    elif '24 seconds' in duration_text:
+        num_segments = 3
+        total_duration = 24
+        structure_description = "Segment 1 (8s): HOOK + BRAND INTRO\nSegment 2 (8s): PROBLEM + SOLUTION\nSegment 3 (8s): TRANSFORMATION + CTA"
+    elif '32 seconds' in duration_text:
+        num_segments = 4
+        total_duration = 32
+        structure_description = "Segment 1 (8s): HOOK + BRAND INTRO\nSegment 2 (8s): PROBLEM IDENTIFICATION\nSegment 3 (8s): SOLUTION DEMONSTRATION\nSegment 4 (8s): TRANSFORMATION + CTA"
     else:
-        print(f"DEBUG: No feedback insights available for {ad_type}/{industry}")
-        
-    creative_notes = []
-    if user_answers.get('product'):
-        creative_notes.append(f"Main product/service to promote: {user_answers['product']}")
-    if user_answers.get('mood'):
-        creative_notes.append(f"Desired mood/vibe: {user_answers['mood']}")
-    # Add main character if specified
-    main_character = user_answers.get('main_character')
-    if main_character and not normalize_na(main_character):
-        creative_notes.append(f"Main character for the ad: {main_character}")
-    # Only use slogan if it's not 'N/A', 'na', etc.
-    slogan_val = user_answers.get('slogan')
-    if slogan_val and not normalize_na(slogan_val):
-        creative_notes.append(f"User's preferred slogan: {slogan_val}")
-    # Only use CTA if it's not 'N/A', 'na', etc.
-    cta_val = user_answers.get('cta')
-    if cta_val and not normalize_na(cta_val):
-        creative_notes.append(f"Call to action: {cta_val}")
-    if user_answers.get('features'):
-        creative_notes.append(f"Features/benefits to highlight: {user_answers['features']}")
-    # Add industry and target audience
-    if industry:
-        creative_notes.append(f"Industry: {industry}")
-    target_audience = get_target_audience_for_industry(industry)
-    if target_audience:
-        creative_notes.append(f"Target audience: {target_audience}")
-    creative_notes_str = "\n".join(creative_notes) if creative_notes else "No additional creative direction provided by the user."
+        # Default to 16 seconds
+        num_segments = 2
+        total_duration = 16
+        structure_description = "Segment 1 (8s): HOOK + BRAND INTRO\nSegment 2 (8s): TRANSFORMATION + CTA"
 
-    ad_type = user_answers.get('ad_type', '').lower()
-    
-    # Normalize ad_type to handle frontend formatting
-    ad_type_mapping = {
-        '✨ educational-first (2025 trend)': 'educational-first',
-        '✨ founder-story (2025 trend)': 'founder-story', 
-        '✨ nostalgia-driven (2025 trend)': 'nostalgia-driven',
-        '✨ brain-rot/escapism (2025 trend)': 'brain-rot/escapism',
-        '✨ micro-moment (2025 trend)': 'micro-moment',
-        '✨ platform-native (2025 trend)': 'platform-native'
-    }
-    
-    # Check if the ad_type needs to be normalized
-    for key, value in ad_type_mapping.items():
-        if key in ad_type:
-            ad_type = value
-            break
+    print(f"DEBUG: Generating {total_duration}-second ad with {num_segments} segments")
 
-    ad_type_instructions = ""
-    if ad_type == "unhinged":
-        ad_type_instructions = (
-            "HIGH-ENERGY ENTHUSIASTIC AD: Create an extremely energetic, fast-paced commercial with over-the-top excitement about the product. "
-            "CORE APPROACH: Maximum enthusiasm and energy in every second - characters are genuinely excited and can't contain their love for the product. "
-            "KEY ELEMENTS: "
-            "1) RAPID-FIRE EXCITEMENT: Characters speak quickly with infectious enthusiasm about specific features "
-            "2) AUTHENTIC TESTIMONIALS: Real people sharing genuine excitement about how the product changed their lives "
-            "3) FEATURE HIGHLIGHTS: Quick demonstrations of what makes this product amazing "
-            "4) POSITIVE ENERGY: Every character is thrilled to share their experience "
-            "5) SPECIFIC BENEFITS: Focus on concrete ways the product helps people "
-            "ENTHUSIASTIC EXAMPLES: "
-            "- 'This product is INCREDIBLE! It has this amazing feature that saves me hours every day!' "
-            "- 'I'm obsessed with this! The way it solves my biggest problem is just perfect!' "
-            "- 'Everyone needs to try this - it's honestly life-changing!' "
-            "TONE: Maximum positive energy, genuine excitement, infectious enthusiasm. Make viewers feel the excitement! "
-            "VISUAL STYLE: Fast-paced, bright, energetic scenes with happy people demonstrating the product's benefits. "
-            "Focus on authentic joy and satisfaction from real product use."
-        )
-    elif ad_type == "informative":
-        ad_type_instructions = (
-            "Make this ad clear, concise, and focused on delivering key information. Use a trustworthy tone, clear visuals, and step-by-step explanations. "
-            "IMPORTANT: Lead with education first (8 seconds) before introducing the product - this builds trust and reduces skepticism."
-        )
-    elif ad_type == "emotional":
-        ad_type_instructions = (
-            "Make this ad emotionally powerful. Use storytelling, music, and visuals to evoke strong feelings—whether it's inspiration, joy, nostalgia, or empathy."
-        )
-    elif ad_type == "cinematic":
-        ad_type_instructions = (
-            "Make this ad feel like a movie trailer: cinematic, visually stunning, and story-driven. Use dramatic lighting, dynamic camera angles, and a clear story arc."
-        )
-    elif ad_type == "funny":
-        ad_type_instructions = (
-            "PRIORITY: Make this ad hilarious and memorable. Use clever jokes, visual gags, comedic timing, and unexpected punchlines. "
-            "Research shows humor is making a major comeback in 2025 - 25% of highest-spending ads use humor. "
-            "Focus on humor that connects to the product benefit, not just random comedy."
-        )
-    elif ad_type == "heartwarming":
-        ad_type_instructions = (
-            "Make this ad touching and uplifting. Use real people, authentic moments, and emotional storytelling to create a feel-good, heartwarming experience."
-        )
-    elif ad_type == "aspirational":
-        ad_type_instructions = (
-            "Make this ad inspiring and visionary. Show how the product helps people achieve their dreams, reach new heights, or become their best selves."
-        )
-    elif ad_type == "testimonial":
-        ad_type_instructions = (
-            "AUTHENTICITY FOCUS: Make this ad feel like a genuine testimonial. Use authentic voices, real stories, and social proof to build trust and credibility. "
-            "In 2025, consumers crave authentic human stories over AI-generated content. Feature real people with genuine experiences."
-        )
-    elif ad_type == "product demo":
-        ad_type_instructions = (
-            "Make this ad a clear, engaging product demonstration. Show the product in action, highlight key features, and make it easy to understand the benefits."
-        )
-    elif ad_type == "viral/meme":
-        ad_type_instructions = (
-            "Make this ad designed for MAXIMUM VIRALITY using internet culture and memes. Use trending formats like: "
-            "TikTok dances, viral challenges, popular meme templates (Drake pointing, distracted boyfriend, woman yelling at cat), "
-            "internet slang and Gen Z language, trending audio clips, popular social media personalities, "
-            "viral video formats (POV videos, 'Tell me you... without telling me', 'This you?'), "
-            "internet phenomena, social media trends, popular hashtags, influencer culture, "
-            "AVOID mythical creatures or cryptids - focus on REAL internet culture, memes, and viral content. "
-            "Make it feel like something that would naturally go viral on TikTok, Twitter, or Instagram. "
-            "Use current internet humor, relatable situations, and shareable moments that people actually post online."
-        )
-    elif ad_type == "story-driven":
-        ad_type_instructions = (
-            "Make this ad a mini-story. Use a clear narrative arc, character development, and a satisfying resolution."
-        )
-    elif ad_type == "minimalist":
-        ad_type_instructions = (
-            "Make this ad visually simple and focused. Use minimal visuals, clean design, and a single powerful message."
-        )
-    elif ad_type == "high-energy":
-        ad_type_instructions = (
-            "Make this ad fast-paced, energetic, and exciting. Use quick cuts, upbeat music, and dynamic visuals to keep the viewer engaged."
-        )
-    elif ad_type == "social proof":
-        ad_type_instructions = (
-            "TRUST-BUILDING FOCUS: Make this ad focus on social proof. Show real people, testimonials, and evidence of popularity or trust. "
-            "84% of consumers are influenced by user-generated content - emphasize authentic customer experiences."
-        )
-    elif ad_type == "pop culture reference":
-        ad_type_instructions = (
-            "Make this ad packed with pop culture references, memes, and trending topics. Make it feel current, relevant, and shareable."
-        )
-    elif ad_type == "educational-first":
-        ad_type_instructions = (
-            "2025 TREND: Lead with education and value before selling. Build trust by teaching something useful first. "
-            "Introduce the product later (after 40+ seconds) - this addresses consumer skepticism and builds authority. "
-            "Make the viewer feel smarter for watching."
-        )
-    elif ad_type == "founder-story":
-        ad_type_instructions = (
-            "2025 AUTHENTICITY TREND: Feature the founder's personal story, passion, and behind-the-scenes journey. "
-            "Show the human side of the business. Use first-person POV and authentic, relatable moments. "
-            "Make it feel like a personal conversation, not a corporate pitch."
-        )
-    elif ad_type == "nostalgia-driven":
-        ad_type_instructions = (
-            "2025 TREND: Use nostalgia marketing to create emotional connections. Reference past eras, childhood memories, "
-            "or 'simpler times' that resonate with your audience. Blend retro aesthetics with modern sensibilities. "
-            "Make viewers feel warm and connected to shared cultural memories."
-        )
-    elif ad_type == "brain-rot/escapism":
-        ad_type_instructions = (
-            "2025 TREND: Create satisfying, low-cognitive-load content that provides mental relief from information overload. "
-            "Use ASMR-like elements, satisfying visuals, slow movements, calming colors. "
-            "Make it a palate cleanser from the chaos of social media - give viewers a mental break."
-        )
-    elif ad_type == "micro-moment":
-        ad_type_instructions = (
-            "2025 TREND: Capture specific micro-moments and pain points. Focus on very specific, relatable situations "
-            "that make viewers say 'that's exactly what happens to me!' Ultra-targeted, highly specific scenarios."
-        )
-    elif ad_type == "platform-native":
-        ad_type_instructions = (
-            "2025 CRITICAL: Make this ad feel like organic social content, not an ad. "
-            "Use smartphone-shot aesthetics, natural lighting, casual framing. "
-            "Make it look like something a friend would post, not a corporation."
-        )
-    elif ad_type == "normal":
-        ad_type_instructions = (
-            "CLASSIC PROBLEM-SOLUTION ADVERTISING: Create a traditional but effective ad that introduces a relatable problem in a unique way, then presents the product as the perfect solution. "
-            "Structure: Problem Introduction → Problem Amplification → Solution Reveal → Product Benefits → Call to Action "
-            "CORE ELEMENTS: "
-            "1) UNIQUE PROBLEM INTRODUCTION: Start with a relatable but creatively presented problem that your target audience faces "
-            "2) EMOTIONAL CONNECTION: Make viewers think 'That's exactly my problem!' through specific, recognizable scenarios "
-            "3) SMOOTH TRANSITION: Bridge from problem to solution naturally without feeling forced or sales-y "
-            "4) CLEAR SOLUTION PRESENTATION: Show how the product specifically solves the identified problem "
-            "5) TANGIBLE BENEFITS: Highlight concrete improvements the product provides "
-            "PROBLEM PRESENTATION TECHNIQUES: "
-            "- Start with a frustrating but relatable scenario that your audience knows well "
-            "- Use visual metaphors or creative analogies to represent the problem "
-            "- Show the emotional or practical impact of not having a solution "
-            "- Present multiple angles of the same core problem to increase relatability "
-            "- Use before/after scenarios to emphasize the problem's effects "
-            "SOLUTION REVEAL STRATEGIES: "
-            "- Natural transition: 'But what if there was a way...' or 'Imagine if you could...' "
-            "- Direct introduction: 'Meet [PRODUCT] - the solution you've been waiting for' "
-            "- Demonstration approach: Show the product solving the exact problem just presented "
-            "- Transformation narrative: 'Here's how [PRODUCT] changes everything...' "
-            "BENEFIT COMMUNICATION: "
-            "- Connect each product feature directly to solving the specific problem shown "
-            "- Use concrete examples: 'Instead of [PROBLEM], you get [SPECIFIC BENEFIT]' "
-            "- Show real-world applications that relate to the initial problem scenario "
-            "- Emphasize the contrast between the problem state and solution state "
-            "TONE: Professional yet approachable, empathetic to the problem, confident about the solution "
-            "Make viewers feel understood and hopeful - 'Finally, someone gets my problem AND has the answer!' "
-            "VISUAL STYLE: Clean, professional, focused on clear storytelling that guides viewers from problem to solution "
-            "Use visual contrast between problem scenes (darker, more chaotic) and solution scenes (brighter, more organized)."
-        )
-    # ... add more types as needed ...
-
-    avoid_topics = extract_avoid_topics(company_info)
-    avoid_str = ", ".join(avoid_topics) if avoid_topics else "None"
-
-    # Extract specific product features and benefits from research
-    product_features = extract_key_features_and_benefits(company_info)
-    
-    # Build comprehensive product information string
-    product_info_str = f"""
-SPECIFIC PRODUCT INFORMATION (USE THIS IN THE AD):
-What it does: {product_features.get('what_it_does', 'Product information not available')}
-
-Key Features:
-{chr(10).join([f"- {feature}" for feature in product_features.get('features', ['Features not specified'])])}
-
-Benefits:
-{chr(10).join([f"- {benefit}" for benefit in product_features.get('benefits', ['Benefits not specified'])])}
-
-Unique Selling Points:
-{chr(10).join([f"- {usp}" for usp in product_features.get('unique_selling_points', ['USPs not specified'])])}
-
-Problems it Solves:
-{chr(10).join([f"- {pain_point}" for pain_point in product_features.get('target_pain_points', ['Pain points not specified'])])}
-
-CRITICAL: Use these SPECIFIC features and benefits in the dialogue. Don't just say "I love [PRODUCT]" - explain WHY with concrete features like "[PRODUCT]'s [SPECIFIC FEATURE] helps me [SPECIFIC BENEFIT]!"
-"""
-
-    # Add best ads inspiration with enhanced scene descriptions
+    # Get best ads for inspiration
     best_ads_str = ""
     if best_ads:
-        best_ads_str = "Here are some of the best, most creative, and viral ad scripts and creative principles in history to use as inspiration (be bold, surprising, and memorable!):\n"
+        best_ads_str = "Here are some successful ad examples for inspiration:\n"
         for ad in best_ads:
-            scene_desc = ""
-            if 'scene_descriptions' in ad:
-                scene_desc = f"\nScene 1: {ad['scene_descriptions']['segment1']['visual']} (Mood: {ad['scene_descriptions']['segment1']['mood']}, Camera: {ad['scene_descriptions']['segment1']['camera']})\n"
-                scene_desc += f"Scene 2: {ad['scene_descriptions']['segment2']['visual']} (Mood: {ad['scene_descriptions']['segment2']['mood']}, Camera: {ad['scene_descriptions']['segment2']['camera']})"
-            best_ads_str += f"- {ad['title']}: {ad['script']} (Principle: {ad['principle']}, Slogan: {ad.get('slogan', '')}, Call to Action: {ad.get('call_to_action', '')}){scene_desc}\n"
+            best_ads_str += f"- {ad['title']}: {ad['script']} (Principle: {ad['principle']})\n"
 
-    # VEO-3 OPTIMIZATION FRAMEWORK - Based on Latest Research & Best Practices
-    veo3_framework = """
-    *** VEO-3 ADVERTISING OPTIMIZATION ***
+    # Build creative direction
+    creative_notes = []
+    for key, value in user_answers.items():
+        if key not in ['company_url', 'industry', 'product', 'duration'] and value and value.lower() != 'n/a':
+            creative_notes.append(f"{key.replace('_', ' ').title()}: {value}")
     
-    🎬 CORE PRINCIPLES:
-    - PROMPT AS BLUEPRINT: Detailed instructions = better results
-    - CINEMATIC LANGUAGE: Use film terms (dolly-in, tracking shot, close-up)
-    - NATIVE AUDIO: Format "Character says: exact words" (no subtitles)
-    - MOTIVATED MOVEMENT: Every camera move serves the story
-    
-    🎥 KEY CAMERA MOVES:
-    - Product reveals: "slow dolly-in on product"
-    - Testimonials: "medium close-up for authenticity"  
-    - Call-to-action: "push-in on logo"
-    
-    🎙️ AUDIO EXCELLENCE:
-    - Dialogue: "Spokesperson says: This changed my life!"
-    - Delivery: "announces confidently" / "exclaims excitedly"
-    - Sound: "upbeat commercial music" + "satisfying product click"
-    
-    📝 STRUCTURE: Subject + Action + Camera + Audio + Brand message
-    """
+    creative_notes_str = "\n".join(creative_notes) if creative_notes else "No specific creative direction provided."
 
-    # 2025 Best Practices Section - Streamlined
-    practices_2025 = f"""
-    *** 2025 AD CREATION BEST PRACTICES ***
+    # Build product information
+    product_info = user_answers.get('product', 'N/A')
+    product_info_str = f"Product/Service to promote: {product_info}" if product_info != 'N/A' else ""
 
-    {veo3_framework}
+    # Build avoidance topics
+    avoid_topics = user_answers.get('avoid', '')
+    avoid_str = avoid_topics if avoid_topics else "None specified"
 
-    🎯 16-SECOND STRUCTURE:
-    - Seconds 1-3: HOOK with strong visual problem
-    - Seconds 4-8: BRAND INTRODUCTION with solution
-    - Seconds 9-13: TRANSFORMATION showing results
-    - Seconds 14-16: CLEAR CALL-TO-ACTION
-    
-    ⚡ KEY ELEMENTS:
-    - MOBILE-FIRST: Bright visuals, large text, vertical framing
-    - AUTHENTICITY: Real interactions, natural movement
-    - CONTINUOUS AUDIO: No dead space, constant dialogue/music
-    - EMOTION CHAIN: Start calm → excitement → satisfaction
-    """
-
-    prompt = f"""{ad_type_instructions}
-
-{feedback_improvements}
-
-{practices_2025}
-
-{best_ads_str}
-
-Based on this company information (from their website):
-{company_info}
-
-{product_info_str}
-
-And the following creative direction from the user:
-{creative_notes_str}
-
-When writing the ad, avoid these topics, themes, or words: {avoid_str}
-
-*** VEO-3 OPTIMIZED 16-SECOND AD CREATION ***
-Create a 16-second ad script using VEO-3 techniques:
+    prompt = f"""*** VEO-3 OPTIMIZED {total_duration}-SECOND AD CREATION ***
+Create a {total_duration}-second ad script using VEO-3 techniques:
 
 🎬 STRUCTURE:
-Segment 1 (8s): HOOK + BRAND INTRO
-Segment 2 (8s): TRANSFORMATION + CALL-TO-ACTION
+{structure_description}
 
 📝 OUTPUT REQUIREMENTS:
 For each segment provide:
 - "scene_description": Visual description (NO logos)
 - "prompt": Complete VEO-3 prompt with [voiceover: ...] (NO logos)
-- "voiceover_script": EXACTLY 10 words maximum for perfect 8-second timing
+- "voiceover_script": EXACTLY 15 words maximum for perfect 8-second timing
 - "mood": Emotional atmosphere
 - "camera": Camera movement
 - "veo3_optimization": VEO-3 techniques applied
@@ -989,14 +704,14 @@ For each segment provide:
 - 15 words = ~6 seconds speech + 2 seconds visual transition = perfect 8s clip
 - Every word must be impactful and necessary
 - Format: "Character says: exact words"
-- Company name mentioned 1-2 times per segment (within the 15-word limit)
+- Company name mentioned strategically across segments (within 15-word limits)
 - Continuous background music/sounds throughout
 
 🎭 NARRATOR CONSISTENCY REQUIREMENTS:
 - SAME NARRATOR VOICE: Use identical narrator description across ALL segments
 - VOICE CONTINUITY: "Professional male narrator with warm, authoritative tone" (or specify exact voice type)
 - CONSISTENT DELIVERY: Same speaking pace, energy level, and style throughout entire ad
-- PERSONALITY LOCK: Once narrator personality is set in segment1, maintain exactly the same in segment2
+- PERSONALITY LOCK: Once narrator personality is set in segment1, maintain exactly the same in all segments
 - BRAND VOICE ALIGNMENT: Match narrator to brand personality (corporate = professional, startup = energetic, luxury = sophisticated)
 
 🎵 AUDIO TIMING MASTERY:
@@ -1014,98 +729,64 @@ For each segment provide:
 - SOUND BRIDGES: Smooth audio transitions between words and segments
 - TIMING PRECISION: Each of the 15 words placed at optimal 0.4-second intervals
 
-⚠️ TIMING CRITICAL: VEO-3 cuts off voiceovers longer than 10 words in 8-second clips.
-Make every word count. Be concise and powerful.
+⚠️ TIMING CRITICAL: VEO-3 cuts off voiceovers longer than 15 words in 8-second clips.
+Make every word count. Eliminate blank space with perfect word timing.
 
-Format as valid JSON:
+Based on this company information:
+{company_info}
+
+{product_info_str}
+
+Creative direction from user:
+{creative_notes_str}
+
+Avoid these topics: {avoid_str}
+
+{best_ads_str}
+
+Format as valid JSON with {num_segments} segments:
 {{
     "segment1": {{
         "scene_description": "...",
-        "prompt": "... [voiceover: ...]",
-        "voiceover_script": "10 words maximum here",
+        "prompt": "... [voiceover: Professional male narrator with warm, authoritative tone says: 'exact 15 words with perfect timing'] with [specific background music] and [sound effects]",
+        "voiceover_script": "15 words maximum here with strategic word placement",
+        "narrator_characteristics": "Professional male narrator with warm, authoritative tone (KEEP IDENTICAL IN ALL SEGMENTS)",
+        "delivery_instructions": "Speaks with steady confidence and natural pacing, no awkward pauses",
+        "audio_production": "Continuous upbeat background music with strategic volume swells during speech pauses",
+        "timing_breakdown": "0:00-0:06 narrator speaks 15 words, 0:06-0:08 music bridge, no blank space",
+        "word_timing": "Strategic placement: words 1-3 at 0:00-1:00, words 4-7 at 1:00-2:50, words 8-11 at 2:50-4:30, words 12-15 at 4:30-6:00",
         "mood": "...",
         "camera": "...",
         "veo3_optimization": "..."
-    }},
-    "segment2": {{
-        "scene_description": "...",
-        "prompt": "... [voiceover: ...]",
-        "voiceover_script": "10 words maximum here",
-        "mood": "...",
-        "camera": "...",
-        "veo3_optimization": "..."
-    }},
+    }},{generate_segment_template(num_segments)}
     "slogan": "...",
     "call_to_action": "..."
 }}"""
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4.1",
+            model="gpt-4o",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
-            max_tokens=20000
+            max_tokens=3000  # Increased for longer ads
         )
-    except Exception as api_error:
-        print(f"OpenAI API Error for ad_type '{ad_type}': {api_error}")
-        # Check if it's a content policy violation
-        if "content policy" in str(api_error).lower() or "safety" in str(api_error).lower():
-            if ad_type == "unhinged":
-                print("Content policy violation detected for 'unhinged' ad type, falling back to 'high-energy'")
-                user_answers_fallback = user_answers.copy()
-                user_answers_fallback['ad_type'] = 'high-energy'
-                try:
-                    return generate_ad_script(company_info, user_answers_fallback, best_ads=best_ads)
-                except Exception as fallback_error:
-                    raise ValueError(f"Both 'unhinged' and 'high-energy' fallback failed. Original error: {str(api_error)}. Fallback error: {str(fallback_error)}")
-            else:
-                raise ValueError(f"Content policy violation: The ad prompt was rejected by OpenAI. This may be due to sensitive content in the ad type or prompt. Error: {str(api_error)}")
-        else:
-            if ad_type == "unhinged":
-                print("API error for 'unhinged' ad type, falling back to 'high-energy'")
-                user_answers_fallback = user_answers.copy()
-                user_answers_fallback['ad_type'] = 'high-energy'
-                try:
-                    return generate_ad_script(company_info, user_answers_fallback, best_ads=best_ads)
-                except Exception as fallback_error:
-                    raise ValueError(f"Both 'unhinged' and 'high-energy' fallback failed. Original error: {str(api_error)}. Fallback error: {str(fallback_error)}")
-            else:
-                raise ValueError(f"OpenAI API Error: {str(api_error)}")
-
-    content = response.choices[0].message.content.strip()
-    print("OpenAI raw response:", repr(content))  # Debug print
-
-    # Check if OpenAI refused the request
-    if "I'm sorry, I can't assist" in content or "I cannot help" in content or "I'm unable to" in content or "I can't comply" in content or "I can't comply with" in content:
-        print("OpenAI refused the request - likely content policy violation")
         
-        # If this was an "unhinged" request, automatically fallback to "high-energy" 
-        if ad_type == "unhinged":
-            print("Falling back from 'unhinged' to 'high-energy' ad type due to content policy")
-            user_answers_fallback = user_answers.copy()
-            user_answers_fallback['ad_type'] = 'high-energy'
-            try:
-                return generate_ad_script(company_info, user_answers_fallback, best_ads=best_ads)
-            except Exception as fallback_error:
-                raise ValueError(f"Both original and fallback ad generation failed. Original error: OpenAI refused request. Fallback error: {str(fallback_error)}")
-        else:
-            raise ValueError(f"OpenAI refused the request, likely due to content policy. Response: {repr(content)}")
-
-    # Try to extract JSON from the response
-    try:
-        if not content:
-            raise ValueError("OpenAI returned an empty response.")
-        return json.loads(content)
-    except Exception as e:
+        content = response.choices[0].message.content.strip()
+        
+        # Parse JSON response
         import re
         match = re.search(r'\{.*\}', content, re.DOTALL)
         if match:
-            try:
-                return json.loads(match.group(0))
-            except Exception as e2:
-                print("Failed to parse extracted JSON:", e2)
-        print("Failed to parse OpenAI response as JSON:", e)
-        raise ValueError("Failed to parse OpenAI response as JSON. Raw response: " + repr(content))
+            ad_script = json.loads(match.group(0))
+            print(f"DEBUG: Successfully generated {num_segments}-segment ad script")
+            return ad_script
+        else:
+            print("DEBUG: Could not parse GPT response as JSON")
+            return {"error": "Could not parse response"}
+            
+    except Exception as e:
+        print(f"DEBUG: Error generating ad script: {e}")
+        return {"error": str(e)}
 
 def generate_video_segment(prompt, segment_num):
     """Generate a 8-second video segment using Veo-3."""
@@ -1638,14 +1319,23 @@ def generate_ad():
                         raise
             raise Exception(f"Failed to generate {segment} after 3 retries.")
 
-        print("DEBUG: Starting parallel video generation with audio processing")
+        # Determine number of segments based on script
+        segments = [key for key in ad_script.keys() if key.startswith('segment')]
+        num_segments = len(segments)
+        print(f"DEBUG: Starting parallel video generation for {num_segments} segments with audio processing")
+        
+        # Generate all segments in parallel
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            future1 = executor.submit(get_video_with_session, 'segment1', 1, session_id)
-            future2 = executor.submit(get_video_with_session, 'segment2', 2, session_id)
-            video_path1 = future1.result()
-            video_path2 = future2.result()
+            futures = []
+            for i, segment_key in enumerate(segments, 1):
+                future = executor.submit(get_video_with_session, segment_key, i, session_id)
+                futures.append(future)
+            
+            video_paths = []
+            for future in futures:
+                video_path = future.result()
+                video_paths.append(video_path)
 
-        video_paths = [video_path1, video_path2]
         print(f"DEBUG: Generated and processed {len(video_paths)} video segments")
         
         # Combine videos with improved audio handling
@@ -2361,14 +2051,24 @@ def generate_video_from_script():
                         raise
             raise Exception(f"Failed to generate {segment} after 3 retries.")
 
-        print("DEBUG: Starting parallel video generation with optimized prompts")
+        # Determine number of segments based on script
+        segments = [key for key in ad_script.keys() if key.startswith('segment')]
+        num_segments = len(segments)
+        print(f"DEBUG: Starting parallel video generation for {num_segments} segments with optimized prompts")
+        
+        # Generate all segments in parallel
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            future1 = executor.submit(get_video_with_session, 'segment1', 1, session_id)
-            future2 = executor.submit(get_video_with_session, 'segment2', 2, session_id)
-            video_path1 = future1.result()
-            video_path2 = future2.result()
+            futures = []
+            for i, segment_key in enumerate(segments, 1):
+                future = executor.submit(get_video_with_session, segment_key, i, session_id)
+                futures.append(future)
+            
+            video_paths = []
+            for future in futures:
+                video_path = future.result()
+                video_paths.append(video_path)
 
-        video_paths = [video_path1, video_path2]
+        print(f"DEBUG: Generated and processed {len(video_paths)} video segments")
         
         # Combine videos with improved audio handling
         with file_lock:
@@ -3087,13 +2787,16 @@ def auto_improve_problematic_segments(script, analysis, company_info, user_answe
     """
     Automatically improve segments that have issues identified in analysis.
     Focus on 15-word count optimization and VEO-3 readiness.
+    Handles variable number of segments (1, 2, 3, or 4).
     """
     print("DEBUG: Auto-improving problematic segments for 15-word targeting")
     
     improved_script = script.copy()
     
-    # Check each segment for issues
-    for segment_name in ['segment1', 'segment2']:
+    # Check each segment for issues (dynamic segment detection)
+    segments = [key for key in script.keys() if key.startswith('segment')]
+    
+    for segment_name in segments:
         if segment_name not in script:
             continue
             
@@ -3424,13 +3127,14 @@ def ensure_narrator_consistency(script):
 def optimize_script_for_veo3_precise(script_segments):
     """
     Optimize script for VEO-3 with precise 15-word targeting and blank space elimination.
+    Handles variable number of segments (1, 2, 3, or 4).
     """
     print("DEBUG: Optimizing script for VEO-3 with 15-word precision targeting")
     
     optimized_script = {}
     
     for segment_key, segment in script_segments.items():
-        if segment_key in ['segment1', 'segment2']:
+        if segment_key.startswith('segment'):
             print(f"DEBUG: Optimizing {segment_key}")
             
             # Get current voiceover script
