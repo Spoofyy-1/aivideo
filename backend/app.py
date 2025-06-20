@@ -732,6 +732,14 @@ For each segment provide:
 ⚠️ TIMING CRITICAL: VEO-3 cuts off voiceovers longer than 15 words in 8-second clips.
 Make every word count. Eliminate blank space with perfect word timing.
 
+🎯 BRAND MESSAGING REQUIREMENTS (ABSOLUTELY CRITICAL):
+- MANDATORY: Either the slogan OR call-to-action MUST be included in at least one segment's voiceover
+- PREFERRED: Include slogan in early segments, call-to-action in final segment
+- If slogan is short (3-5 words), include it in multiple segments
+- If call-to-action is short (3-5 words), include it in final segment
+- NEVER create an ad without clear brand messaging in the actual voiceover
+- Examples: "Try [Product] today", "Visit [website]", "[Slogan] - [Product]"
+
 Based on this company information:
 {company_info}
 
@@ -749,7 +757,7 @@ Format as valid JSON with {num_segments} segments:
     "segment1": {{
         "scene_description": "...",
         "prompt": "... [voiceover: Professional male narrator with warm, authoritative tone says: 'exact 15 words with perfect timing'] with [specific background music] and [sound effects]",
-        "voiceover_script": "15 words maximum here with strategic word placement",
+        "voiceover_script": "15 words maximum here with strategic word placement (MUST include brand messaging)",
         "narrator_characteristics": "Professional male narrator with warm, authoritative tone (KEEP IDENTICAL IN ALL SEGMENTS)",
         "delivery_instructions": "Speaks with steady confidence and natural pacing, no awkward pauses",
         "audio_production": "Continuous upbeat background music with strategic volume swells during speech pauses",
@@ -759,8 +767,8 @@ Format as valid JSON with {num_segments} segments:
         "camera": "...",
         "veo3_optimization": "..."
     }},{generate_segment_template(num_segments)}
-    "slogan": "...",
-    "call_to_action": "..."
+    "slogan": "Memorable brand slogan (2-8 words) - MUST be integrated into voiceover scripts",
+    "call_to_action": "Clear, actionable CTA (2-8 words) - MUST be integrated into voiceover scripts"
 }}"""
 
     try:
@@ -2464,12 +2472,20 @@ For each segment provide:
 ⚠️ TIMING CRITICAL: VEO-3 cuts off voiceovers longer than 15 words in 8-second clips.
 Make every word count. Eliminate blank space with perfect word timing.
 
+🎯 BRAND MESSAGING REQUIREMENTS (ABSOLUTELY CRITICAL):
+- MANDATORY: Either the slogan OR call-to-action MUST be included in at least one segment's voiceover
+- PREFERRED: Include slogan in early segments, call-to-action in final segment
+- If slogan is short (3-5 words), include it in multiple segments
+- If call-to-action is short (3-5 words), include it in final segment
+- NEVER create an ad without clear brand messaging in the actual voiceover
+- Examples: "Try [Product] today", "Visit [website]", "[Slogan] - [Product]"
+
 Format as valid JSON:
 {{
     "segment1": {{
         "scene_description": "...",
         "prompt": "... [voiceover: Professional male narrator with warm, authoritative tone says: 'exact 15 words with perfect timing'] with [specific background music] and [sound effects]",
-        "voiceover_script": "15 words maximum here with strategic word placement",
+        "voiceover_script": "15 words maximum here with strategic word placement (MUST include brand messaging)",
         "narrator_characteristics": "Professional male narrator with warm, authoritative tone (KEEP IDENTICAL IN SEGMENT2)",
         "delivery_instructions": "Speaks with steady confidence and natural pacing, no awkward pauses",
         "audio_production": "Continuous upbeat background music with strategic volume swells during speech pauses",
@@ -2602,11 +2618,40 @@ def analyze_script_quality(script, user_answers):
         'overall_recommendations': [],
         'timing_analysis': {},
         'audio_quality_score': 0,
-        'veo3_readiness': 0
+        'veo3_readiness': 0,
+        'brand_messaging_status': 'missing'
     }
     
     total_issues = 0
     total_segments = 0
+    
+    # Check brand messaging inclusion (CRITICAL)
+    slogan = script.get('slogan', '').strip()
+    cta = script.get('call_to_action', '').strip()
+    brand_messaging_found = False
+    
+    if slogan or cta:
+        # Check if brand messaging is included in any segment's voiceover
+        segments = [key for key in script.keys() if key.startswith('segment')]
+        for segment_key in segments:
+            if segment_key in script:
+                voiceover = script[segment_key].get('voiceover_script', '').lower()
+                
+                # Check if slogan is included
+                if slogan and any(word.lower() in voiceover for word in slogan.split() if len(word) > 2):
+                    brand_messaging_found = True
+                    break
+                    
+                # Check if CTA is included
+                if cta and any(word.lower() in voiceover for word in cta.split() if len(word) > 2):
+                    brand_messaging_found = True
+                    break
+        
+        if brand_messaging_found:
+            analysis['brand_messaging_status'] = 'included'
+        else:
+            analysis['brand_messaging_status'] = 'missing'
+            total_issues += 5  # Major penalty for missing brand messaging
     
     for segment_name in ['segment1', 'segment2']:
         if segment_name not in script:
@@ -2708,6 +2753,9 @@ def auto_optimize_script_until_ready(script, company_info, user_answers, best_ad
         
         # Ensure narrator consistency across segments
         optimized_script = ensure_narrator_consistency(optimized_script)
+        
+        # CRITICAL: Ensure brand messaging is included in voiceover
+        optimized_script = validate_and_fix_brand_messaging(optimized_script)
         
         # Analyze the optimized script
         analysis = analyze_script_for_veo3(optimized_script)
@@ -3014,6 +3062,13 @@ def analyze_script_quality(script, user_answers):
     
     # Enhanced recommendations
     recommendations = []
+    
+    # Brand messaging recommendations (HIGHEST PRIORITY)
+    if analysis['brand_messaging_status'] == 'missing':
+        recommendations.append("🚨 CRITICAL: Brand messaging (slogan or CTA) must be included in voiceover!")
+    elif analysis['brand_messaging_status'] == 'included':
+        recommendations.append("✅ Brand messaging successfully included in voiceover")
+    
     if total_issues == 0 and all(len(script[seg].get('voiceover_script', '').split()) == 10 
                                 for seg in ['segment1', 'segment2'] if seg in script):
         recommendations.append("🎯 Perfect! Script optimized for VEO-3 with ideal 10-word segments!")
@@ -3183,6 +3238,87 @@ def optimize_script_for_veo3_precise(script_segments):
     
     print("DEBUG: ✅ VEO-3 precision optimization complete")
     return optimized_script
+
+def validate_and_fix_brand_messaging(script):
+    """
+    Ensure that either slogan or call-to-action is included in the voiceover scripts.
+    This is absolutely critical for brand messaging.
+    """
+    print("DEBUG: Validating brand messaging inclusion in voiceover scripts")
+    
+    slogan = script.get('slogan', '').strip()
+    cta = script.get('call_to_action', '').strip()
+    
+    if not slogan and not cta:
+        print("WARNING: No slogan or CTA found in script")
+        return script
+    
+    # Check if brand messaging is already included in any segment
+    segments = [key for key in script.keys() if key.startswith('segment')]
+    brand_messaging_found = False
+    
+    for segment_key in segments:
+        voiceover = script[segment_key].get('voiceover_script', '').lower()
+        
+        # Check if slogan is included
+        if slogan and any(word.lower() in voiceover for word in slogan.split() if len(word) > 2):
+            brand_messaging_found = True
+            print(f"DEBUG: Slogan found in {segment_key}")
+            break
+            
+        # Check if CTA is included
+        if cta and any(word.lower() in voiceover for word in cta.split() if len(word) > 2):
+            brand_messaging_found = True
+            print(f"DEBUG: CTA found in {segment_key}")
+            break
+    
+    if brand_messaging_found:
+        print("DEBUG: ✅ Brand messaging already included in voiceover")
+        return script
+    
+    print("DEBUG: ⚠️ Brand messaging missing from voiceover - fixing automatically")
+    
+    # Fix by adding brand messaging to the final segment
+    final_segment_key = f"segment{len(segments)}"
+    if final_segment_key in script:
+        final_segment = script[final_segment_key]
+        current_voiceover = final_segment.get('voiceover_script', '')
+        
+        # Choose shorter brand message to fit in 15-word limit
+        brand_message = cta if cta and len(cta.split()) <= 5 else slogan
+        if not brand_message:
+            brand_message = cta or slogan  # Fallback to whatever exists
+        
+        # Truncate current voiceover to make room for brand message
+        current_words = current_voiceover.split()
+        brand_words = brand_message.split()
+        
+        # Keep space for brand message (aim for 10-12 words + 3-5 brand words = 15 total)
+        max_current_words = 15 - len(brand_words)
+        if len(current_words) > max_current_words:
+            current_words = current_words[:max_current_words]
+        
+        # Combine with brand message
+        new_voiceover = ' '.join(current_words + brand_words)
+        
+        # Ensure it's not over 15 words
+        if len(new_voiceover.split()) > 15:
+            new_voiceover = ' '.join(new_voiceover.split()[:15])
+        
+        script[final_segment_key]['voiceover_script'] = new_voiceover
+        
+        # Update prompt as well
+        if 'prompt' in final_segment:
+            import re
+            prompt = final_segment['prompt']
+            prompt = re.sub(r'\[voiceover:[^]]*\]', 
+                          f'[voiceover: {final_segment.get("narrator_characteristics", "Professional narrator")} says: "{new_voiceover}"]', 
+                          prompt)
+            script[final_segment_key]['prompt'] = prompt
+        
+        print(f"DEBUG: ✅ Added brand messaging to {final_segment_key}: '{new_voiceover}'")
+    
+    return script
 
 if __name__ == '__main__':
     try:

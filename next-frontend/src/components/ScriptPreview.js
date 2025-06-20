@@ -59,151 +59,183 @@ const ScriptPreview = ({
   };
 
   const renderSegment = (segmentName, segment) => (
-    <div key={segmentName} style={{ marginBottom: '2rem' }}>
-      <h4 style={{ 
+    <div key={segmentName} style={{
+      background: 'linear-gradient(135deg, rgba(0,0,0,0.6), rgba(20,20,20,0.8))',
+      borderRadius: '12px',
+      padding: '1.5rem',
+      marginBottom: '1.5rem',
+      border: '1px solid rgba(0,212,255,0.3)'
+    }}>
+      <h3 style={{ 
         color: '#00d4ff', 
         marginBottom: '1rem',
-        fontSize: '1.4rem',
-        fontWeight: 'bold',
-        textTransform: 'capitalize'
+        fontSize: '1.3rem',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem'
       }}>
-        🎥 {segmentName.replace('segment', 'Segment ')} (8-second clip)
-      </h4>
+        🎬 {segmentName} (8-Second Clip)
+      </h3>
       
-      {typeof segment === 'object' ? (
-        <div style={{ paddingLeft: '1rem' }}>
-          {segment.voiceover_script && (
-            <div style={{ marginBottom: '1.5rem' }}>
-              <strong style={{ color: '#00d4ff' }}>🎙️ Voiceover:</strong>
-              <p style={{ 
-                marginTop: '0.5rem', 
-                fontSize: '1.1rem', 
-                lineHeight: '1.6',
-                color: '#ffffff'
-              }}>
-                "{segment.voiceover_script}"
-              </p>
-              
-              {/* Show narrator and audio production information */}
-              {(segment.narrator_characteristics || segment.delivery_instructions || segment.audio_production) && (
-                <div style={{
-                  background: 'rgba(255,165,0,0.1)',
-                  border: '1px solid rgba(255,165,0,0.3)',
-                  borderRadius: '8px',
-                  padding: '1rem',
-                  marginTop: '1rem'
-                }}>
-                  <strong style={{ color: '#ffa500' }}>🎭 Professional Narrator & Audio Production:</strong>
-                  <div style={{ marginTop: '0.5rem', fontSize: '0.95rem' }}>
-                    {segment.narrator_characteristics && (
-                      <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
-                        <strong>Voice Type:</strong> {segment.narrator_characteristics}
-                      </p>
-                    )}
-                    {segment.delivery_instructions && (
-                      <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
-                        <strong>Delivery Style:</strong> {segment.delivery_instructions}
-                      </p>
-                    )}
-                    {segment.audio_production && (
-                      <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
-                        <strong>Audio Production:</strong> {segment.audio_production}
-                      </p>
-                    )}
-                    {segment.timing_breakdown && (
-                      <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
-                        <strong>Timing:</strong> {segment.timing_breakdown}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Show timing information */}
-              {segment.voiceover_timing && (
-                <div style={{
-                  background: 'rgba(0,212,255,0.1)',
-                  border: '1px solid rgba(0,212,255,0.3)',
-                  borderRadius: '8px',
-                  padding: '1rem',
-                  marginTop: '1rem'
-                }}>
-                  <strong style={{ color: '#00d4ff' }}>🎯 VEO-3 Timing Optimization:</strong>
-                  <div style={{ marginTop: '0.5rem', fontSize: '0.95rem' }}>
-                    <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
-                      📍 <strong>Duration:</strong> {segment.voiceover_timing.start_time} - {segment.voiceover_timing.end_time} (8 seconds) | 
-                      <strong>Target:</strong> 12-15 words for perfect timing
-                    </p>
-                    <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
-                      🎙️ <strong>Speech Timing:</strong> 0:00-0:06 narrator speaks (6 seconds) | 0:06-0:08 music bridge (2 seconds)
-                    </p>
-                    <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
-                      ⚡ <strong>No Blank Space:</strong> Strategic word placement eliminates dead air | Continuous audio flow
-                    </p>
-                    <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
-                      🎭 <strong>Narrator:</strong> Consistent voice across all segments | Professional delivery
-                    </p>
-                    <p style={{ color: '#00ff88', margin: '0.25rem 0', fontSize: '0.9rem' }}>
-                      💡 <strong>Delivery:</strong> {segment.voiceover_timing.delivery_note || 'Deliver 15 words in 6 seconds, leaving 2s for visual transition'}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-          
-          {segment.visual_description && (
-            <div style={{ marginBottom: '1.5rem' }}>
-              <strong style={{ color: '#00d4ff' }}>📹 Visual:</strong>
-              <p style={{ 
-                marginTop: '0.5rem', 
-                fontSize: '1rem', 
-                lineHeight: '1.5',
-                color: '#cccccc'
-              }}>
-                {segment.visual_description}
-              </p>
-            </div>
-          )}
-          
-          {segment.camera_direction && (
-            <div style={{ marginBottom: '1.5rem' }}>
-              <strong style={{ color: '#00d4ff' }}>🎬 Camera:</strong>
-              <p style={{ 
-                marginTop: '0.5rem', 
-                fontSize: '1rem', 
-                lineHeight: '1.5',
-                color: '#cccccc'
-              }}>
-                {segment.camera_direction}
-              </p>
-            </div>
-          )}
-          
-          {segment.veo3_optimization && (
-            <div style={{ marginBottom: '1.5rem' }}>
-              <strong style={{ color: '#00d4ff' }}>🤖 VEO-3 Optimization:</strong>
-              <p style={{ 
-                marginTop: '0.5rem', 
-                fontSize: '0.9rem', 
-                lineHeight: '1.4',
-                color: '#999999',
-                fontStyle: 'italic'
-              }}>
-                {segment.veo3_optimization}
-              </p>
-            </div>
-          )}
+      {/* Visual Scene Description */}
+      {segment.scene_description && (
+        <div style={{
+          background: 'rgba(255,165,0,0.1)',
+          border: '1px solid rgba(255,165,0,0.3)',
+          borderRadius: '8px',
+          padding: '1rem',
+          marginBottom: '1rem'
+        }}>
+          <strong style={{ color: '#ffa500', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            🎨 Visual Scene:
+          </strong>
+          <p style={{ color: '#ffffff', margin: '0', fontSize: '1rem', lineHeight: '1.5' }}>
+            {segment.scene_description}
+          </p>
         </div>
-      ) : (
+      )}
+      
+      {/* Voiceover Script */}
+      <div style={{
+        background: 'rgba(0,255,136,0.1)',
+        border: '1px solid rgba(0,255,136,0.3)',
+        borderRadius: '8px',
+        padding: '1rem',
+        marginBottom: '1rem'
+      }}>
+        <strong style={{ color: '#00ff88', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+          🎙️ Voiceover:
+        </strong>
         <p style={{ 
+          color: '#ffffff', 
+          margin: '0', 
           fontSize: '1.1rem', 
+          fontWeight: '500',
           lineHeight: '1.6',
-          color: '#ffffff',
           fontStyle: 'italic'
         }}>
-          "{segment}"
+          "{segment.voiceover_script}"
         </p>
+        <div style={{ 
+          fontSize: '0.85rem', 
+          color: '#cccccc', 
+          marginTop: '0.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem'
+        }}>
+          <span>📊 Word Count: {segment.voiceover_script?.split(' ').length || 0}/15</span>
+          <span>⏱️ Estimated Speech: ~{((segment.voiceover_script?.split(' ').length || 0) / 2.5).toFixed(1)}s</span>
+        </div>
+      </div>
+      
+      {/* Show narrator and audio production information */}
+      {(segment.narrator_characteristics || segment.delivery_instructions || segment.audio_production) && (
+        <div style={{
+          background: 'rgba(255,165,0,0.1)',
+          border: '1px solid rgba(255,165,0,0.3)',
+          borderRadius: '8px',
+          padding: '1rem',
+          marginTop: '1rem'
+        }}>
+          <strong style={{ color: '#ffa500' }}>🎭 Professional Narrator & Audio Production:</strong>
+          <div style={{ marginTop: '0.5rem', fontSize: '0.95rem' }}>
+            {segment.narrator_characteristics && (
+              <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
+                <strong>Voice Type:</strong> {segment.narrator_characteristics}
+              </p>
+            )}
+            {segment.delivery_instructions && (
+              <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
+                <strong>Delivery Style:</strong> {segment.delivery_instructions}
+              </p>
+            )}
+            {segment.audio_production && (
+              <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
+                <strong>Audio Production:</strong> {segment.audio_production}
+              </p>
+            )}
+            {segment.timing_breakdown && (
+              <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
+                <strong>Timing:</strong> {segment.timing_breakdown}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Show timing information */}
+      {segment.voiceover_timing && (
+        <div style={{
+          background: 'rgba(0,212,255,0.1)',
+          border: '1px solid rgba(0,212,255,0.3)',
+          borderRadius: '8px',
+          padding: '1rem',
+          marginTop: '1rem'
+        }}>
+          <strong style={{ color: '#00d4ff' }}>🎯 VEO-3 Timing Optimization:</strong>
+          <div style={{ marginTop: '0.5rem', fontSize: '0.95rem' }}>
+            <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
+              📍 <strong>Duration:</strong> {segment.voiceover_timing.start_time} - {segment.voiceover_timing.end_time} (8 seconds) | 
+              <strong>Target:</strong> 12-15 words for perfect timing
+            </p>
+            <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
+              🎙️ <strong>Speech Timing:</strong> 0:00-0:06 narrator speaks (6 seconds) | 0:06-0:08 music bridge (2 seconds)
+            </p>
+            <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
+              ⚡ <strong>No Blank Space:</strong> Strategic word placement eliminates dead air | Continuous audio flow
+            </p>
+            <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
+              🎭 <strong>Narrator:</strong> Consistent voice across all segments | Professional delivery
+            </p>
+            <p style={{ color: '#00ff88', margin: '0.25rem 0', fontSize: '0.9rem' }}>
+              💡 <strong>Delivery:</strong> {segment.voiceover_timing.delivery_note || 'Deliver 15 words in 6 seconds, leaving 2s for visual transition'}
+            </p>
+          </div>
+        </div>
+      )}
+      
+      {segment.visual_description && (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <strong style={{ color: '#00d4ff' }}>📹 Visual:</strong>
+          <p style={{ 
+            marginTop: '0.5rem', 
+            fontSize: '1rem', 
+            lineHeight: '1.5',
+            color: '#cccccc'
+          }}>
+            {segment.visual_description}
+          </p>
+        </div>
+      )}
+      
+      {segment.camera_direction && (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <strong style={{ color: '#00d4ff' }}>🎬 Camera:</strong>
+          <p style={{ 
+            marginTop: '0.5rem', 
+            fontSize: '1rem', 
+            lineHeight: '1.5',
+            color: '#cccccc'
+          }}>
+            {segment.camera_direction}
+          </p>
+        </div>
+      )}
+      
+      {segment.veo3_optimization && (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <strong style={{ color: '#00d4ff' }}>🤖 VEO-3 Optimization:</strong>
+          <p style={{ 
+            marginTop: '0.5rem', 
+            fontSize: '0.9rem', 
+            lineHeight: '1.4',
+            color: '#999999',
+            fontStyle: 'italic'
+          }}>
+            {segment.veo3_optimization}
+          </p>
+        </div>
       )}
     </div>
   );
@@ -253,113 +285,100 @@ const ScriptPreview = ({
             📊 VEO-3 Optimization Analysis
           </h3>
           
-          <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '2rem',
+            flexWrap: 'wrap'
+          }}>
             <div style={{
-              background: 'rgba(0,0,0,0.3)',
+              background: 'rgba(0,212,255,0.1)',
+              border: '1px solid rgba(0,212,255,0.3)',
               borderRadius: '8px',
-              padding: '1rem',
-              minWidth: '150px'
+              padding: '0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}>
-              <strong style={{ color: '#00d4ff' }}>VEO-3 Readiness</strong>
-              <p style={{ 
-                color: getScoreColor(scriptAnalysis.veo3_readiness || scriptAnalysis.audio_quality_score),
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                margin: '0.5rem 0 0 0'
-              }}>
-                {scriptAnalysis.veo3_readiness || scriptAnalysis.audio_quality_score}/100
-              </p>
-              {(scriptAnalysis.veo3_readiness >= 80) && (
-                <div style={{
-                  background: 'linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,212,255,0.1))',
-                  border: '2px solid rgba(0,255,136,0.4)',
-                  borderRadius: '8px',
-                  padding: '1rem',
-                  marginLeft: '1rem',
-                  minWidth: '200px'
-                }}>
-                  <div style={{ color: '#00ff88', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-                    🎯 PERFECT OPTIMIZATION
-                  </div>
-                  <div style={{ color: '#cccccc', fontSize: '0.9rem' }}>
-                    ✅ 15-word targeting<br/>
-                    ✅ No blank space<br/>
-                    ✅ Consistent narrator<br/>
-                    ✅ Perfect timing<br/>
-                    ✅ VEO-3 ready
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            {/* 10-Word Targeting Summary */}
-            {scriptAnalysis.timing_analysis && (
-              <div style={{
-                background: 'rgba(0,0,0,0.3)',
-                borderRadius: '8px',
-                padding: '1rem',
-                flex: 1,
-                minWidth: '300px'
-              }}>
-                <strong style={{ color: '#00d4ff' }}>🎯 Word Count Analysis</strong>
-                <div style={{ marginTop: '0.5rem' }}>
-                  {Object.entries(scriptAnalysis.timing_analysis).map(([segment, timing]) => {
-                    const isPerfect = timing.word_count === 10;
-                    const isOptimal = timing.optimal_for_veo3;
-                    
-                    return (
-                      <div key={segment} style={{ margin: '0.25rem 0', fontSize: '0.9rem' }}>
-                        <span style={{ color: '#ffffff' }}>
-                          {segment.replace('segment', 'Segment ')}: {timing.word_count}/10 words
-                        </span>
-                        <span style={{ 
-                          color: isPerfect ? '#4CAF50' : isOptimal ? '#FFC107' : '#ff6b35',
-                          marginLeft: '0.5rem',
-                          fontWeight: 'bold'
-                        }}>
-                          {isPerfect ? '🎯 Perfect!' : isOptimal ? '✅ Good' : '⚠️ Fix needed'}
-                        </span>
-                        {timing.perfect_veo3 && (
-                          <span style={{ 
-                            color: '#4CAF50', 
-                            marginLeft: '0.5rem',
-                            fontSize: '0.8rem'
-                          }}>
-                            (Ideal for VEO-3)
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+              <span style={{ fontSize: '1.5rem' }}>🎯</span>
+              <div>
+                <div style={{ fontSize: '0.8rem', color: '#cccccc' }}>VEO-3 Readiness</div>
                 <div style={{ 
-                  marginTop: '0.75rem', 
-                  fontSize: '0.8rem', 
-                  color: '#cccccc',
-                  fontStyle: 'italic'
+                  fontSize: '1.2rem', 
+                  fontWeight: 'bold',
+                  color: getScoreColor(scriptAnalysis.veo3_readiness || 0)
                 }}>
-                  🎯 Target: Exactly 10 words per segment for perfect VEO-3 timing
+                  {scriptAnalysis.veo3_readiness || 0}/100
                 </div>
               </div>
-            )}
-
+            </div>
+            
             <div style={{
-              background: 'rgba(0,0,0,0.3)',
+              background: 'rgba(255,215,0,0.1)',
+              border: '1px solid rgba(255,215,0,0.3)',
               borderRadius: '8px',
-              padding: '1rem',
-              minWidth: '150px'
+              padding: '0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}>
-              <strong style={{ color: '#00d4ff' }}>Word Count</strong>
-              <p style={{ 
-                color: getWordCountColor(getTotalWordCount()),
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                margin: '0.5rem 0 0 0'
-              }}>
-                {getTotalWordCount()}/{getTargetWordCount()}
-              </p>
-              <div style={{ fontSize: '0.8rem', color: '#cccccc', marginTop: '0.25rem' }}>
-                Target: 12-15 per segment ({getSegmentCount()} segments)
+              <span style={{ fontSize: '1.5rem' }}>📊</span>
+              <div>
+                <div style={{ fontSize: '0.8rem', color: '#cccccc' }}>Total Words</div>
+                <div style={{ 
+                  fontSize: '1.2rem', 
+                  fontWeight: 'bold',
+                  color: getWordCountColor(getTotalWordCount())
+                }}>
+                  {getTotalWordCount()}/{getTargetWordCount()}
+                </div>
+              </div>
+            </div>
+            
+            <div style={{
+              background: 'rgba(138,43,226,0.1)',
+              border: '1px solid rgba(138,43,226,0.3)',
+              borderRadius: '8px',
+              padding: '0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              <span style={{ fontSize: '1.5rem' }}>🎬</span>
+              <div>
+                <div style={{ fontSize: '0.8rem', color: '#cccccc' }}>Duration</div>
+                <div style={{ 
+                  fontSize: '1.2rem', 
+                  fontWeight: 'bold',
+                  color: '#8a2be2'
+                }}>
+                  {getSegmentCount() * 8}s ({getSegmentCount()} clips)
+                </div>
+              </div>
+            </div>
+            
+            {/* Brand Messaging Status */}
+            <div style={{
+              background: scriptAnalysis.brand_messaging_status === 'included' ? 'rgba(40,167,69,0.1)' : 'rgba(220,53,69,0.1)',
+              border: scriptAnalysis.brand_messaging_status === 'included' ? '1px solid rgba(40,167,69,0.3)' : '1px solid rgba(220,53,69,0.3)',
+              borderRadius: '8px',
+              padding: '0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              <span style={{ fontSize: '1.5rem' }}>
+                {scriptAnalysis.brand_messaging_status === 'included' ? '✅' : '🚨'}
+              </span>
+              <div>
+                <div style={{ fontSize: '0.8rem', color: '#cccccc' }}>Brand Messaging</div>
+                <div style={{ 
+                  fontSize: '1.2rem', 
+                  fontWeight: 'bold',
+                  color: scriptAnalysis.brand_messaging_status === 'included' ? '#28a745' : '#dc3545'
+                }}>
+                  {scriptAnalysis.brand_messaging_status === 'included' ? 'Included' : 'Missing'}
+                </div>
               </div>
             </div>
           </div>
@@ -409,6 +428,76 @@ const ScriptPreview = ({
             return renderSegment(`Segment ${segmentNumber}`, segment);
           })
         }
+        
+        {/* Slogan and Call-to-Action Section */}
+        {(script.slogan || script.call_to_action) && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,165,0,0.1))',
+            border: '2px solid rgba(255,215,0,0.4)',
+            borderRadius: '12px',
+            padding: '1.5rem',
+            marginTop: '1.5rem'
+          }}>
+            <h3 style={{ 
+              color: '#ffd700', 
+              marginBottom: '1rem',
+              fontSize: '1.3rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              ✨ Brand Messaging
+            </h3>
+            
+            {script.slogan && (
+              <div style={{
+                background: 'rgba(255,215,0,0.1)',
+                border: '1px solid rgba(255,215,0,0.3)',
+                borderRadius: '8px',
+                padding: '1rem',
+                marginBottom: script.call_to_action ? '1rem' : '0'
+              }}>
+                <strong style={{ color: '#ffd700', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  🏷️ Slogan:
+                </strong>
+                <p style={{ 
+                  color: '#ffffff', 
+                  margin: '0', 
+                  fontSize: '1.2rem', 
+                  fontWeight: 'bold',
+                  lineHeight: '1.4',
+                  textAlign: 'center',
+                  fontStyle: 'italic'
+                }}>
+                  "{script.slogan}"
+                </p>
+              </div>
+            )}
+            
+            {script.call_to_action && (
+              <div style={{
+                background: 'rgba(255,165,0,0.1)',
+                border: '1px solid rgba(255,165,0,0.3)',
+                borderRadius: '8px',
+                padding: '1rem'
+              }}>
+                <strong style={{ color: '#ffa500', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  📢 Call to Action:
+                </strong>
+                <p style={{ 
+                  color: '#ffffff', 
+                  margin: '0', 
+                  fontSize: '1.2rem', 
+                  fontWeight: 'bold',
+                  lineHeight: '1.4',
+                  textAlign: 'center'
+                }}>
+                  "{script.call_to_action}"
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Advanced Toggle */}
