@@ -1111,8 +1111,14 @@ def improve_script_with_gemini(company_info, user_answers, gpt_script, best_ads=
     - NO CREEPY SILENCE: Fill every second with engaging audio content
     """
     
-    for seg in ['segment1', 'segment2']:
-        prompt = f"Can you improve this current script to be better fit for Veo3 generation for a 16-second Ad? Make it more engaging, cinematic, and effective using 2025 best practices and the ABCD framework (Attention, Branding, Connection, Direction).{improvement_guidelines_2025}{best_ads_str}\n\nCurrent segment script:\n{json.dumps(gpt_script[seg], indent=2)}\n\nImprove this script while maintaining the JSON format. Focus on:\n1. 16-SECOND OPTIMIZATION: Making every second count with no wasted moments\n2. ABCD FRAMEWORK: Ensuring proper Attention (hook), Branding (early presence), Connection (human elements), Direction (clear CTA)\n3. MOBILE-FIRST: Bright, high-contrast visuals with tight framing for small screens\n4. IMMEDIATE IMMERSION: Drop viewers into story from second 1\n5. ULTRA-SHORT STORYTELLING: Making it more visually compelling and better suited for 16-second video generation\n6. Applying 2025 trends: stronger hooks, authenticity, humor (if appropriate), emotional engagement\n7. Ensuring the visual and voiceover work together for maximum impact in limited time\n8. Making it feel more native to social platforms rather than traditional advertising\n\nFor segment1: Focus on ATTENTION + BRANDING (hook in 1-3s, brand intro 4-5s, setup 6-8s)\nFor segment2: Focus on CONNECTION + DIRECTION (transformation 9-11s, emotion 12-13s, CTA 14-16s)"
+    # Get all segments dynamically
+    segments = [key for key in gpt_script.keys() if key.startswith('segment')]
+    num_segments = len(segments)
+    
+    for seg in segments:
+        segment_num = seg.replace('segment', '')
+        duration_text = f"{num_segments * 8}-second" if num_segments > 1 else "8-second"
+        prompt = f"Can you improve this current script to be better fit for Veo3 generation for a {duration_text} Ad? Make it more engaging, cinematic, and effective using 2025 best practices and the ABCD framework (Attention, Branding, Connection, Direction).{improvement_guidelines_2025}{best_ads_str}\n\nCurrent segment script:\n{json.dumps(gpt_script[seg], indent=2)}\n\nImprove this script while maintaining the JSON format. Focus on:\n1. {duration_text.upper()} OPTIMIZATION: Making every second count with no wasted moments\n2. ABCD FRAMEWORK: Ensuring proper Attention (hook), Branding (early presence), Connection (human elements), Direction (clear CTA)\n3. MOBILE-FIRST: Bright, high-contrast visuals with tight framing for small screens\n4. IMMEDIATE IMMERSION: Drop viewers into story from second 1\n5. ULTRA-SHORT STORYTELLING: Making it more visually compelling and better suited for {duration_text} video generation\n6. Applying 2025 trends: stronger hooks, authenticity, humor (if appropriate), emotional engagement\n7. Ensuring the visual and voiceover work together for maximum impact in limited time\n8. Making it feel more native to social platforms rather than traditional advertising\n\nFor {seg}: Focus on segment-specific optimization based on position {segment_num} in the {num_segments}-segment sequence"
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-06-05:generateContent?key=" + get_gemini_api_key()
         headers = {"Content-Type": "application/json"}
         data = {"contents": [{"parts": [{"text": prompt}]}]}
@@ -2135,15 +2141,20 @@ def generate_video_from_script():
 
 def analyze_script_for_veo3(script):
     """Analyze script for potential VEO-3 issues and provide recommendations"""
+    # Get all segments dynamically
+    segments = [key for key in script.keys() if key.startswith('segment')]
+    
     analysis = {
-        'segment1_issues': [],
-        'segment2_issues': [],
         'overall_recommendations': [],
         'length_analysis': {},
         'audio_quality_score': 0
     }
     
-    for segment_name in ['segment1', 'segment2']:
+    # Initialize segment issues dynamically
+    for segment_key in segments:
+        analysis[f'{segment_key}_issues'] = []
+    
+    for segment_name in segments:
         if segment_name not in script:
             continue
             
@@ -2181,11 +2192,11 @@ def analyze_script_for_veo3(script):
         }
     
     # Overall recommendations
-    if any(analysis['segment1_issues']) or any(analysis['segment2_issues']):
+    total_issues = sum(len(analysis[f'{seg}_issues']) for seg in segments)
+    if total_issues > 0:
         analysis['overall_recommendations'].append("Consider script optimization before video generation.")
     
     # Calculate audio quality score
-    total_issues = len(analysis['segment1_issues']) + len(analysis['segment2_issues'])
     analysis['audio_quality_score'] = max(0, 100 - (total_issues * 15))
     
     return analysis
@@ -3327,10 +3338,13 @@ def improve_script_with_gemini_and_feedback(company_info, user_answers, current_
 def ensure_narrator_consistency(script):
     """Ensure the same narrator voice is used across all segments"""
     try:
-        # Extract narrator characteristics from segment1
-        segment1 = script.get('segment1', {})
-        narrator_base = segment1.get('narrator_characteristics', '')
-        delivery_base = segment1.get('delivery_instructions', '')
+        # Get all segments dynamically
+        segments = [key for key in script.keys() if key.startswith('segment')]
+        
+        # Extract narrator characteristics from first segment
+        first_segment = script.get(segments[0], {}) if segments else {}
+        narrator_base = first_segment.get('narrator_characteristics', '')
+        delivery_base = first_segment.get('delivery_instructions', '')
         
         if not narrator_base:
             # Set default consistent narrator
@@ -3338,7 +3352,7 @@ def ensure_narrator_consistency(script):
             delivery_base = "Speaks with steady confidence and natural pacing, no awkward pauses"
         
         # Apply same narrator to all segments
-        for segment_key in ['segment1', 'segment2']:
+        for segment_key in segments:
             if segment_key in script:
                 script[segment_key]['narrator_characteristics'] = narrator_base
                 script[segment_key]['delivery_instructions'] = delivery_base
@@ -3353,7 +3367,7 @@ def ensure_narrator_consistency(script):
                                   prompt)
                     script[segment_key]['prompt'] = prompt
         
-        print("DEBUG: ✅ Narrator consistency ensured across all segments")
+        print(f"DEBUG: ✅ Narrator consistency ensured across {len(segments)} segments")
         return script
         
     except Exception as e:
