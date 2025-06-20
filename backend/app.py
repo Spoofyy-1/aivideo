@@ -30,8 +30,22 @@ app = Flask(__name__, static_folder='static')
 CORS(app)
 print("DEBUG: Flask app created successfully")
 
-GEMINI_API_KEY = "AIzaSyABk6wdtiL7JHhpVsTM-criOeDyzr29lwk"
-print("DEBUG: Gemini API key set")
+# Configure API keys from environment variables with fallbacks
+def get_gemini_api_key():
+    """Get Gemini API key from environment variables"""
+    gemini_key = os.getenv("GEMINI_API_KEY")
+    if not gemini_key:
+        print("ERROR: GEMINI_API_KEY not found in environment variables")
+        print("Please set GEMINI_API_KEY in your environment or .env file")
+        return None
+    return gemini_key
+
+# Test Gemini API key availability
+gemini_key = get_gemini_api_key()
+if gemini_key:
+    print("DEBUG: Gemini API key configured")
+else:
+    print("WARNING: No Gemini API key available")
 
 # Configure OpenAI client
 client = None
@@ -1099,7 +1113,7 @@ def improve_script_with_gemini(company_info, user_answers, gpt_script, best_ads=
     
     for seg in ['segment1', 'segment2']:
         prompt = f"Can you improve this current script to be better fit for Veo3 generation for a 16-second Ad? Make it more engaging, cinematic, and effective using 2025 best practices and the ABCD framework (Attention, Branding, Connection, Direction).{improvement_guidelines_2025}{best_ads_str}\n\nCurrent segment script:\n{json.dumps(gpt_script[seg], indent=2)}\n\nImprove this script while maintaining the JSON format. Focus on:\n1. 16-SECOND OPTIMIZATION: Making every second count with no wasted moments\n2. ABCD FRAMEWORK: Ensuring proper Attention (hook), Branding (early presence), Connection (human elements), Direction (clear CTA)\n3. MOBILE-FIRST: Bright, high-contrast visuals with tight framing for small screens\n4. IMMEDIATE IMMERSION: Drop viewers into story from second 1\n5. ULTRA-SHORT STORYTELLING: Making it more visually compelling and better suited for 16-second video generation\n6. Applying 2025 trends: stronger hooks, authenticity, humor (if appropriate), emotional engagement\n7. Ensuring the visual and voiceover work together for maximum impact in limited time\n8. Making it feel more native to social platforms rather than traditional advertising\n\nFor segment1: Focus on ATTENTION + BRANDING (hook in 1-3s, brand intro 4-5s, setup 6-8s)\nFor segment2: Focus on CONNECTION + DIRECTION (transformation 9-11s, emotion 12-13s, CTA 14-16s)"
-        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-06-05:generateContent?key=" + GEMINI_API_KEY
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-06-05:generateContent?key=" + get_gemini_api_key()
         headers = {"Content-Type": "application/json"}
         data = {"contents": [{"parts": [{"text": prompt}]}]}
         response = requests.post(url, headers=headers, json=data)
@@ -3289,7 +3303,7 @@ def improve_script_with_gemini_and_feedback(company_info, user_answers, current_
     """
     
     try:
-        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-06-05:generateContent?key=" + GEMINI_API_KEY
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-06-05:generateContent?key=" + get_gemini_api_key()
         headers = {"Content-Type": "application/json"}
         data = {"contents": [{"parts": [{"text": improvement_prompt}]}]}
         response = requests.post(url, headers=headers, json=data)
