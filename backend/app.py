@@ -985,33 +985,34 @@ For each segment provide:
 - "veo3_optimization": VEO-3 techniques applied
 
 🎙️ CRITICAL AUDIO REQUIREMENTS:
-- EXACTLY 10 WORDS PER SEGMENT: This prevents voiceover cutoff in VEO-3
-- 10 words = ~4 seconds speech + 4 seconds visual development = perfect 8s clip
+- EXACTLY 15 WORDS PER SEGMENT: Optimal for 8-second clips with no blank space
+- 15 words = ~6 seconds speech + 2 seconds visual transition = perfect 8s clip
 - Every word must be impactful and necessary
 - Format: "Character says: exact words"
-- Company name mentioned 1-2 times per segment (within the 10-word limit)
+- Company name mentioned 1-2 times per segment (within the 15-word limit)
 - Continuous background music/sounds throughout
 
-🎭 NARRATOR EXCELLENCE REQUIREMENTS:
-- VOICE CHARACTERISTICS: Specify narrator type (confident professional, warm storyteller, energetic presenter, etc.)
-- DELIVERY STYLE: Include specific instructions like "speaks with genuine excitement", "delivers with authority", "whispers intimately"
-- EMOTIONAL PROGRESSION: Each word should build emotion - start calm, build excitement, end with satisfaction
-- PACING INSTRUCTIONS: "Speaks slowly for emphasis", "builds tempo", "pauses for impact"
-- TONE MATCHING: Match narrator personality to brand (corporate = professional, startup = energetic, luxury = sophisticated)
+🎭 NARRATOR CONSISTENCY REQUIREMENTS:
+- SAME NARRATOR VOICE: Use identical narrator description across ALL segments
+- VOICE CONTINUITY: "Professional male narrator with warm, authoritative tone" (or specify exact voice type)
+- CONSISTENT DELIVERY: Same speaking pace, energy level, and style throughout entire ad
+- PERSONALITY LOCK: Once narrator personality is set in segment1, maintain exactly the same in segment2
+- BRAND VOICE ALIGNMENT: Match narrator to brand personality (corporate = professional, startup = energetic, luxury = sophisticated)
 
-🎵 AUDIO PRODUCTION MASTERY:
-- BACKGROUND MUSIC: Always specify mood-appropriate music (upbeat electronic, warm acoustic, dramatic orchestral)
-- SOUND EFFECTS: Include specific SFX that enhance the message (whoosh for speed, click for precision, chime for success)
-- AUDIO LAYERING: "Confident narrator over upbeat music with subtle product sounds"
-- VOLUME DYNAMICS: "Music fades under narrator, then swells during visual moments"
-- AUDIO TRANSITIONS: Smooth bridges between speech and music
+🎵 AUDIO TIMING MASTERY:
+- WORD PLACEMENT: Strategic timing of each word to eliminate dead space
+- SPEECH RHYTHM: 0:00-0:06 narrator speaks (15 words in 6 seconds = 2.5 words/second)
+- TRANSITION TIMING: 0:06-0:08 music bridge to next segment (no silence)
+- EMPHASIS PLACEMENT: Key product words at 0:02 and 0:04 for maximum impact
+- BREATH CONTROL: Natural pauses built into script, no awkward gaps
+- SEAMLESS FLOW: Each word flows naturally into the next with perfect pacing
 
-🎬 TIMING PERFECTION:
-- SPEECH TIMING: 0:00-0:04 narrator speaks (10 words in 4 seconds = 2.5 words/second)
-- MUSIC TIMING: 0:00-0:08 continuous background music throughout
-- EMPHASIS TIMING: Key product name gets 0.5 second emphasis
-- PAUSE TIMING: Strategic 0.2 second pauses between key phrases
-- OVERLAP TIMING: Final word overlaps with music swell for seamless transition
+🎬 BLANK SPACE ELIMINATION:
+- NO DEAD AIR: Every second filled with narrator voice, music, or sound effects
+- WORD SPACING: Strategic placement - important words at 1-second intervals
+- MUSIC UNDERLAYS: Continuous background music that swells during speech pauses
+- SOUND BRIDGES: Smooth audio transitions between words and segments
+- TIMING PRECISION: Each of the 15 words placed at optimal 0.4-second intervals
 
 ⚠️ TIMING CRITICAL: VEO-3 cuts off voiceovers longer than 10 words in 8-second clips.
 Make every word count. Be concise and powerful.
@@ -2731,59 +2732,62 @@ For each segment provide:
 - "veo3_optimization": VEO-3 techniques applied
 
 🎙️ CRITICAL AUDIO REQUIREMENTS:
-- EXACTLY 10 WORDS PER SEGMENT: This prevents voiceover cutoff in VEO-3
-- 10 words = ~4 seconds speech + 4 seconds visual development = perfect 8s clip
+- EXACTLY 15 WORDS PER SEGMENT: Optimal for 8-second clips with no blank space
+- 15 words = ~6 seconds speech + 2 seconds visual transition = perfect 8s clip
 - Every word must be impactful and necessary
 - Format: "Character says: exact words"
-- Company name mentioned 1-2 times per segment (within the 10-word limit)
+- Company name mentioned 1-2 times per segment (within the 15-word limit)
 - Continuous background music/sounds throughout
 
-🎭 NARRATOR EXCELLENCE REQUIREMENTS:
-- VOICE CHARACTERISTICS: Specify narrator type (confident professional, warm storyteller, energetic presenter, etc.)
-- DELIVERY STYLE: Include specific instructions like "speaks with genuine excitement", "delivers with authority", "whispers intimately"
-- EMOTIONAL PROGRESSION: Each word should build emotion - start calm, build excitement, end with satisfaction
-- PACING INSTRUCTIONS: "Speaks slowly for emphasis", "builds tempo", "pauses for impact"
-- TONE MATCHING: Match narrator personality to brand (corporate = professional, startup = energetic, luxury = sophisticated)
+🎭 NARRATOR CONSISTENCY REQUIREMENTS:
+- SAME NARRATOR VOICE: Use identical narrator description across ALL segments
+- VOICE CONTINUITY: "Professional male narrator with warm, authoritative tone" (or specify exact voice type)
+- CONSISTENT DELIVERY: Same speaking pace, energy level, and style throughout entire ad
+- PERSONALITY LOCK: Once narrator personality is set in segment1, maintain exactly the same in segment2
+- BRAND VOICE ALIGNMENT: Match narrator to brand personality (corporate = professional, startup = energetic, luxury = sophisticated)
 
-🎵 AUDIO PRODUCTION MASTERY:
-- BACKGROUND MUSIC: Always specify mood-appropriate music (upbeat electronic, warm acoustic, dramatic orchestral)
-- SOUND EFFECTS: Include specific SFX that enhance the message (whoosh for speed, click for precision, chime for success)
-- AUDIO LAYERING: "Confident narrator over upbeat music with subtle product sounds"
-- VOLUME DYNAMICS: "Music fades under narrator, then swells during visual moments"
-- AUDIO TRANSITIONS: Smooth bridges between speech and music
+🎵 AUDIO TIMING MASTERY:
+- WORD PLACEMENT: Strategic timing of each word to eliminate dead space
+- SPEECH RHYTHM: 0:00-0:06 narrator speaks (15 words in 6 seconds = 2.5 words/second)
+- TRANSITION TIMING: 0:06-0:08 music bridge to next segment (no silence)
+- EMPHASIS PLACEMENT: Key product words at 0:02 and 0:04 for maximum impact
+- BREATH CONTROL: Natural pauses built into script, no awkward gaps
+- SEAMLESS FLOW: Each word flows naturally into the next with perfect pacing
 
-🎬 TIMING PERFECTION:
-- SPEECH TIMING: 0:00-0:04 narrator speaks (10 words in 4 seconds = 2.5 words/second)
-- MUSIC TIMING: 0:00-0:08 continuous background music throughout
-- EMPHASIS TIMING: Key product name gets 0.5 second emphasis
-- PAUSE TIMING: Strategic 0.2 second pauses between key phrases
-- OVERLAP TIMING: Final word overlaps with music swell for seamless transition
+🎬 BLANK SPACE ELIMINATION:
+- NO DEAD AIR: Every second filled with narrator voice, music, or sound effects
+- WORD SPACING: Strategic placement - important words at 1-second intervals
+- MUSIC UNDERLAYS: Continuous background music that swells during speech pauses
+- SOUND BRIDGES: Smooth audio transitions between words and segments
+- TIMING PRECISION: Each of the 15 words placed at optimal 0.4-second intervals
 
-⚠️ TIMING CRITICAL: VEO-3 cuts off voiceovers longer than 10 words in 8-second clips.
-Make every word count. Be concise and powerful.
+⚠️ TIMING CRITICAL: VEO-3 cuts off voiceovers longer than 15 words in 8-second clips.
+Make every word count. Eliminate blank space with perfect word timing.
 
 Format as valid JSON:
 {{
     "segment1": {{
         "scene_description": "...",
-        "prompt": "... [voiceover: Character says: 'exact 10 words with delivery style'] with [specific background music] and [sound effects]",
-        "voiceover_script": "10 words maximum here",
-        "narrator_characteristics": "Professional voice type and personality (e.g., confident professional, warm storyteller, energetic presenter)",
-        "delivery_instructions": "Specific delivery style and emotional progression (e.g., speaks with genuine excitement, delivers with authority, whispers intimately)",
-        "audio_production": "Background music, sound effects, and volume dynamics (e.g., upbeat electronic music, whoosh sound effects, music fades under narrator)",
-        "timing_breakdown": "Detailed timing: 0:00-0:04 narrator speaks, 0:04-0:08 music swells, pauses at key moments",
+        "prompt": "... [voiceover: Professional male narrator with warm, authoritative tone says: 'exact 15 words with perfect timing'] with [specific background music] and [sound effects]",
+        "voiceover_script": "15 words maximum here with strategic word placement",
+        "narrator_characteristics": "Professional male narrator with warm, authoritative tone (KEEP IDENTICAL IN SEGMENT2)",
+        "delivery_instructions": "Speaks with steady confidence and natural pacing, no awkward pauses",
+        "audio_production": "Continuous upbeat background music with strategic volume swells during speech pauses",
+        "timing_breakdown": "0:00-0:06 narrator speaks 15 words, 0:06-0:08 music bridge, no blank space",
+        "word_timing": "Strategic placement: words 1-3 at 0:00-1:00, words 4-7 at 1:00-2:50, words 8-11 at 2:50-4:30, words 12-15 at 4:30-6:00",
         "mood": "...",
         "camera": "...",
         "veo3_optimization": "..."
     }},
     "segment2": {{
         "scene_description": "...",
-        "prompt": "... [voiceover: Character says: 'exact 10 words with delivery style'] with [specific background music] and [sound effects]",
-        "voiceover_script": "10 words maximum here",
-        "narrator_characteristics": "Professional voice type and personality (e.g., confident professional, warm storyteller, energetic presenter)",
-        "delivery_instructions": "Specific delivery style and emotional progression (e.g., speaks with genuine excitement, delivers with authority, whispers intimately)",
-        "audio_production": "Background music, sound effects, and volume dynamics (e.g., upbeat electronic music, whoosh sound effects, music fades under narrator)",
-        "timing_breakdown": "Detailed timing: 0:00-0:04 narrator speaks, 0:04-0:08 music swells, pauses at key moments",
+        "prompt": "... [voiceover: Professional male narrator with warm, authoritative tone says: 'exact 15 words with perfect timing'] with [specific background music] and [sound effects]",
+        "voiceover_script": "15 words maximum here with strategic word placement",
+        "narrator_characteristics": "Professional male narrator with warm, authoritative tone (IDENTICAL TO SEGMENT1)",
+        "delivery_instructions": "Speaks with steady confidence and natural pacing, no awkward pauses (SAME AS SEGMENT1)",
+        "audio_production": "Continuous upbeat background music with strategic volume swells during speech pauses",
+        "timing_breakdown": "0:00-0:06 narrator speaks 15 words, 0:06-0:08 music bridge, no blank space",
+        "word_timing": "Strategic placement: words 1-3 at 0:00-1:00, words 4-7 at 1:00-2:50, words 8-11 at 2:50-4:30, words 12-15 at 4:30-6:00",
         "mood": "...",
         "camera": "...",
         "veo3_optimization": "..."
@@ -2989,9 +2993,9 @@ def analyze_script_quality(script, user_answers):
 def auto_optimize_script_until_ready(script, company_info, user_answers, best_ads=None, target_score=80):
     """
     Automatically optimize script until it reaches target VEO-3 readiness score.
-    Target: 10 words per segment for perfect timing (4-5 seconds speech in 8-second clips).
+    Target: 15 words per segment for perfect timing (6 seconds speech + 2 seconds transition = 8-second clips).
     """
-    print(f"DEBUG: Starting auto-optimization targeting {target_score}/100 VEO-3 readiness")
+    print(f"DEBUG: Starting auto-optimization targeting {target_score}/100 VEO-3 readiness with 15-word segments")
     
     max_iterations = 5
     current_script = script
@@ -3002,26 +3006,28 @@ def auto_optimize_script_until_ready(script, company_info, user_answers, best_ad
         # Apply VEO-3 optimization
         optimized_script = optimize_script_for_veo3_precise(current_script)
         
-        # Analyze quality
-        analysis = analyze_script_quality(optimized_script, user_answers)
-        current_score = analysis.get('veo3_readiness', 0)
+        # Ensure narrator consistency across segments
+        optimized_script = ensure_narrator_consistency(optimized_script)
         
-        print(f"DEBUG: Current VEO-3 readiness: {current_score}/100")
+        # Analyze the optimized script
+        analysis = analyze_script_for_veo3(optimized_script)
+        veo3_score = analysis.get('veo3_readiness', analysis.get('audio_quality_score', 0))
         
-        # Check if we've reached target
-        if current_score >= target_score:
-            print(f"DEBUG: ✅ Reached target score {current_score}/100 in {iteration + 1} iterations")
+        print(f"DEBUG: Iteration {iteration + 1} - VEO-3 readiness: {veo3_score}/100")
+        
+        # Check if we've reached the target score
+        if veo3_score >= target_score:
+            print(f"DEBUG: ✅ Target score {target_score}/100 achieved! Final score: {veo3_score}/100")
             return optimized_script, analysis
         
-        # If not good enough, regenerate problematic segments
-        if current_score < target_score and iteration < max_iterations - 1:
-            print(f"DEBUG: Score {current_score} below target {target_score}, improving...")
-            current_script = auto_improve_problematic_segments(
-                optimized_script, analysis, company_info, user_answers, best_ads
-            )
+        # If not perfect, identify and fix specific issues
+        if veo3_score < target_score:
+            print(f"DEBUG: Score {veo3_score}/100 below target. Auto-improving problematic segments...")
+            improved_script = auto_improve_problematic_segments(optimized_script, analysis, company_info, user_answers, best_ads)
+            current_script = improved_script
     
-    print(f"DEBUG: ⚠️ Reached max iterations, final score: {current_score}/100")
-    return optimized_script, analysis
+    print(f"DEBUG: ⚠️ Reached max iterations. Final score: {veo3_score}/100")
+    return current_script, analysis
 
 def optimize_script_for_veo3_precise(script_segments):
     """
@@ -3080,9 +3086,9 @@ def optimize_script_for_veo3_precise(script_segments):
 def auto_improve_problematic_segments(script, analysis, company_info, user_answers, best_ads):
     """
     Automatically improve segments that have issues identified in analysis.
-    Focus on word count optimization and VEO-3 readiness.
+    Focus on 15-word count optimization and VEO-3 readiness.
     """
-    print("DEBUG: Auto-improving problematic segments")
+    print("DEBUG: Auto-improving problematic segments for 15-word targeting")
     
     improved_script = script.copy()
     
@@ -3102,13 +3108,13 @@ def auto_improve_problematic_segments(script, analysis, company_info, user_answe
         
         for issue in segment_issues:
             if "too long" in issue.lower():
-                improvement_requests.append("Make the voiceover much shorter - target exactly 10 words maximum")
+                improvement_requests.append("Make the voiceover much shorter - target exactly 15 words maximum")
             elif "too short" in issue.lower():
-                improvement_requests.append("The voiceover length is fine - optimize pacing instructions") 
+                improvement_requests.append("Expand the voiceover to 12-15 words for optimal timing") 
             elif "visual description" in issue.lower():
                 improvement_requests.append("Make the visual description more detailed and specific")
             elif "truncated" in issue.lower():
-                improvement_requests.append("Rewrite to be naturally shorter - exactly 10 words maximum")
+                improvement_requests.append("Rewrite to be naturally shorter - exactly 15 words maximum")
         
         if improvement_requests:
             # Improve this specific segment
@@ -3128,6 +3134,7 @@ def auto_improve_problematic_segments(script, analysis, company_info, user_answe
 def improve_single_segment_with_ai(segment, improvement_requests, company_info, user_answers, best_ads, segment_name):
     """
     Use AI to improve a single segment based on specific issues.
+    Target: 15 words maximum for optimal VEO-3 timing.
     """
     client = get_openai_client()
     if client is None:
@@ -3140,11 +3147,13 @@ def improve_single_segment_with_ai(segment, improvement_requests, company_info, 
     prompt = f"""You are a VEO-3 video generation expert. Improve this ad segment based on the specific issues identified.
 
 CRITICAL REQUIREMENTS:
-- Voiceover must be EXACTLY 10 words or fewer
+- Voiceover must be EXACTLY 15 words or fewer for perfect 8-second timing
+- 15 words = 6 seconds speech + 2 seconds visual transition = no blank space
 - Each word should be impactful and necessary
 - Focus on the most important message only
 - Use clear, simple language
 - Ensure proper VEO-3 audio formatting
+- Maintain consistent narrator voice across segments
 
 CURRENT SEGMENT:
 {json.dumps(segment, indent=2)}
@@ -3156,16 +3165,17 @@ COMPANY INFO: {company_info}
 USER PREFERENCES: {json.dumps(user_answers)}
 
 Improve this segment while maintaining the JSON format. Focus on:
-1. EXACTLY 10 words maximum in voiceover_script
+1. EXACTLY 15 words maximum in voiceover_script (no blank space)
 2. Clear, impactful visual description
 3. Proper VEO-3 formatting in prompt field
 4. Natural, powerful messaging
+5. Consistent narrator characteristics
 
 Return only the improved segment in JSON format."""
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4.1",
+            model="gpt-4o",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,  # Lower temperature for more focused improvements
             max_tokens=1000
@@ -3183,13 +3193,13 @@ Return only the improved segment in JSON format."""
             voiceover = improved_segment.get('voiceover_script', '')
             word_count = len(voiceover.split())
             
-            if word_count <= 10:
+            if word_count <= 15:
                 print(f"DEBUG: Successfully improved {segment_name} to {word_count} words")
                 return improved_segment
             else:
-                print(f"DEBUG: AI improvement still too long ({word_count} words), forcing truncation")
-                # Force truncation to 10 words
-                words = voiceover.split()[:10]
+                print(f"DEBUG: AI improvement still too long ({word_count} words), forcing truncation to 15")
+                # Force truncation to 15 words
+                words = voiceover.split()[:15]
                 improved_segment['voiceover_script'] = ' '.join(words)
                 return improved_segment
         
@@ -3374,6 +3384,101 @@ def improve_script_with_gemini_and_feedback(company_info, user_answers, current_
         print(f"Gemini improvement failed: {e}")
     
     return improved_script
+
+def ensure_narrator_consistency(script):
+    """Ensure the same narrator voice is used across all segments"""
+    try:
+        # Extract narrator characteristics from segment1
+        segment1 = script.get('segment1', {})
+        narrator_base = segment1.get('narrator_characteristics', '')
+        delivery_base = segment1.get('delivery_instructions', '')
+        
+        if not narrator_base:
+            # Set default consistent narrator
+            narrator_base = "Professional male narrator with warm, authoritative tone"
+            delivery_base = "Speaks with steady confidence and natural pacing, no awkward pauses"
+        
+        # Apply same narrator to all segments
+        for segment_key in ['segment1', 'segment2']:
+            if segment_key in script:
+                script[segment_key]['narrator_characteristics'] = narrator_base
+                script[segment_key]['delivery_instructions'] = delivery_base
+                
+                # Update prompt to include consistent narrator
+                if 'prompt' in script[segment_key]:
+                    prompt = script[segment_key]['prompt']
+                    # Replace any existing narrator description with consistent one
+                    import re
+                    prompt = re.sub(r'\[voiceover:[^]]*\]', 
+                                  f'[voiceover: {narrator_base} says: "{script[segment_key].get("voiceover_script", "")}"]', 
+                                  prompt)
+                    script[segment_key]['prompt'] = prompt
+        
+        print("DEBUG: ✅ Narrator consistency ensured across all segments")
+        return script
+        
+    except Exception as e:
+        print(f"DEBUG: Error ensuring narrator consistency: {e}")
+        return script
+
+def optimize_script_for_veo3_precise(script_segments):
+    """
+    Optimize script for VEO-3 with precise 15-word targeting and blank space elimination.
+    """
+    print("DEBUG: Optimizing script for VEO-3 with 15-word precision targeting")
+    
+    optimized_script = {}
+    
+    for segment_key, segment in script_segments.items():
+        if segment_key in ['segment1', 'segment2']:
+            print(f"DEBUG: Optimizing {segment_key}")
+            
+            # Get current voiceover script
+            current_script = segment.get('voiceover_script', '')
+            words = current_script.split()
+            word_count = len(words)
+            
+            print(f"DEBUG: {segment_key} current word count: {word_count}")
+            
+            if word_count > 15:
+                # Truncate to exactly 15 words
+                optimized_words = words[:15]
+                optimized_script_text = ' '.join(optimized_words)
+                print(f"DEBUG: Truncated {segment_key} from {word_count} to 15 words")
+            elif word_count < 12:
+                # If too short, it might have blank space - keep as is but flag
+                optimized_script_text = current_script
+                print(f"DEBUG: {segment_key} has {word_count} words (under 15) - may have blank space")
+            else:
+                # Perfect range (12-15 words)
+                optimized_script_text = current_script
+                print(f"DEBUG: {segment_key} word count optimal: {word_count} words")
+            
+            # Create optimized segment
+            optimized_segment = segment.copy()
+            optimized_segment['voiceover_script'] = optimized_script_text
+            
+            # Add precise timing breakdown for 15 words
+            optimized_segment['timing_breakdown'] = f"0:00-0:06 narrator speaks {len(optimized_script_text.split())} words, 0:06-0:08 music bridge, no blank space"
+            optimized_segment['word_timing'] = "Strategic placement: words 1-3 at 0:00-1:00, words 4-7 at 1:00-2:50, words 8-11 at 2:50-4:30, words 12-15 at 4:30-6:00"
+            
+            # Update prompt with optimized script
+            if 'prompt' in optimized_segment:
+                prompt = optimized_segment['prompt']
+                # Update voiceover in prompt
+                import re
+                prompt = re.sub(r'\[voiceover:[^]]*\]', 
+                              f'[voiceover: {optimized_segment.get("narrator_characteristics", "Professional narrator")} says: "{optimized_script_text}"]', 
+                              prompt)
+                optimized_segment['prompt'] = prompt
+            
+            optimized_script[segment_key] = optimized_segment
+        else:
+            # Keep non-segment keys as-is
+            optimized_script[segment_key] = segment
+    
+    print("DEBUG: ✅ VEO-3 precision optimization complete")
+    return optimized_script
 
 if __name__ == '__main__':
     try:

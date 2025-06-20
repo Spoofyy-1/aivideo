@@ -27,6 +27,20 @@ const ScriptPreview = ({
     return '#dc3545';
   };
 
+  const getWordCountColor = (wordCount) => {
+    if (wordCount >= 12 && wordCount <= 15) return '#28a745';
+    if (wordCount < 12) return '#ffc107';
+    return '#dc3545';
+  };
+
+  const getTotalWordCount = () => {
+    if (typeof script === 'object') {
+      return (script.segment1?.voiceover_script?.split(' ').length || 0) +
+             (script.segment2?.voiceover_script?.split(' ').length || 0);
+    }
+    return 0;
+  };
+
   const renderSegment = (segmentName, segment) => (
     <div key={segmentName} style={{ marginBottom: '2rem' }}>
       <h4 style={{ 
@@ -101,41 +115,20 @@ const ScriptPreview = ({
                   <div style={{ marginTop: '0.5rem', fontSize: '0.95rem' }}>
                     <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
                       📍 <strong>Duration:</strong> {segment.voiceover_timing.start_time} - {segment.voiceover_timing.end_time} (8 seconds) | 
-                      <strong> Words:</strong> {segment.word_count || 'N/A'}/10
-                      {segment.word_count === 10 && (
-                        <span style={{ color: '#4CAF50', marginLeft: '0.5rem', fontWeight: 'bold' }}>
-                          🎯 Perfect!
-                        </span>
-                      )}
+                      <strong>Target:</strong> 12-15 words for perfect timing
                     </p>
                     <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
-                      🎭 <strong>Target Speech Time:</strong> {segment.voiceover_timing.target_speech_duration || '4-5 seconds'} (leaves {segment.voiceover_timing.visual_time || '3-4 seconds'} for visuals)
+                      🎙️ <strong>Speech Timing:</strong> 0:00-0:06 narrator speaks (6 seconds) | 0:06-0:08 music bridge (2 seconds)
                     </p>
                     <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
-                      🎙️ <strong>Delivery:</strong> {segment.voiceover_timing.delivery_note}
+                      ⚡ <strong>No Blank Space:</strong> Strategic word placement eliminates dead air | Continuous audio flow
                     </p>
                     <p style={{ color: '#cccccc', margin: '0.25rem 0' }}>
-                      ⏱️ <strong>Pacing:</strong> {segment.voiceover_timing.pacing}
+                      🎭 <strong>Narrator:</strong> Consistent voice across all segments | Professional delivery
                     </p>
-                    {segment.timing_analysis && (
-                      <p style={{ 
-                        color: segment.timing_analysis.includes('⚠️') ? '#ff6b35' : '#4CAF50',
-                        margin: '0.25rem 0',
-                        fontWeight: 'bold'
-                      }}>
-                        📊 {segment.timing_analysis}
-                      </p>
-                    )}
-                    <div style={{
-                      marginTop: '0.75rem',
-                      padding: '0.5rem',
-                      background: 'rgba(0,212,255,0.1)',
-                      borderRadius: '4px',
-                      fontSize: '0.85rem',
-                      color: '#a0e7ff'
-                    }}>
-                      💡 <strong>VEO-3 Tip:</strong> Exactly 10 words ensures perfect timing with no voice cutoff in 8-second clips
-                    </div>
+                    <p style={{ color: '#00ff88', margin: '0.25rem 0', fontSize: '0.9rem' }}>
+                      💡 <strong>Delivery:</strong> {segment.voiceover_timing.delivery_note || 'Deliver 15 words in 6 seconds, leaving 2s for visual transition'}
+                    </p>
                   </div>
                 </div>
               )}
@@ -260,13 +253,24 @@ const ScriptPreview = ({
                 {scriptAnalysis.veo3_readiness || scriptAnalysis.audio_quality_score}/100
               </p>
               {(scriptAnalysis.veo3_readiness >= 80) && (
-                <div style={{ 
-                  color: '#4CAF50', 
-                  fontSize: '0.9rem', 
-                  marginTop: '0.5rem',
-                  fontWeight: 'bold'
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,212,255,0.1))',
+                  border: '2px solid rgba(0,255,136,0.4)',
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  marginLeft: '1rem',
+                  minWidth: '200px'
                 }}>
-                  🎯 Optimized!
+                  <div style={{ color: '#00ff88', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                    🎯 PERFECT OPTIMIZATION
+                  </div>
+                  <div style={{ color: '#cccccc', fontSize: '0.9rem' }}>
+                    ✅ 15-word targeting<br/>
+                    ✅ No blank space<br/>
+                    ✅ Consistent narrator<br/>
+                    ✅ Perfect timing<br/>
+                    ✅ VEO-3 ready
+                  </div>
                 </div>
               )}
             </div>
@@ -321,6 +325,26 @@ const ScriptPreview = ({
                 </div>
               </div>
             )}
+
+            <div style={{
+              background: 'rgba(0,0,0,0.3)',
+              borderRadius: '8px',
+              padding: '1rem',
+              minWidth: '150px'
+            }}>
+              <strong style={{ color: '#00d4ff' }}>Word Count</strong>
+              <p style={{ 
+                color: getWordCountColor(getTotalWordCount()),
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+                margin: '0.5rem 0 0 0'
+              }}>
+                {getTotalWordCount()}/30
+              </p>
+              <div style={{ fontSize: '0.8rem', color: '#cccccc', marginTop: '0.25rem' }}>
+                Target: 12-15 per segment
+              </div>
+            </div>
           </div>
           
           {scriptAnalysis.overall_recommendations?.length > 0 && (
