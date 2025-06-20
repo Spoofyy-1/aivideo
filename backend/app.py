@@ -740,6 +740,21 @@ Make every word count. Eliminate blank space with perfect word timing.
 - NEVER create an ad without clear brand messaging in the actual voiceover
 - Examples: "Try [Product] today", "Visit [website]", "[Slogan] - [Product]"
 
+🚀 2025 ADVERTISING TRENDS (INTEGRATE THESE):
+- AUTHENTICITY OVER POLISH: Raw, unfiltered content outperforms overly produced ads
+- HUMOR IS BACK: Funny ads have higher recall and conversion (only 14% use humor - stand out!)
+- HUMAN CONNECTION: As AI increases, people crave authentic human stories and real experiences
+- EDUCATIONAL VALUE: Teach something useful, don't just sell - builds trust and engagement
+- SOUND-OFF OPTIMIZATION: 85% watch without sound - visual storytelling is crucial
+- TRANSFORMATION STORIES: Show before/after, problem/solution, struggle/success
+- RELATABLE HEROES: Feature everyday people, not just perfect models or celebrities
+
+📱 PLATFORM-NATIVE REQUIREMENTS:
+- Create content that feels native to social feeds, not like traditional ads
+- Use conversational, direct language ("you" instead of "customers")
+- Include visual hooks that work without sound (text overlays, compelling visuals)
+- Make it shareable and discussion-worthy
+
 Based on this company information:
 {company_info}
 
@@ -2480,6 +2495,21 @@ Make every word count. Eliminate blank space with perfect word timing.
 - NEVER create an ad without clear brand messaging in the actual voiceover
 - Examples: "Try [Product] today", "Visit [website]", "[Slogan] - [Product]"
 
+🚀 2025 ADVERTISING TRENDS (INTEGRATE THESE):
+- AUTHENTICITY OVER POLISH: Raw, unfiltered content outperforms overly produced ads
+- HUMOR IS BACK: Funny ads have higher recall and conversion (only 14% use humor - stand out!)
+- HUMAN CONNECTION: As AI increases, people crave authentic human stories and real experiences
+- EDUCATIONAL VALUE: Teach something useful, don't just sell - builds trust and engagement
+- SOUND-OFF OPTIMIZATION: 85% watch without sound - visual storytelling is crucial
+- TRANSFORMATION STORIES: Show before/after, problem/solution, struggle/success
+- RELATABLE HEROES: Feature everyday people, not just perfect models or celebrities
+
+📱 PLATFORM-NATIVE REQUIREMENTS:
+- Create content that feels native to social feeds, not like traditional ads
+- Use conversational, direct language ("you" instead of "customers")
+- Include visual hooks that work without sound (text overlays, compelling visuals)
+- Make it shareable and discussion-worthy
+
 Format as valid JSON:
 {{
     "segment1": {{
@@ -2611,7 +2641,7 @@ def optimize_script_for_veo3(script_segments):
     return optimized_segments
 
 def analyze_script_quality(script, user_answers):
-    """Enhanced script analysis including timing and VEO-3 optimization"""
+    """Enhanced script analysis with stricter 15-word targeting and 2025 trend validation"""
     analysis = {
         'segment1_issues': [],
         'segment2_issues': [],
@@ -2619,7 +2649,8 @@ def analyze_script_quality(script, user_answers):
         'timing_analysis': {},
         'audio_quality_score': 0,
         'veo3_readiness': 0,
-        'brand_messaging_status': 'missing'
+        'brand_messaging_status': 'missing',
+        'trend_compliance_2025': {}
     }
     
     total_issues = 0
@@ -2636,23 +2667,127 @@ def analyze_script_quality(script, user_answers):
         for segment_key in segments:
             if segment_key in script:
                 voiceover = script[segment_key].get('voiceover_script', '').lower()
-                
-                # Check if slogan is included
-                if slogan and any(word.lower() in voiceover for word in slogan.split() if len(word) > 2):
+                if (slogan and slogan.lower() in voiceover) or (cta and cta.lower() in voiceover):
                     brand_messaging_found = True
                     break
-                    
-                # Check if CTA is included
-                if cta and any(word.lower() in voiceover for word in cta.split() if len(word) > 2):
-                    brand_messaging_found = True
+    
+    analysis['brand_messaging_status'] = 'included' if brand_messaging_found else 'missing'
+    if not brand_messaging_found:
+        total_issues += 5  # Major penalty for missing brand messaging
+    
+    # 2025 TREND VALIDATION
+    trend_score = 100
+    trend_feedback = []
+    
+    # Authenticity Level Check
+    authenticity = user_answers.get('authenticity_level', '').lower()
+    if 'raw' in authenticity or 'unfiltered' in authenticity or 'phone-shot' in authenticity:
+        # Check if script feels authentic
+        segments = [key for key in script.keys() if key.startswith('segment')]
+        authentic_indicators = ['real', 'genuine', 'natural', 'authentic', 'personal', 'story']
+        authenticity_found = False
+        for segment_key in segments:
+            if segment_key in script:
+                scene_desc = script[segment_key].get('scene_description', '').lower()
+                if any(indicator in scene_desc for indicator in authentic_indicators):
+                    authenticity_found = True
                     break
         
-        if brand_messaging_found:
-            analysis['brand_messaging_status'] = 'included'
+        if not authenticity_found:
+            trend_feedback.append("⚠️ Script lacks authentic/raw elements requested")
+            trend_score -= 15
         else:
-            analysis['brand_messaging_status'] = 'missing'
-            total_issues += 5  # Major penalty for missing brand messaging
+            trend_feedback.append("✅ Authenticity preference reflected in script")
     
+    # Humor Tolerance Check
+    humor = user_answers.get('humor_tolerance', '').lower()
+    if 'funny' in humor or 'humor' in humor:
+        # Check if script includes humor elements
+        humor_indicators = ['funny', 'humor', 'laugh', 'smile', 'joke', 'amusing', 'entertaining']
+        humor_found = False
+        segments = [key for key in script.keys() if key.startswith('segment')]
+        for segment_key in segments:
+            if segment_key in script:
+                voiceover = script[segment_key].get('voiceover_script', '').lower()
+                scene_desc = script[segment_key].get('scene_description', '').lower()
+                if any(indicator in voiceover + scene_desc for indicator in humor_indicators):
+                    humor_found = True
+                    break
+        
+        if not humor_found and 'funny' in humor:
+            trend_feedback.append("⚠️ Humor requested but not reflected in script")
+            trend_score -= 10
+        elif humor_found:
+            trend_feedback.append("✅ Humor successfully integrated")
+    
+    # Educational Value Check
+    educational = user_answers.get('educational_value', '').lower()
+    if 'educate' in educational or 'teach' in educational or 'tip' in educational:
+        # Check if script provides educational value
+        edu_indicators = ['learn', 'discover', 'tip', 'how to', 'technique', 'method', 'solution', 'insight']
+        education_found = False
+        segments = [key for key in script.keys() if key.startswith('segment')]
+        for segment_key in segments:
+            if segment_key in script:
+                voiceover = script[segment_key].get('voiceover_script', '').lower()
+                scene_desc = script[segment_key].get('scene_description', '').lower()
+                if any(indicator in voiceover + scene_desc for indicator in edu_indicators):
+                    education_found = True
+                    break
+        
+        if not education_found:
+            trend_feedback.append("⚠️ Educational content requested but missing")
+            trend_score -= 12
+        else:
+            trend_feedback.append("✅ Educational value successfully included")
+    
+    # Sound-Off Optimization Check
+    sound_opt = user_answers.get('sound_optimization', '').lower()
+    if 'silent' in sound_opt or 'captions' in sound_opt or 'visual' in sound_opt:
+        # Check if script is optimized for silent viewing
+        visual_indicators = ['text overlay', 'caption', 'visual', 'graphic', 'on-screen text', 'subtitle']
+        visual_optimization_found = False
+        segments = [key for key in script.keys() if key.startswith('segment')]
+        for segment_key in segments:
+            if segment_key in script:
+                scene_desc = script[segment_key].get('scene_description', '').lower()
+                if any(indicator in scene_desc for indicator in visual_indicators):
+                    visual_optimization_found = True
+                    break
+        
+        if not visual_optimization_found:
+            trend_feedback.append("⚠️ Sound-off optimization requested but missing visual elements")
+            trend_score -= 8
+        else:
+            trend_feedback.append("✅ Visual storytelling optimized for silent viewing")
+    
+    # Platform-Native Check
+    platform = user_answers.get('target_platform', '').lower()
+    if 'tiktok' in platform or 'reels' in platform:
+        # Check for platform-native elements
+        native_indicators = ['trending', 'viral', 'meme', 'challenge', 'hashtag', 'social', 'scroll-stopping']
+        platform_native_found = False
+        segments = [key for key in script.keys() if key.startswith('segment')]
+        for segment_key in segments:
+            if segment_key in script:
+                scene_desc = script[segment_key].get('scene_description', '').lower()
+                voiceover = script[segment_key].get('voiceover_script', '').lower()
+                if any(indicator in scene_desc + voiceover for indicator in native_indicators):
+                    platform_native_found = True
+                    break
+        
+        if platform_native_found:
+            trend_feedback.append("✅ Platform-native elements detected")
+        else:
+            trend_feedback.append("💡 Consider adding platform-native elements for better performance")
+            trend_score -= 5
+    
+    analysis['trend_compliance_2025'] = {
+        'score': max(0, trend_score),
+        'feedback': trend_feedback
+    }
+    
+    # Original segment analysis continues...
     for segment_name in ['segment1', 'segment2']:
         if segment_name not in script:
             continue
@@ -2661,10 +2796,13 @@ def analyze_script_quality(script, user_answers):
         segment = script[segment_name]
         issues = []
         
-        # Enhanced timing analysis
+        # Strict 15-word analysis for VEO-3
+        voiceover = segment.get('voiceover_script', '')
+        word_count = len(voiceover.split())
+        
+        # Enhanced timing analysis with 15-word targeting
         if 'voiceover_timing' in segment:
             timing = segment['voiceover_timing']
-            word_count = segment.get('word_count', 0)
             
             analysis['timing_analysis'][segment_name] = {
                 'start_time': timing['start_time'],
@@ -2672,64 +2810,93 @@ def analyze_script_quality(script, user_answers):
                 'word_count': word_count,
                 'delivery_note': timing['delivery_note'],
                 'timing_status': segment.get('timing_analysis', 'Unknown'),
-                'optimal_for_veo3': 12 <= word_count <= 24
+                'optimal_for_veo3': 12 <= word_count <= 15,
+                'perfect_veo3': word_count == 15
             }
             
-            # Check timing issues
-            if word_count > 24:
-                issues.append(f"Voiceover too long ({word_count} words). Risk of cutoff in 8-second clip.")
-                total_issues += 2
+            # Timing issues for 15-word targeting
+            if word_count > 15:
+                issues.append(f"Voiceover too long ({word_count} words). Must be 15 words max for VEO-3.")
+                total_issues += 3
             elif word_count < 12:
-                issues.append(f"Voiceover too short ({word_count} words). May need pacing adjustment.")
+                issues.append(f"Voiceover short ({word_count} words). Consider expanding to 15 words.")
                 total_issues += 1
+            elif word_count == 15:
+                # Perfect!
+                pass
+            else:
+                # 12-15 range but not perfect 15
+                total_issues += 0.5
         else:
-            # Fallback for scripts without timing optimization
-            voiceover = segment.get('voiceover_script', '')
-            word_count = len(voiceover.split())
-            estimated_duration = word_count / 2.5
-            
-            if estimated_duration > 9:
-                issues.append(f"Voiceover too long ({estimated_duration:.1f}s estimated). May get cut off.")
-                total_issues += 2
-            elif estimated_duration < 6:
-                issues.append(f"Voiceover too short ({estimated_duration:.1f}s estimated).")
+            # Fallback analysis
+            if word_count > 15:
+                issues.append(f"Voiceover too long ({word_count} words). Target 15 words maximum.")
+                total_issues += 3
+            elif word_count < 12:
+                issues.append(f"Voiceover short ({word_count} words). Consider expanding.")
                 total_issues += 1
         
         # Check VEO-3 prompt optimization
         if 'veo3_optimization' in segment:
             if '⚠️' in segment.get('timing_analysis', ''):
-                issues.append("Script was truncated for optimal timing.")
+                issues.append("Script was truncated - consider rewriting more naturally.")
                 total_issues += 1
         
-        # Check visual description clarity
-        visual = segment.get('visual_description', '')
-        if len(visual) < 50:
+        # Check visual description quality
+        scene_desc = segment.get('scene_description', '')
+        if len(scene_desc) < 50:
             issues.append("Visual description may be too brief for clear VEO-3 generation.")
             total_issues += 1
         
+        # Check for proper VEO-3 formatting
+        prompt = segment.get('prompt', '')
+        if '[voiceover:' not in prompt:
+            issues.append("Missing proper VEO-3 voiceover formatting in prompt.")
+            total_issues += 2
+        
         analysis[f'{segment_name}_issues'] = issues
     
-    # Calculate quality scores
+    # Calculate VEO-3 readiness score
     if total_segments > 0:
-        # VEO-3 readiness score (0-100)
-        max_possible_issues = total_segments * 5  # Max 5 issues per segment
-        veo3_score = max(0, 100 - (total_issues * 100 / max_possible_issues))
-        analysis['veo3_readiness'] = round(veo3_score)
+        perfect_word_counts = sum(1 for seg in ['segment1', 'segment2'] 
+                                  if seg in script and len(script[seg].get('voiceover_script', '').split()) == 15)
         
-        # Audio quality score (legacy compatibility)
+        max_possible_issues = total_segments * 6
+        base_score = max(0, 100 - (total_issues * 100 / max_possible_issues))
+        
+        word_count_bonus = (perfect_word_counts / total_segments) * 20
+        trend_bonus = (analysis['trend_compliance_2025']['score'] / 100) * 10
+        
+        veo3_score = min(100, base_score + word_count_bonus + trend_bonus)
+        analysis['veo3_readiness'] = round(veo3_score)
         analysis['audio_quality_score'] = round(veo3_score)
     
-    # Overall recommendations
+    # Enhanced recommendations
     recommendations = []
-    if total_issues == 0:
-        recommendations.append("✅ Script is well-optimized for VEO-3 generation!")
+    
+    # Brand messaging recommendations (HIGHEST PRIORITY)
+    if analysis['brand_messaging_status'] == 'missing':
+        recommendations.append("🚨 CRITICAL: Brand messaging (slogan or CTA) must be included in voiceover!")
+    elif analysis['brand_messaging_status'] == 'included':
+        recommendations.append("✅ Brand messaging successfully included in voiceover")
+    
+    # 2025 Trend recommendations
+    if analysis['trend_compliance_2025']['score'] < 80:
+        recommendations.append("🚀 2025 TRENDS: Script could better reflect current advertising trends")
+        recommendations.extend(analysis['trend_compliance_2025']['feedback'])
+    else:
+        recommendations.append("✨ 2025 READY: Script aligns well with current advertising trends")
+    
+    if total_issues == 0 and all(len(script[seg].get('voiceover_script', '').split()) == 15 
+                                for seg in ['segment1', 'segment2'] if seg in script):
+        recommendations.append("🎯 Perfect! Script optimized for VEO-3 with ideal 15-word segments!")
     else:
         if any('too long' in str(issues) for issues in [analysis['segment1_issues'], analysis['segment2_issues']]):
-            recommendations.append("📝 Consider shortening voiceovers to prevent cutoff")
+            recommendations.append("📝 Critical: Shorten voiceovers to exactly 15 words to prevent cutoff")
         if any('too short' in str(issues) for issues in [analysis['segment1_issues'], analysis['segment2_issues']]):
-            recommendations.append("🎭 Consider pacing slower or adding content for full 8-second clips")
-        if total_issues >= 4:
-            recommendations.append("⚠️ Multiple timing issues detected - consider script revision")
+            recommendations.append("🎭 Consider expanding voiceovers to full 15 words for maximum impact")
+        if total_issues >= 3:
+            recommendations.append("⚠️ Multiple optimizations needed - automatic improvements will be applied")
     
     analysis['overall_recommendations'] = recommendations
     

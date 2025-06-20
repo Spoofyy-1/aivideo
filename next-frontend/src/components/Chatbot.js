@@ -95,7 +95,13 @@ const creativeQuestions = [
   { key: 'duration', text: "How long should your ad be?", options: durationOptions },
   { key: 'ad_type', text: "What type of ad do you want? (e.g., Normal, Unhinged, Informative, Emotional, Cinematic, Funny, Heartwarming, Aspirational, Testimonial, Product Demo, Viral/Meme, Story-Driven, Minimalist, High-Energy, Social Proof, Pop Culture Reference, etc.)", options: adTypeOptions },
   { key: 'mood', text: 'What is the mood or vibe you want for your ad? (e.g., energetic, trustworthy, fun, etc.)' },
+  { key: 'authenticity_level', text: '🎯 2025 TREND: How authentic/raw should your ad feel? (Polished & Professional / Authentic & Natural / Raw & Unfiltered / Phone-Shot Style)' },
+  { key: 'humor_tolerance', text: '😂 2025 TREND: Are you open to humor in your ads? (Yes, make it funny! / Subtle humor only / Light and playful / No humor, keep it serious)' },
+  { key: 'educational_value', text: '📚 2025 TREND: Should your ad teach something valuable? (Yes, educate first / Quick tip or insight / Problem-solving focus / Entertainment over education)' },
+  { key: 'sound_optimization', text: '🔇 2025 TREND: Will people watch with sound OFF? (Optimize for silent viewing / Include captions / Visual storytelling focus / Assume sound is ON)' },
   { key: 'main_character', text: "Who should be the main character in your ad? (e.g., CEO, satisfied customer, everyday person, celebrity, animated character, etc. Type 'N/A' if no specific preference)" },
+  { key: 'target_platform', text: '📱 2025 TREND: Primary platform for this ad? (TikTok/Instagram Reels / YouTube Shorts / Facebook/Instagram Feed / LinkedIn / Multiple platforms)' },
+  { key: 'transformation_story', text: '✨ 2025 TREND: Show a transformation? (Before/after results / Problem to solution / Struggle to success / No transformation story)' },
   { key: 'slogan', text: "Do you have a specific slogan you want to use? (Type 'N/A' if you want us to create one)" },
   { key: 'cta', text: "Is there a specific call to action you want viewers to hear? (Type 'N/A' if you want us to create one)" },
   { key: 'features', text: 'Any features or benefits you want to highlight?' }

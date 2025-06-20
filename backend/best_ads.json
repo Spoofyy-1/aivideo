@@ -625,5 +625,138 @@
         "camera": "Dynamic crowd shots, perfect timing, impactful reveals"
       }
     }
+  },
+  {
+    "title": "2025 Trend: AI-Human Balance",
+    "script": "Real person shares authentic story while AI enhances the visual storytelling without replacing human emotion.",
+    "principle": "Balances AI efficiency with human authenticity - the winning formula for 2025",
+    "slogan": "Human Stories, Enhanced",
+    "call_to_action": "Experience the difference",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "Real person in natural setting, authentic expressions and genuine reactions to the product",
+        "mood": "Authentic, relatable, trustworthy",
+        "camera": "Handheld, natural lighting, intimate close-ups"
+      },
+      "segment2": {
+        "visual": "AI-enhanced visuals support the story without overwhelming the human element",
+        "mood": "Seamlessly enhanced, still authentic",
+        "camera": "Smooth AI-assisted transitions, maintains human focus"
+      }
+    }
+  },
+  {
+    "title": "2025 Trend: Sound-Off Storytelling",
+    "script": "Visual story told entirely through compelling imagery, text overlays, and facial expressions.",
+    "principle": "85% watch without sound - master visual storytelling with captions and compelling visuals",
+    "slogan": "See the Story",
+    "call_to_action": "Watch and understand",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "Strong visual hook with clear text overlay, expressive faces showing emotion",
+        "mood": "Visually compelling, immediately understandable",
+        "camera": "Close-ups of expressions, clear text placement, visual hierarchy"
+      },
+      "segment2": {
+        "visual": "Visual payoff that completes the story without needing sound",
+        "mood": "Satisfying, clear, impactful",
+        "camera": "Visual storytelling techniques, clear resolution"
+      }
+    }
+  },
+  {
+    "title": "2025 Trend: Educational Entertainment",
+    "script": "Teach something valuable while subtly showcasing product benefits - builds trust and engagement.",
+    "principle": "Educational content builds trust and authority while entertaining the audience",
+    "slogan": "Learn Something New",
+    "call_to_action": "Try it yourself",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "Expert or relatable person demonstrating useful technique or sharing valuable insight",
+        "mood": "Educational, helpful, engaging",
+        "camera": "Clear demonstration angles, easy-to-follow visuals"
+      },
+      "segment2": {
+        "visual": "Practical application showing the learned technique in action with product integration",
+        "mood": "Empowering, practical, satisfying",
+        "camera": "Results-focused shots, clear before/after if applicable"
+      }
+    }
+  },
+  {
+    "title": "2025 Trend: Authentic Transformation",
+    "script": "Real person's genuine transformation story without over-polish or fake perfection.",
+    "principle": "Authentic transformation stories resonate more than polished testimonials",
+    "slogan": "Real Change, Real Results",
+    "call_to_action": "Start your transformation",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "Real person in authentic 'before' situation, genuine struggles or challenges",
+        "mood": "Relatable, honest, vulnerable",
+        "camera": "Natural lighting, authentic settings, unpolished but clear"
+      },
+      "segment2": {
+        "visual": "Same person showing genuine improvement, real joy and satisfaction",
+        "mood": "Uplifting, inspiring, authentic",
+        "camera": "Natural celebration, genuine reactions, real-life settings"
+      }
+    }
+  },
+  {
+    "title": "2025 Trend: Platform-Native Humor",
+    "script": "Humor that feels native to social media - meme-worthy, shareable, and genuinely funny.",
+    "principle": "Humor is back in 2025 - but it must feel native to the platform, not forced",
+    "slogan": "Finally, Something Funny",
+    "call_to_action": "Share if you laughed",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "Setup that feels like organic social content, relatable situation everyone recognizes",
+        "mood": "Familiar, setup for comedy, naturally funny",
+        "camera": "Social media native framing, natural movement"
+      },
+      "segment2": {
+        "visual": "Unexpected punchline or twist that ties back to product in clever way",
+        "mood": "Surprisingly funny, shareable, memorable",
+        "camera": "Perfect comedic timing, reaction-worthy moments"
+      }
+    }
+  },
+  {
+    "title": "2025 Trend: Micro-Influencer Authenticity",
+    "script": "Real customer or micro-influencer shares genuine experience in their natural environment.",
+    "principle": "Micro-influencers and real customers are more trusted than celebrities in 2025",
+    "slogan": "Real People, Real Reviews",
+    "call_to_action": "Join the community",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "Real person in their natural environment, genuine personality showing through",
+        "mood": "Authentic, relatable, trustworthy",
+        "camera": "Natural, unscripted feel, personal space"
+      },
+      "segment2": {
+        "visual": "Honest product demonstration or review, showing real usage and genuine reactions",
+        "mood": "Credible, helpful, personal",
+        "camera": "Close-ups of genuine reactions, real-life usage"
+      }
+    }
+  },
+  {
+    "title": "2025 Trend: Quick Problem-Solution",
+    "script": "Identify relatable problem and provide immediate, clear solution in under 15 seconds.",
+    "principle": "Fast-paced problem-solution format works perfectly for short attention spans",
+    "slogan": "Problem Solved",
+    "call_to_action": "Get your solution",
+    "scene_descriptions": {
+      "segment1": {
+        "visual": "Quick, relatable problem everyone faces, shown with slight frustration or inconvenience",
+        "mood": "Relatable, slightly frustrated, seeking solution",
+        "camera": "Quick cuts showing the problem, relatable expressions"
+      },
+      "segment2": {
+        "visual": "Immediate solution demonstration with clear relief and satisfaction",
+        "mood": "Relieved, satisfied, problem solved",
+        "camera": "Clear solution demo, happy resolution"
+      }
+    }
   }
 ] 
