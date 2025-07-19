@@ -809,7 +809,7 @@ Format as valid JSON with {num_segments} segments:
             max_tokens=3000  # Increased for longer ads
         )
 
-    content = response.choices[0].message.content.strip()
+        content = response.choices[0].message.content.strip()
         
         # Parse JSON response
         import re
