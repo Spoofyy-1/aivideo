@@ -1182,6 +1182,29 @@ function Chatbot() {
           padding: 1.5rem;
           border-top: 1px solid rgba(255, 255, 255, 0.1);
           background: rgba(45, 55, 72, 0.8);
+          max-height: 400px;
+          overflow-y: auto;
+          overflow-x: hidden;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(156, 39, 176, 0.6) rgba(45, 55, 72, 0.3);
+        }
+
+        .uploaded-images::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .uploaded-images::-webkit-scrollbar-track {
+          background: rgba(45, 55, 72, 0.3);
+          border-radius: 4px;
+        }
+
+        .uploaded-images::-webkit-scrollbar-thumb {
+          background: rgba(156, 39, 176, 0.6);
+          border-radius: 4px;
+        }
+
+        .uploaded-images::-webkit-scrollbar-thumb:hover {
+          background: rgba(156, 39, 176, 0.8);
         }
 
         .uploaded-images h3 {
@@ -1425,7 +1448,11 @@ function Chatbot() {
           }
 
           .images-list {
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          }
+
+          .uploaded-images {
+            max-height: 300px;
           }
 
           .logo-img {
