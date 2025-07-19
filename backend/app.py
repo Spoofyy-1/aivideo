@@ -3445,15 +3445,20 @@ def validate_and_fix_brand_messaging(script):
     slogan = script.get('slogan', '').strip()
     cta = script.get('call_to_action', '').strip()
     
+    # If no slogan or CTA exists, create a generic one
     if not slogan and not cta:
-        print("WARNING: No slogan or CTA found in script")
-        return script
+        print("WARNING: No slogan or CTA found in script - creating default CTA")
+        script['call_to_action'] = "Try it today"
+        cta = "Try it today"
     
     # Check if brand messaging is already included in any segment
     segments = [key for key in script.keys() if key.startswith('segment')]
     brand_messaging_found = False
     
     for segment_key in segments:
+        if segment_key not in script:
+            continue
+            
         voiceover = script[segment_key].get('voiceover_script', '').lower()
         
         # Check if slogan is included
@@ -3475,7 +3480,12 @@ def validate_and_fix_brand_messaging(script):
     print("DEBUG: ⚠️ Brand messaging missing from voiceover - fixing automatically")
     
     # Fix by adding brand messaging to the final segment
-    final_segment_key = f"segment{len(segments)}"
+    final_segment_key = f"segment{len(segments)}" if segments else "segment2"
+    if final_segment_key not in script and "segment2" in script:
+        final_segment_key = "segment2"
+    elif final_segment_key not in script and "segment1" in script:
+        final_segment_key = "segment1"
+    
     if final_segment_key in script:
         final_segment = script[final_segment_key]
         current_voiceover = final_segment.get('voiceover_script', '')
@@ -3483,14 +3493,14 @@ def validate_and_fix_brand_messaging(script):
         # Choose shorter brand message to fit in 15-word limit
         brand_message = cta if cta and len(cta.split()) <= 5 else slogan
         if not brand_message:
-            brand_message = cta or slogan  # Fallback to whatever exists
+            brand_message = cta or slogan or "Try it today"  # Fallback
         
         # Truncate current voiceover to make room for brand message
         current_words = current_voiceover.split()
         brand_words = brand_message.split()
         
         # Keep space for brand message (aim for 10-12 words + 3-5 brand words = 15 total)
-        max_current_words = 15 - len(brand_words)
+        max_current_words = max(8, 15 - len(brand_words))
         if len(current_words) > max_current_words:
             current_words = current_words[:max_current_words]
         
@@ -3735,6 +3745,13 @@ Focus on:
         # Parse and validate JSON
         try:
             script_json = json.loads(script_text)
+            
+            # Apply brand messaging validation
+            script_json = validate_and_fix_brand_messaging(script_json)
+            
+            # Apply VEO-3 optimization
+            script_json = optimize_script_for_veo3_precise(script_json)
+            
             return script_json
         except json.JSONDecodeError:
             # Fallback if JSON parsing fails
@@ -3752,33 +3769,31 @@ def create_fallback_script_with_images(product_name, uploaded_images):
     if uploaded_images:
         primary_context = uploaded_images[0].get('context', 'product')
     
-    return {
-        "total_duration": 16,
-        "segments": {
-            "segment1": {
-                "duration": 8,
-                "voiceover": f"Discover the power of {product_name} - transforming how you work and live.",
-                "visual_description": f"Opening shot shows {primary_context} in premium setting with dramatic lighting",
-                "camera_movement": "Slow push-in with slight rotation for dynamic reveal",
-                "last_frame_description": "Close-up of key product feature with user's hand reaching toward it"
-            },
-            "segment2": {
-                "duration": 8,
-                "voiceover": f"Experience {product_name} today. Your future starts now.",
-                "visual_description": "Continues from hand interaction, showing transformation and satisfaction",
-                "camera_movement": "Smooth pull-back revealing full context and positive outcome",
-                "continuation_method": "frames_to_video"
-            }
+    script = {
+        "segment1": {
+            "scene_description": f"Opening shot shows {primary_context} in premium setting with dramatic lighting",
+            "prompt": f"Professional commercial shot featuring {primary_context} with cinematic lighting [voiceover: Professional narrator says: 'Discover the power of {product_name} transforming your life'] with upbeat background music",
+            "voiceover_script": f"Discover the power of {product_name} transforming your life",
+            "mood": "Professional and inspiring",
+            "camera": "Slow push-in with slight rotation for dynamic reveal",
+            "veo3_optimization": "Cinematic lighting, smooth camera movement"
         },
-        "veo3_features": {
-            "frame_continuation": True,
-            "uploaded_assets": len(uploaded_images),
-            "camera_controls": "cinematic_movement",
-            "scene_builder": "seamless_transition"
+        "segment2": {
+            "scene_description": "Close-up transformation showing satisfaction and positive outcome",
+            "prompt": f"Close-up showing user satisfaction and transformation [voiceover: Professional narrator says: 'Experience {product_name} today get started now'] with triumphant music crescendo",
+            "voiceover_script": f"Experience {product_name} today get started now",
+            "mood": "Satisfying and conclusive", 
+            "camera": "Smooth pull-back revealing full context and positive outcome",
+            "veo3_optimization": "Frame continuation, emotional satisfaction"
         },
-        "brand_message": f"Choose {product_name}",
-        "narrator_voice": "Professional, warm, engaging"
+        "slogan": f"Choose {product_name}",
+        "call_to_action": "Get started now"
     }
+    
+    # Apply brand messaging validation to ensure it's included
+    script = validate_and_fix_brand_messaging(script)
+    
+    return script
 
 def format_answers_for_prompt(answers):
     """Format user answers into a readable prompt format"""
@@ -3820,9 +3835,20 @@ def generate_video_veo3_continuation():
         script = data.get('script', {})
         uploaded_images = data.get('uploaded_images', [])
         
+        # Handle both script formats: script.segments.segment1 or script.segment1
+        if 'segments' in script:
+            segment1_script = script['segments']['segment1']
+            segment2_script = script['segments']['segment2']
+        else:
+            segment1_script = script.get('segment1', {})
+            segment2_script = script.get('segment2', {})
+        
+        if not segment1_script or not segment2_script:
+            return jsonify({"success": False, "error": "Missing segment scripts"})
+        
         # Generate Segment 1 first
         segment1_result = generate_veo3_segment_with_images(
-            script['segments']['segment1'], 
+            segment1_script, 
             uploaded_images, 
             segment_number=1
         )
@@ -3835,7 +3861,7 @@ def generate_video_veo3_continuation():
         
         # Generate Segment 2 using frame continuation
         segment2_result = generate_veo3_segment_with_continuation(
-            script['segments']['segment2'],
+            segment2_script,
             last_frame,
             uploaded_images,
             segment_number=2
