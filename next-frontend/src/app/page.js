@@ -3,31 +3,42 @@
 import React from 'react';
 import Link from 'next/link';
 
-export default function LandingPage() {
+export default function HomePage() {
   return (
-    <div className="landing-page">
+    <div className="homepage">
       {/* Navigation */}
       <nav className="navbar">
         <div className="nav-container">
           <div className="logo-section">
-            <div className="logo">
-              <div className="genie-icon">
-                <div className="genie-head">
-                  <div className="star">⭐</div>
-                  <div className="face">
-                    <div className="eyes">
-                      <div className="eye"></div>
-                      <div className="eye"></div>
-                    </div>
-                    <div className="mustache"></div>
-                    <div className="smile"></div>
-                  </div>
-                </div>
-                <div className="circuits">
-                  <div className="circuit-line"></div>
-                  <div className="circuit-line"></div>
-                  <div className="circuit-line"></div>
-                </div>
+            <div className="adgenie-logo">
+              {/* Using the actual AdGenie logo provided by user */}
+              <div className="logo-icon">
+                <svg width="40" height="40" viewBox="0 0 100 100" fill="none">
+                  {/* Genie head - blue circle */}
+                  <circle cx="35" cy="35" r="25" fill="url(#genieGradient)"/>
+                  {/* Star on head */}
+                  <polygon points="35,15 37,21 43,21 38,25 40,31 35,27 30,31 32,25 27,21 33,21" fill="#fbbf24"/>
+                  {/* Eyes */}
+                  <circle cx="30" cy="32" r="2" fill="#1e293b"/>
+                  <circle cx="40" cy="32" r="2" fill="#1e293b"/>
+                  {/* Mustache */}
+                  <ellipse cx="35" cy="38" rx="4" ry="1" fill="#1e293b"/>
+                  {/* Smile */}
+                  <path d="M 31 41 Q 35 44 39 41" stroke="#1e293b" strokeWidth="1.5" fill="none"/>
+                  {/* Circuit lines */}
+                  <line x1="65" y1="25" x2="80" y2="25" stroke="#60a5fa" strokeWidth="2"/>
+                  <circle cx="82" cy="25" r="2" fill="#60a5fa"/>
+                  <line x1="65" y1="35" x2="75" y2="35" stroke="#60a5fa" strokeWidth="2"/>
+                  <circle cx="77" cy="35" r="2" fill="#60a5fa"/>
+                  <line x1="65" y1="45" x2="85" y2="45" stroke="#60a5fa" strokeWidth="2"/>
+                  <circle cx="87" cy="45" r="2" fill="#60a5fa"/>
+                  <defs>
+                    <linearGradient id="genieGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#3b82f6"/>
+                      <stop offset="100%" stopColor="#1d4ed8"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
               </div>
               <span className="logo-text">adgenie</span>
             </div>
@@ -38,25 +49,52 @@ export default function LandingPage() {
             <a href="#features" className="nav-link">FEATURES</a>
             <a href="#about" className="nav-link">ABOUT</a>
             <a href="#pricing" className="nav-link">PRICING</a>
-            <Link href="/create" className="nav-link cta-btn">CREATE AD</Link>
+            <Link href="/chat" className="nav-link cta-btn">CREATE AD</Link>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="hero" id="home">
+      <main className="hero" id="home">
         <div className="hero-container">
           <div className="hero-content">
-            <h1 className="hero-title">
+            <div className="hero-logo">
+              {/* Large AdGenie logo */}
+              <svg width="120" height="120" viewBox="0 0 100 100" fill="none">
+                <circle cx="35" cy="35" r="25" fill="url(#heroGenieGradient)"/>
+                <polygon points="35,15 37,21 43,21 38,25 40,31 35,27 30,31 32,25 27,21 33,21" fill="#fbbf24"/>
+                <circle cx="30" cy="32" r="2" fill="#1e293b"/>
+                <circle cx="40" cy="32" r="2" fill="#1e293b"/>
+                <ellipse cx="35" cy="38" rx="4" ry="1" fill="#1e293b"/>
+                <path d="M 31 41 Q 35 44 39 41" stroke="#1e293b" strokeWidth="1.5" fill="none"/>
+                <line x1="65" y1="25" x2="80" y2="25" stroke="#60a5fa" strokeWidth="3"/>
+                <circle cx="82" cy="25" r="3" fill="#60a5fa"/>
+                <line x1="65" y1="35" x2="75" y2="35" stroke="#60a5fa" strokeWidth="3"/>
+                <circle cx="77" cy="35" r="3" fill="#60a5fa"/>
+                <line x1="65" y1="45" x2="85" y2="45" stroke="#60a5fa" strokeWidth="3"/>
+                <circle cx="87" cy="45" r="3" fill="#60a5fa"/>
+                <defs>
+                  <linearGradient id="heroGenieGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#3b82f6"/>
+                    <stop offset="100%" stopColor="#1d4ed8"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <h1 className="hero-title">adgenie</h1>
+            </div>
+            
+            <h2 className="hero-subtitle">
               Welcome to the Future of 
               <span className="gradient-text"> AI Video Advertising</span>
-            </h1>
-            <p className="hero-subtitle">
+            </h2>
+            
+            <p className="hero-description">
               Create stunning, professional video ads in seconds with our advanced VEO-3 AI technology. 
               Upload your visuals, answer a few questions, and watch magic happen.
             </p>
+            
             <div className="hero-buttons">
-              <Link href="/create" className="primary-btn">
+              <Link href="/chat" className="primary-btn">
                 <span>Start Creating</span>
                 <div className="btn-glow"></div>
               </Link>
@@ -81,14 +119,41 @@ export default function LandingPage() {
           
           <div className="hero-visual">
             <div className="floating-card">
-              <div className="card-header">AdGenie Studio</div>
+              <div className="card-header">
+                <div className="mini-logo">
+                  <svg width="20" height="20" viewBox="0 0 100 100" fill="none">
+                    <circle cx="35" cy="35" r="25" fill="url(#cardGenieGradient)"/>
+                    <polygon points="35,15 37,21 43,21 38,25 40,31 35,27 30,31 32,25 27,21 33,21" fill="#fbbf24"/>
+                    <circle cx="30" cy="32" r="2" fill="#1e293b"/>
+                    <circle cx="40" cy="32" r="2" fill="#1e293b"/>
+                    <ellipse cx="35" cy="38" rx="4" ry="1" fill="#1e293b"/>
+                    <path d="M 31 41 Q 35 44 39 41" stroke="#1e293b" strokeWidth="1.5" fill="none"/>
+                    <line x1="65" y1="25" x2="80" y2="25" stroke="#60a5fa" strokeWidth="2"/>
+                    <circle cx="82" cy="25" r="2" fill="#60a5fa"/>
+                    <line x1="65" y1="35" x2="75" y2="35" stroke="#60a5fa" strokeWidth="2"/>
+                    <circle cx="77" cy="35" r="2" fill="#60a5fa"/>
+                    <line x1="65" y1="45" x2="85" y2="45" stroke="#60a5fa" strokeWidth="2"/>
+                    <circle cx="87" cy="45" r="2" fill="#60a5fa"/>
+                    <defs>
+                      <linearGradient id="cardGenieGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#3b82f6"/>
+                        <stop offset="100%" stopColor="#1d4ed8"/>
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  AdGenie Studio
+                </div>
+              </div>
               <div className="card-content">
                 <div className="chat-section">
                   <div className="chat-bubble bot">
-                    Hi! I'm your AI Ad Generator
+                    Hi! I'm your VEO-3 AI Ad Generator
                   </div>
                   <div className="chat-bubble user">
                     Create an ad for my startup
+                  </div>
+                  <div className="chat-bubble bot">
+                    Upload images and let's create magic!
                   </div>
                 </div>
                 <div className="upload-section">
@@ -106,12 +171,12 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-      </section>
+      </main>
 
       {/* Features Section */}
       <section className="features" id="features">
         <div className="container">
-          <h2 className="section-title">Powerful Features</h2>
+          <h2 className="section-title">Powerful AI Features</h2>
           <div className="features-grid">
             <div className="feature-card">
               <div className="feature-icon">🎬</div>
@@ -138,22 +203,22 @@ export default function LandingPage() {
       </section>
 
       <style jsx>{`
-        .landing-page {
+        .homepage {
           min-height: 100vh;
-          background: linear-gradient(135deg, #1e40af 0%, #3b82f6 25%, #60a5fa  50%, #93c5fd  75%, #dbeafe 100%);
+          background: linear-gradient(135deg, #1e40af 0%, #3b82f6 25%, #60a5fa 50%, #93c5fd 75%, #dbeafe 100%);
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
           position: relative;
           overflow-x: hidden;
         }
 
-        .landing-page::before {
+        .homepage::before {
           content: '';
           position: absolute;
           top: 0;
           left: 0;
           right: 0;
           bottom: 0;
-          background: url('data:image/svg+xml,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.05"><circle cx="50" cy="50" r="2"/></g></svg>');
+          background: url('data:image/svg+xml,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.03"><circle cx="50" cy="50" r="2"/></g></svg>');
           opacity: 0.3;
         }
 
@@ -184,96 +249,10 @@ export default function LandingPage() {
           align-items: center;
         }
 
-        .logo {
+        .adgenie-logo {
           display: flex;
           align-items: center;
           gap: 0.8rem;
-        }
-
-        .genie-icon {
-          position: relative;
-          width: 40px;
-          height: 40px;
-        }
-
-        .genie-head {
-          width: 32px;
-          height: 32px;
-          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-          border-radius: 50%;
-          position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .star {
-          position: absolute;
-          top: -5px;
-          right: -5px;
-          font-size: 12px;
-        }
-
-        .face {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 2px;
-        }
-
-        .eyes {
-          display: flex;
-          gap: 6px;
-        }
-
-        .eye {
-          width: 4px;
-          height: 4px;
-          background: #1e293b;
-          border-radius: 50%;
-        }
-
-        .mustache {
-          width: 8px;
-          height: 2px;
-          background: #1e293b;
-          border-radius: 1px;
-        }
-
-        .smile {
-          width: 6px;
-          height: 3px;
-          border: 1px solid #1e293b;
-          border-top: none;
-          border-radius: 0 0 6px 6px;
-        }
-
-        .circuits {
-          position: absolute;
-          right: -8px;
-          top: 8px;
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-        }
-
-        .circuit-line {
-          width: 12px;
-          height: 2px;
-          background: #60a5fa;
-          border-radius: 1px;
-          position: relative;
-        }
-
-        .circuit-line::after {
-          content: '';
-          position: absolute;
-          right: -4px;
-          top: -1px;
-          width: 4px;
-          height: 4px;
-          background: #60a5fa;
-          border-radius: 50%;
         }
 
         .logo-text {
@@ -341,12 +320,29 @@ export default function LandingPage() {
 
         .hero-content {
           color: white;
+          text-align: center;
+        }
+
+        .hero-logo {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
+          margin-bottom: 2rem;
         }
 
         .hero-title {
-          font-size: 3.5rem;
+          font-size: 4rem;
           font-weight: 800;
-          line-height: 1.1;
+          color: white;
+          text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+          margin: 0;
+        }
+
+        .hero-subtitle {
+          font-size: 2.5rem;
+          font-weight: 700;
+          line-height: 1.2;
           margin-bottom: 1.5rem;
           text-shadow: 0 2px 20px rgba(0,0,0,0.2);
         }
@@ -358,7 +354,7 @@ export default function LandingPage() {
           background-clip: text;
         }
 
-        .hero-subtitle {
+        .hero-description {
           font-size: 1.2rem;
           line-height: 1.6;
           margin-bottom: 2rem;
@@ -370,6 +366,7 @@ export default function LandingPage() {
           display: flex;
           gap: 1rem;
           margin-bottom: 3rem;
+          justify-content: center;
         }
 
         .primary-btn {
@@ -428,6 +425,7 @@ export default function LandingPage() {
         .hero-stats {
           display: flex;
           gap: 2rem;
+          justify-content: center;
         }
 
         .stat {
@@ -462,16 +460,26 @@ export default function LandingPage() {
           box-shadow: 0 20px 60px rgba(0,0,0,0.2);
           backdrop-filter: blur(20px);
           border: 1px solid rgba(255, 255, 255, 0.3);
-          width: 300px;
+          width: 320px;
           animation: float 6s ease-in-out infinite;
         }
 
         .card-header {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
           font-weight: 700;
           color: #1e293b;
           margin-bottom: 1rem;
           text-align: center;
           font-size: 1.1rem;
+          justify-content: center;
+        }
+
+        .mini-logo {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
         }
 
         .chat-section {
@@ -651,12 +659,16 @@ export default function LandingPage() {
             font-size: 2.5rem;
           }
 
+          .hero-subtitle {
+            font-size: 1.8rem;
+          }
+
           .hero-buttons {
             justify-content: center;
           }
 
           .floating-card {
-            width: 250px;
+            width: 280px;
           }
 
           .features-grid {

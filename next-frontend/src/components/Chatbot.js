@@ -733,24 +733,32 @@ function Chatbot() {
       <div className="container">
             <h1>
               <div className="adgenie-logo">
-                <div className="genie-icon">
-                  <div className="genie-head">
-                    <div className="star">⭐</div>
-                    <div className="face">
-                      <div className="eyes">
-                        <div className="eye"></div>
-                        <div className="eye"></div>
-                      </div>
-                      <div className="mustache"></div>
-                      <div className="smile"></div>
-                    </div>
-                  </div>
-                  <div className="circuits">
-                    <div className="circuit-line"></div>
-                    <div className="circuit-line"></div>
-                    <div className="circuit-line"></div>
-                  </div>
-                </div>
+                <svg width="50" height="50" viewBox="0 0 100 100" fill="none">
+                  {/* Genie head - blue circle */}
+                  <circle cx="35" cy="35" r="25" fill="url(#headerGenieGradient)"/>
+                  {/* Star on head */}
+                  <polygon points="35,15 37,21 43,21 38,25 40,31 35,27 30,31 32,25 27,21 33,21" fill="#fbbf24"/>
+                  {/* Eyes */}
+                  <circle cx="30" cy="32" r="2" fill="#1e293b"/>
+                  <circle cx="40" cy="32" r="2" fill="#1e293b"/>
+                  {/* Mustache */}
+                  <ellipse cx="35" cy="38" rx="4" ry="1" fill="#1e293b"/>
+                  {/* Smile */}
+                  <path d="M 31 41 Q 35 44 39 41" stroke="#1e293b" strokeWidth="1.5" fill="none"/>
+                  {/* Circuit lines */}
+                  <line x1="65" y1="25" x2="80" y2="25" stroke="#60a5fa" strokeWidth="3"/>
+                  <circle cx="82" cy="25" r="3" fill="#60a5fa"/>
+                  <line x1="65" y1="35" x2="75" y2="35" stroke="#60a5fa" strokeWidth="3"/>
+                  <circle cx="77" cy="35" r="3" fill="#60a5fa"/>
+                  <line x1="65" y1="45" x2="85" y2="45" stroke="#60a5fa" strokeWidth="3"/>
+                  <circle cx="87" cy="45" r="3" fill="#60a5fa"/>
+                  <defs>
+                    <linearGradient id="headerGenieGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#fbbf24"/>
+                      <stop offset="100%" stopColor="#f59e0b"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
                 <span>adgenie</span>
               </div>
             </h1>
@@ -1417,91 +1425,11 @@ function Chatbot() {
             gap: 0.8rem;
           }
 
-          .genie-icon {
-            position: relative;
-            width: 50px;
-            height: 50px;
-          }
-
-          .genie-head {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            border-radius: 50%;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
-          }
-
-          .star {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            font-size: 16px;
-          }
-
-          .face {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-          }
-
-          .eyes {
-            display: flex;
-            gap: 8px;
-          }
-
-          .eye {
-            width: 5px;
-            height: 5px;
-            background: #1e293b;
-            border-radius: 50%;
-          }
-
-          .mustache {
-            width: 10px;
-            height: 3px;
-            background: #1e293b;
-            border-radius: 2px;
-          }
-
-          .smile {
-            width: 8px;
-            height: 4px;
-            border: 2px solid #1e293b;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-          }
-
-          .circuits {
-            position: absolute;
-            right: -12px;
-            top: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-          }
-
-          .circuit-line {
-            width: 15px;
-            height: 3px;
-            background: #60a5fa;
-            border-radius: 2px;
-            position: relative;
-          }
-
-          .circuit-line::after {
-            content: '';
-            position: absolute;
-            right: -6px;
-            top: -2px;
-            width: 6px;
-            height: 6px;
-            background: #60a5fa;
-            border-radius: 50%;
+          .adgenie-logo span {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
           }
 
           .subtitle {
