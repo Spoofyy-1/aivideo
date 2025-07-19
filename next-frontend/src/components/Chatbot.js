@@ -625,39 +625,6 @@ function Chatbot() {
 
   return (
     <div className="chatbot-container">
-      {/* Header */}
-      <div className="header">
-        <div className="logo">
-          <svg width="24" height="24" viewBox="0 0 100 100" fill="none">
-            {/* Genie head - blue circle */}
-            <circle cx="35" cy="35" r="25" fill="url(#headerGenieGradient)"/>
-            {/* Star on head */}
-            <polygon points="35,15 37,21 43,21 38,25 40,31 35,27 30,31 32,25 27,21 33,21" fill="#fbbf24"/>
-            {/* Eyes */}
-            <circle cx="30" cy="32" r="2" fill="#1e293b"/>
-            <circle cx="40" cy="32" r="2" fill="#1e293b"/>
-            {/* Mustache */}
-            <ellipse cx="35" cy="38" rx="4" ry="1" fill="#1e293b"/>
-            {/* Smile */}
-            <path d="M 31 41 Q 35 44 39 41" stroke="#1e293b" strokeWidth="1.5" fill="none"/>
-            {/* Circuit lines */}
-            <line x1="65" y1="25" x2="80" y2="25" stroke="#60a5fa" strokeWidth="2"/>
-            <circle cx="82" cy="25" r="2" fill="#60a5fa"/>
-            <line x1="65" y1="35" x2="75" y2="35" stroke="#60a5fa" strokeWidth="2"/>
-            <circle cx="77" cy="35" r="2" fill="#60a5fa"/>
-            <line x1="65" y1="45" x2="85" y2="45" stroke="#60a5fa" strokeWidth="2"/>
-            <circle cx="87" cy="45" r="2" fill="#60a5fa"/>
-            <defs>
-              <linearGradient id="headerGenieGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#3F51B5"/>
-                <stop offset="100%" stopColor="#9C27B0"/>
-              </linearGradient>
-            </defs>
-          </svg>
-          <span>Ad genie logo</span>
-        </div>
-      </div>
-
       {/* Main Content */}
       <div className="main-layout">
         {/* Chat Panel */}
@@ -667,11 +634,11 @@ function Chatbot() {
           </div>
           
           <div className="chat-messages" ref={chatRef}>
-            {messages.map((msg, idx) => (
+          {messages.map((msg, idx) => (
               <div key={idx} className={`message ${msg.sender}`}>
                 <div className="message-bubble">{msg.text}</div>
-              </div>
-            ))}
+            </div>
+          ))}
             
             {/* Loading indicator */}
             {loading && (
@@ -683,15 +650,15 @@ function Chatbot() {
               </div>
             )}
             
-            {/* Product options */}
-            {step >= creativeQuestions.length && researchDone && !productSelected && productAsked && productsList.length > 0 && (
+          {/* Product options */}
+          {step >= creativeQuestions.length && researchDone && !productSelected && productAsked && productsList.length > 0 && (
               <div className="message bot">
                 <div className="message-bubble">
                   <div className="options-grid">
-                    {productsList.map(opt => (
-                      <button
-                        key={opt}
-                        type="button"
+                {productsList.map(opt => (
+                  <button
+                    key={opt}
+                    type="button"
                         className="option-btn"
                         onClick={() => {
                           setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
@@ -700,21 +667,21 @@ function Chatbot() {
                           setProductSelected(true);
                           maybeGenerateScript(updatedAnswers);
                         }}
-                      >
-                        {opt}
-                      </button>
-                    ))}
-                    <button
-                      type="button"
+                  >
+                    {opt}
+                  </button>
+                ))}
+                <button
+                  type="button"
                       className="option-btn"
-                      onClick={handleCustomProduct}
-                    >
-                      Other
-                    </button>
+                  onClick={handleCustomProduct}
+                >
+                  Other
+                </button>
                   </div>
-                </div>
               </div>
-            )}
+            </div>
+          )}
             
             {/* Script Preview */}
             {scriptGenerated && currentScript && (
@@ -730,7 +697,7 @@ function Chatbot() {
             )}
             
             {/* Final Result */}
-            {result && (
+          {result && (
               <div className="result-section">
                 <div className="result-card">
                   <h3>🎉 Your VEO-3 AI Video Ad is Ready!</h3>
@@ -753,7 +720,7 @@ function Chatbot() {
                   {result.technical_details && (
                     <div className="technical-details">
                       <h4>🔧 Technical Details:</h4>
-                      <div>
+            <div>
                         <p><strong>Duration:</strong> {result.duration} seconds (2 seamless segments)</p>
                         <p><strong>Segments Generated:</strong> {result.segments_generated}</p>
                         <p><strong>Image Assets Integrated:</strong> {result.technical_details.image_assets_integrated}</p>
@@ -763,56 +730,56 @@ function Chatbot() {
                   )}
                   
                   <div className="download-buttons">
-                    <a
-                      href={`${API_BASE_URL}${result.video_url}`}
-                      download
+                  <a
+                    href={`${API_BASE_URL}${result.video_url}`}
+                    download
                       className="download-btn primary"
                     >
                       🎬 Download VEO-3 Video
                     </a>
                     
                     {result.report_url && (
-                      <a
-                        href={`${API_BASE_URL}${result.report_url}`}
-                        download
+                  <a
+                    href={`${API_BASE_URL}${result.report_url}`}
+                    download
                         className="download-btn secondary"
-                      >
-                        📄 Download Report
-                      </a>
+                  >
+                    📄 Download Report
+                  </a>
                     )}
-                    
-                    {!hasRated && (
-                      <button
-                        onClick={() => setShowRatingModal(true)}
+                  
+                  {!hasRated && (
+                    <button
+                      onClick={() => setShowRatingModal(true)}
                         className="download-btn rating"
                       >
                         ⭐ Rate This VEO-3 Ad
-                      </button>
-                    )}
-                  </div>
-                  
+                    </button>
+                  )}
+                </div>
+                
                   <p className="result-description">
                     🎯 Your video was generated using Google's VEO-3 with frame-to-video continuation for seamless transitions. 
                     {uploadedImages.length > 0 && ` Your ${uploadedImages.length} uploaded assets were integrated into the scenes.`}
                     {' '}Download and share your professional AI-created ad!
-                  </p>
-                </div>
+                </p>
               </div>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
 
-          {/* Input form */}
+        {/* Input form */}
           {!result && !loading && !scriptGenerated && (
             <div className="chat-input">
-              {!answers.company_url ? (
-                <div>
+            {!answers.company_url ? (
+              <div>
                   <div className="input-tip">
-                    💡 <strong>Tip:</strong> Just enter the website domain (e.g., "apple.com" or "nike.com"). 
+                  💡 <strong>Tip:</strong> Just enter the website domain (e.g., "apple.com" or "nike.com"). 
                     Our AI will research your company automatically.
-                  </div>
+                </div>
                   <form onSubmit={handleSend} className="input-form">
-                    <input
-                      value={input}
+                <input
+                  value={input}
                       onChange={(e) => setInput(e.target.value)}
                       placeholder="Enter your company website URL..."
                       className="text-input"
@@ -875,8 +842,8 @@ function Chatbot() {
                 </div>
               ) : (
                 <form onSubmit={handleSend} className="input-form">
-                  <input
-                    value={input}
+                <input
+                  value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder={step <= creativeQuestions.length ? 
                       creativeQuestions[step - 1]?.placeholder || "Type your answer..." : 
@@ -885,12 +852,12 @@ function Chatbot() {
                     className="text-input"
                   />
                   <button type="submit" className="send-btn">Send</button>
-                </form>
-              )}
+          </form>
+        )}
             </div>
           )}
-        </div>
-
+      </div>
+      
         {/* Image Drop Panel */}
         <div className="image-panel">
           <div className="panel-header">
@@ -964,24 +931,6 @@ function Chatbot() {
           flex-direction: column;
         }
 
-        .header {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(20px);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-          padding: 1rem 2rem;
-          display: flex;
-          align-items: center;
-        }
-
-        .logo {
-          display: flex;
-          align-items: center;
-          gap: 0.8rem;
-          color: white;
-          font-weight: 600;
-          font-size: 1.1rem;
-        }
-
         .main-layout {
           flex: 1;
           display: grid;
@@ -993,27 +942,27 @@ function Chatbot() {
 
         .chat-panel,
         .image-panel {
-          background: rgba(255, 255, 255, 0.95);
+          background: rgba(45, 55, 72, 0.95);
           border-radius: 24px;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
           backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.3);
+          border: 1px solid rgba(255, 255, 255, 0.1);
           display: flex;
           flex-direction: column;
           overflow: hidden;
         }
 
         .panel-header {
-          background: rgba(63, 81, 181, 0.1);
+          background: rgba(26, 35, 126, 0.8);
           padding: 1.5rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .panel-header h2 {
           margin: 0;
           font-size: 1.5rem;
           font-weight: 600;
-          color: #1A237E;
+          color: white;
           text-align: center;
         }
 
@@ -1024,6 +973,7 @@ function Chatbot() {
           display: flex;
           flex-direction: column;
           gap: 1rem;
+          background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
         }
 
         .message {
@@ -1048,14 +998,14 @@ function Chatbot() {
         }
 
         .message.bot .message-bubble {
-          background: linear-gradient(135deg, #3F51B5 0%, #9C27B0 100%);
+          background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
           color: white;
         }
 
         .message.user .message-bubble {
-          background: #f1f5f9;
-          color: #1e293b;
-          border: 1px solid #e2e8f0;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .loading-spinner {
@@ -1091,17 +1041,18 @@ function Chatbot() {
 
         .chat-input {
           padding: 1.5rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.2);
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          background: rgba(45, 55, 72, 0.8);
         }
 
         .input-tip {
-          background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+          background: rgba(26, 35, 126, 0.3);
           border: 1px solid #3F51B5;
           border-radius: 12px;
           padding: 1rem;
           margin-bottom: 1rem;
           font-size: 0.9rem;
-          color: #1A237E;
+          color: white;
           font-weight: 500;
         }
 
@@ -1113,11 +1064,12 @@ function Chatbot() {
         .text-input {
           flex: 1;
           padding: 1rem 1.5rem;
-          border: 2px solid #e5e7eb;
+          border: 2px solid rgba(255, 255, 255, 0.2);
           border-radius: 15px;
           font-size: 1rem;
           transition: all 0.3s ease;
-          background: white;
+          background: rgba(45, 55, 72, 0.8);
+          color: white;
           font-family: inherit;
         }
 
@@ -1126,6 +1078,10 @@ function Chatbot() {
           border-color: #3F51B5;
           box-shadow: 0 0 0 4px rgba(63, 81, 181, 0.1);
           transform: translateY(-2px);
+        }
+
+        .text-input::placeholder {
+          color: rgba(255, 255, 255, 0.5);
         }
 
         .send-btn {
@@ -1156,23 +1112,24 @@ function Chatbot() {
           justify-content: center;
           transition: all 0.3s ease;
           cursor: pointer;
+          background: rgba(45, 55, 72, 0.5);
         }
 
         .drop-zone.drag-active {
           border-color: #3F51B5;
-          background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+          background: rgba(63, 81, 181, 0.2);
           transform: scale(1.02);
           box-shadow: 0 10px 30px rgba(63, 81, 181, 0.2);
         }
 
         .drop-zone:hover {
           border-color: #3F51B5;
-          background: linear-gradient(135deg, #f8f9fa 0%, #f5f5f5 100%);
+          background: rgba(63, 81, 181, 0.1);
         }
 
         .drop-content {
           text-align: center;
-          color: #64748b;
+          color: white;
         }
 
         .drop-icon {
@@ -1185,7 +1142,7 @@ function Chatbot() {
           font-size: 1.2rem;
           font-weight: 500;
           margin-bottom: 1.5rem;
-          color: #1A237E;
+          color: white;
         }
 
         .browse-btn {
@@ -1208,13 +1165,14 @@ function Chatbot() {
 
         .uploaded-images {
           padding: 1.5rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.2);
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          background: rgba(45, 55, 72, 0.8);
         }
 
         .uploaded-images h3 {
           margin: 0 0 1rem 0;
           font-size: 1.1rem;
-          color: #1A237E;
+          color: white;
           font-weight: 600;
         }
 
@@ -1233,7 +1191,7 @@ function Chatbot() {
           aspect-ratio: 1;
           border-radius: 12px;
           overflow: hidden;
-          background: #f1f5f9;
+          background: rgba(45, 55, 72, 0.8);
         }
 
         .image-preview img {
@@ -1268,7 +1226,7 @@ function Chatbot() {
         .image-name {
           margin-top: 0.5rem;
           font-size: 0.8rem;
-          color: #64748b;
+          color: rgba(255, 255, 255, 0.7);
           text-align: center;
           word-break: break-word;
         }
@@ -1278,20 +1236,20 @@ function Chatbot() {
         }
 
         .result-card {
-          background: linear-gradient(135deg, #e8f5e8 0%, #f0f4ff 100%);
+          background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(63, 81, 181, 0.2) 100%);
           border: 2px solid #10b981;
           border-radius: 16px;
           padding: 2rem;
         }
 
         .result-card h3 {
-          color: #1e293b;
+          color: white;
           margin-bottom: 1.5rem;
           font-size: 1.5rem;
         }
 
         .features-display {
-          background: rgba(16, 185, 129, 0.1);
+          background: rgba(16, 185, 129, 0.2);
           padding: 1rem;
           border-radius: 8px;
           margin-bottom: 1rem;
@@ -1299,7 +1257,7 @@ function Chatbot() {
         }
 
         .features-display h4 {
-          color: #065f46;
+          color: #10b981;
           margin-bottom: 0.5rem;
           font-size: 1.1rem;
         }
@@ -1307,7 +1265,7 @@ function Chatbot() {
         .features-display ul {
           margin: 0;
           padding-left: 1.2rem;
-          color: #065f46;
+          color: white;
         }
 
         .features-display li {
@@ -1315,7 +1273,7 @@ function Chatbot() {
         }
 
         .technical-details {
-          background: rgba(251, 191, 36, 0.1);
+          background: rgba(251, 191, 36, 0.2);
           padding: 1rem;
           border-radius: 8px;
           margin-bottom: 1rem;
@@ -1323,13 +1281,13 @@ function Chatbot() {
         }
 
         .technical-details h4 {
-          color: #92400e;
+          color: #fbbf24;
           margin-bottom: 0.5rem;
           font-size: 1.1rem;
         }
 
         .technical-details div {
-          color: #92400e;
+          color: white;
           font-size: 0.9rem;
         }
 
@@ -1378,7 +1336,7 @@ function Chatbot() {
         }
 
         .result-description {
-          color: #64748b;
+          color: rgba(255, 255, 255, 0.8);
           font-size: 0.9rem;
           margin-top: 1rem;
           line-height: 1.5;
@@ -1406,6 +1364,15 @@ function Chatbot() {
 
           .images-list {
             grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+          }
+
+          .logo-img {
+            width: 100px;
+            height: 100px;
+          }
+
+          .logo {
+            font-size: 1.8rem;
           }
         }
 
