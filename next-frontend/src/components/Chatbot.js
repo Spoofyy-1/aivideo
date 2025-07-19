@@ -137,7 +137,6 @@ function Chatbot() {
   const [uploadedImages, setUploadedImages] = useState([]);
   const [dragActive, setDragActive] = useState(false);
   const [imageContextOptions, setImageContextOptions] = useState({});
-  const [showImageSidebar, setShowImageSidebar] = useState(true);
 
   const chatRef = useRef(null);
 
@@ -242,7 +241,7 @@ function Chatbot() {
         
         setMessages(msgs => [...msgs, {
           sender: 'bot',
-          text: `✅ Uploaded "${file.name}" - Check the sidebar to add a description and adjust settings!`
+          text: `✅ Uploaded "${file.name}" successfully!`
         }]);
       } else {
         setMessages(msgs => [...msgs, {
@@ -625,190 +624,75 @@ function Chatbot() {
   };
 
   return (
-    <div className="chatbot-layout">
-      {/* Image Sidebar */}
-      <div className={`image-sidebar ${showImageSidebar ? 'open' : 'closed'}`}>
-        <div className="sidebar-header">
-          <h3>🎬 Visual Assets</h3>
-          <button 
-            className="toggle-sidebar"
-            onClick={() => setShowImageSidebar(!showImageSidebar)}
-          >
-            {showImageSidebar ? '◀' : '▶'}
-          </button>
-        </div>
-
-        {/* Upload Zone in Sidebar */}
-        <div 
-          className={`sidebar-upload-zone ${dragActive ? 'drag-active' : ''}`}
-          onDragEnter={handleDrag}
-          onDragLeave={handleDrag}
-          onDragOver={handleDrag}
-          onDrop={handleDrop}
-        >
-          <div className="upload-icon">📁</div>
-          <p>Drop images here</p>
-          <button 
-            className="browse-btn"
-            onClick={() => document.getElementById('sidebar-file-input').click()}
-          >
-            Browse Files
-          </button>
-          <input
-            id="sidebar-file-input"
-            type="file"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={(e) => e.target.files[0] && handleImageUpload(e.target.files[0])}
-          />
-        </div>
-
-        {/* Uploaded Images List */}
-        <div className="uploaded-images-list">
-          {uploadedImages.length === 0 ? (
-            <div className="no-images">
-              <p>No images uploaded yet</p>
-              <span>Upload product photos, dashboards, logos, or any visuals you want in your ad!</span>
-            </div>
-          ) : (
-            uploadedImages.map(img => (
-              <div key={img.id} className="image-card">
-                <div className="image-preview">
-                  <img src={img.preview} alt={img.filename} />
-                  <button 
-                    className="remove-image-btn"
-                    onClick={() => removeImage(img.id)}
-                    title="Remove image"
-                  >
-                    ✕
-                  </button>
-                </div>
-                
-                <div className="image-details">
-                  <div className="filename">{img.filename}</div>
-                  
-                  <div className="form-group">
-                    <label>Description:</label>
-                    <textarea
-                      placeholder="Describe what this image shows..."
-                      value={img.description}
-                      onChange={(e) => updateImageDescription(img.id, e.target.value)}
-                      rows="2"
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label>Context:</label>
-                    <select 
-                      value={img.context} 
-                      onChange={(e) => updateImageContext(img.id, e.target.value, img.placement)}
-                    >
-                      {Object.keys(imageContextOptions).map(context => (
-                        <option key={context} value={context}>{context}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div className="form-group">
-                    <label>How to show:</label>
-                    <select 
-                      value={img.placement}
-                      onChange={(e) => updateImageContext(img.id, img.context, e.target.value)}
-                    >
-                      {imageContextOptions[img.context]?.map(placement => (
-                        <option key={placement} value={placement}>{placement}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
+    <div className="chatbot-container">
+      {/* Header */}
+      <div className="header">
+        <div className="logo">
+          <svg width="24" height="24" viewBox="0 0 100 100" fill="none">
+            {/* Genie head - blue circle */}
+            <circle cx="35" cy="35" r="25" fill="url(#headerGenieGradient)"/>
+            {/* Star on head */}
+            <polygon points="35,15 37,21 43,21 38,25 40,31 35,27 30,31 32,25 27,21 33,21" fill="#fbbf24"/>
+            {/* Eyes */}
+            <circle cx="30" cy="32" r="2" fill="#1e293b"/>
+            <circle cx="40" cy="32" r="2" fill="#1e293b"/>
+            {/* Mustache */}
+            <ellipse cx="35" cy="38" rx="4" ry="1" fill="#1e293b"/>
+            {/* Smile */}
+            <path d="M 31 41 Q 35 44 39 41" stroke="#1e293b" strokeWidth="1.5" fill="none"/>
+            {/* Circuit lines */}
+            <line x1="65" y1="25" x2="80" y2="25" stroke="#60a5fa" strokeWidth="2"/>
+            <circle cx="82" cy="25" r="2" fill="#60a5fa"/>
+            <line x1="65" y1="35" x2="75" y2="35" stroke="#60a5fa" strokeWidth="2"/>
+            <circle cx="77" cy="35" r="2" fill="#60a5fa"/>
+            <line x1="65" y1="45" x2="85" y2="45" stroke="#60a5fa" strokeWidth="2"/>
+            <circle cx="87" cy="45" r="2" fill="#60a5fa"/>
+            <defs>
+              <linearGradient id="headerGenieGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#3F51B5"/>
+                <stop offset="100%" stopColor="#9C27B0"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span>Ad genie logo</span>
         </div>
       </div>
 
-      {/* Main Chat Area */}
-      <div className="main-chat-area">
-    <div className="chatbot-outer">
-      <div className="container">
-            <h1>
-              <div className="adgenie-logo">
-                <svg width="50" height="50" viewBox="0 0 100 100" fill="none">
-                  {/* Genie head - blue circle */}
-                  <circle cx="35" cy="35" r="25" fill="url(#headerGenieGradient)"/>
-                  {/* Star on head */}
-                  <polygon points="35,15 37,21 43,21 38,25 40,31 35,27 30,31 32,25 27,21 33,21" fill="#fbbf24"/>
-                  {/* Eyes */}
-                  <circle cx="30" cy="32" r="2" fill="#1e293b"/>
-                  <circle cx="40" cy="32" r="2" fill="#1e293b"/>
-                  {/* Mustache */}
-                  <ellipse cx="35" cy="38" rx="4" ry="1" fill="#1e293b"/>
-                  {/* Smile */}
-                  <path d="M 31 41 Q 35 44 39 41" stroke="#1e293b" strokeWidth="1.5" fill="none"/>
-                  {/* Circuit lines */}
-                  <line x1="65" y1="25" x2="80" y2="25" stroke="#60a5fa" strokeWidth="3"/>
-                  <circle cx="82" cy="25" r="3" fill="#60a5fa"/>
-                  <line x1="65" y1="35" x2="75" y2="35" stroke="#60a5fa" strokeWidth="3"/>
-                  <circle cx="77" cy="35" r="3" fill="#60a5fa"/>
-                  <line x1="65" y1="45" x2="85" y2="45" stroke="#60a5fa" strokeWidth="3"/>
-                  <circle cx="87" cy="45" r="3" fill="#60a5fa"/>
-                  <defs>
-                    <linearGradient id="headerGenieGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#fbbf24"/>
-                      <stop offset="100%" stopColor="#f59e0b"/>
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <span>adgenie</span>
+      {/* Main Content */}
+      <div className="main-layout">
+        {/* Chat Panel */}
+        <div className="chat-panel">
+          <div className="panel-header">
+            <h2>Chat</h2>
+          </div>
+          
+          <div className="chat-messages" ref={chatRef}>
+            {messages.map((msg, idx) => (
+              <div key={idx} className={`message ${msg.sender}`}>
+                <div className="message-bubble">{msg.text}</div>
               </div>
-            </h1>
-            <p className="subtitle">
-              Create seamless 16-second ads with frame continuation
-              {uploadedImages.length > 0 && ` • ${uploadedImages.length} assets uploaded`}
-            </p>
+            ))}
             
-        <div className="chat" ref={chatRef}>
-          {messages.map((msg, idx) => (
-            <div key={idx} className={`msg ${msg.sender}`}>
-              <div className="bubble">{msg.text}</div>
-            </div>
-          ))}
-              
-              {/* Loading indicator */}
-              {loading && (
-                <div className="msg bot">
-                  <div className="bubble">
-                    {loadingMessage}
-                    <div style={{ 
-                      display: 'inline-block', 
-                      marginLeft: '0.5rem',
-                      animation: 'spin 1s linear infinite' 
-                    }}>
-                      ⚡
-                    </div>
-                  </div>
+            {/* Loading indicator */}
+            {loading && (
+              <div className="message bot">
+                <div className="message-bubble">
+                  {loadingMessage}
+                  <div className="loading-spinner">⚡</div>
                 </div>
-              )}
-              
-          {/* Product options */}
-          {step >= creativeQuestions.length && researchDone && !productSelected && productAsked && productsList.length > 0 && (
-            <div className="msg bot">
-              <div className="bubble" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {productsList.map(opt => (
-                  <button
-                    key={opt}
-                    type="button"
-                    style={{
-                      background: 'var(--button-bg)',
-                      color: 'var(--button-text)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      padding: '0.6rem 1.2rem',
-                      fontFamily: 'Orbitron, sans-serif',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                      marginBottom: '0.3rem'
-                    }}
+              </div>
+            )}
+            
+            {/* Product options */}
+            {step >= creativeQuestions.length && researchDone && !productSelected && productAsked && productsList.length > 0 && (
+              <div className="message bot">
+                <div className="message-bubble">
+                  <div className="options-grid">
+                    {productsList.map(opt => (
+                      <button
+                        key={opt}
+                        type="button"
+                        className="option-btn"
                         onClick={() => {
                           setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
                           const updatedAnswers = { ...answers, product: opt };
@@ -816,876 +700,720 @@ function Chatbot() {
                           setProductSelected(true);
                           maybeGenerateScript(updatedAnswers);
                         }}
-                  >
-                    {opt}
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  style={{
-                    background: 'var(--button-bg)',
-                    color: 'var(--button-text)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '0.6rem 1.2rem',
-                    fontFamily: 'Orbitron, sans-serif',
-                    fontWeight: 'bold',
-                    cursor: 'pointer'
-                  }}
-                  onClick={handleCustomProduct}
-                >
-                  Other
-                </button>
-              </div>
-            </div>
-          )}
-              
-              {/* Script Preview */}
-              {scriptGenerated && currentScript && (
-                <ScriptPreview
-                  script={currentScript}
-                  scriptAnalysis={scriptAnalysis}
-                  companyInfo={companyInfo}
-                  userAnswers={answers}
-                  onImprove={handleScriptImprovement}
-                  onApprove={handleScriptApproval}
-                  loading={loading}
-                />
-              )}
-              
-              {/* Final Result */}
-          {result && (
-            <div>
-                  <div style={{ margin: '1em 0', padding: '1.5em', background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)', borderRadius: '12px', border: '2px solid #28a745' }}>
-                    <h3 style={{ color: '#333', marginBottom: '1em', fontSize: '1.5rem' }}>
-                      🎉 Your VEO-3 AI Video Ad is Ready!
-                    </h3>
-                    
-                    {/* VEO-3 Features Display */}
-                    {result.veo3_features && (
-                      <div style={{ 
-                        background: '#e8f5e8', 
-                        padding: '1rem', 
-                        borderRadius: '8px', 
-                        marginBottom: '1rem',
-                        border: '1px solid #28a745'
-                      }}>
-                        <h4 style={{ color: '#155724', marginBottom: '0.5rem', fontSize: '1.1rem' }}>
-                          ✨ VEO-3 Features Used:
-                        </h4>
-                        <ul style={{ margin: '0', paddingLeft: '1.2rem', color: '#155724' }}>
-                          {result.veo3_features.map((feature, index) => (
-                            <li key={index} style={{ marginBottom: '0.3rem' }}>
-                              {feature.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    {/* Technical Details */}
-                    {result.technical_details && (
-                      <div style={{ 
-                        background: '#fff3cd', 
-                        padding: '1rem', 
-                        borderRadius: '8px', 
-                        marginBottom: '1rem',
-                        border: '1px solid #ffc107'
-                      }}>
-                        <h4 style={{ color: '#856404', marginBottom: '0.5rem', fontSize: '1.1rem' }}>
-                          🔧 Technical Details:
-                        </h4>
-                        <div style={{ color: '#856404', fontSize: '0.9rem' }}>
-                          <p><strong>Duration:</strong> {result.duration} seconds (2 seamless segments)</p>
-                          <p><strong>Segments Generated:</strong> {result.segments_generated}</p>
-                          <p><strong>Image Assets Integrated:</strong> {result.technical_details.image_assets_integrated}</p>
-                          <p><strong>Frame Continuation:</strong> {result.technical_details.continuation_frame}</p>
-                        </div>
-                      </div>
-                    )}
-                    
-                    <div style={{ margin: '1.5em 0' }}>
-                  <a
-                    href={`${API_BASE_URL}${result.video_url}`}
-                    download
-                    style={{ 
-                      color: '#fff', 
-                      backgroundColor: '#007bff', 
-                          padding: '14px 28px', 
-                      textDecoration: 'none', 
-                          borderRadius: '10px',
-                      display: 'inline-block',
-                      marginRight: '1em',
-                          marginBottom: '0.5em',
-                      fontSize: '16px',
-                          fontWeight: 'bold',
-                          boxShadow: '0 4px 8px rgba(0,123,255,0.3)'
-                    }}
-                  >
-                        🎬 Download VEO-3 Video
-                  </a>
-                  
-                      {result.report_url && (
-                  <a
-                    href={`${API_BASE_URL}${result.report_url}`}
-                    download
-                    style={{ 
-                      color: '#fff', 
-                      backgroundColor: '#28a745', 
-                            padding: '14px 28px', 
-                      textDecoration: 'none', 
-                            borderRadius: '10px',
-                      display: 'inline-block',
-                            marginRight: '1em',
-                            marginBottom: '0.5em',
-                      fontSize: '16px',
-                            fontWeight: 'bold',
-                            boxShadow: '0 4px 8px rgba(40,167,69,0.3)'
-                    }}
-                  >
-                    📄 Download Report
-                  </a>
-                      )}
-                  
-                  {!hasRated && (
+                      >
+                        {opt}
+                      </button>
+                    ))}
                     <button
-                      onClick={() => setShowRatingModal(true)}
-                      style={{ 
-                        color: '#fff', 
-                        backgroundColor: '#ffc107', 
-                            padding: '14px 28px', 
-                        border: 'none',
-                            borderRadius: '10px',
-                        display: 'inline-block',
-                            marginBottom: '0.5em',
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                            cursor: 'pointer',
-                            boxShadow: '0 4px 8px rgba(255,193,7,0.3)'
-                      }}
+                      type="button"
+                      className="option-btn"
+                      onClick={handleCustomProduct}
                     >
-                          ⭐ Rate This VEO-3 Ad
+                      Other
                     </button>
-                  )}
+                  </div>
                 </div>
-                
-                    <p style={{ color: '#666', fontSize: '14px', marginTop: '1em', lineHeight: '1.5' }}>
-                      🎯 Your video was generated using Google's VEO-3 with frame-to-video continuation for seamless transitions. 
-                      {uploadedImages.length > 0 && ` Your ${uploadedImages.length} uploaded assets were integrated into the scenes.`}
-                      {' '}Download and share your professional AI-created ad!
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-            
-        {/* Input form */}
-        {!result && !loading && !scriptGenerated && (
-          <form className="input-row" onSubmit={handleSend}>
-            {!answers.company_url ? (
-              <div>
-                <div className="info-tip">
-                  💡 <strong>Tip:</strong> Just enter the website domain (e.g., "apple.com" or "nike.com"). 
-                  Our AI will research your company automatically.
-                </div>
-                <input
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Enter your company website URL..."
-                />
-              </div>
-            ) : step === 0 ? (
-              <div className="options-grid">
-                {industryOptions.map(opt => (
-                  <button
-                    key={opt}
-                    type="button"
-                    className="option-btn"
-                    onClick={() => {
-                      setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
-                      setAnswers(ans => ({ ...ans, industry: opt }));
-                      setStep(1);
-                      setMessages(msgs => [...msgs, { sender: 'bot', text: creativeQuestions[0].text }]);
-                    }}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            ) : step <= creativeQuestions.length && creativeQuestions[step - 1]?.options ? (
-              <div className="options-grid">
-                {creativeQuestions[step - 1].options.map(opt => (
-                  <button
-                    key={opt}
-                    type="button"
-                    className="option-btn"
-                    onClick={() => {
-                      console.log('Button clicked:', opt, 'Current step:', step, 'Question:', creativeQuestions[step - 1]);
-                      setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
-                      const currentQuestion = creativeQuestions[step - 1];
-                      const updatedAnswers = { ...answers, [currentQuestion.key]: opt };
-                      console.log('Updating answers:', updatedAnswers);
-                      setAnswers(updatedAnswers);
-                      
-                      if (step < creativeQuestions.length) {
-                        setStep(step + 1);
-                        const nextQuestion = creativeQuestions[step];
-                        setMessages(msgs => [...msgs, { sender: 'bot', text: nextQuestion.text }]);
-                      } else {
-                        setStep(step + 1);
-                        if (!productAsked && productsList.length > 0) {
-                          setMessages(msgs => [...msgs, { sender: 'bot', text: 'Select a product or service to promote:' }]);
-                          setProductAsked(true);
-                        } else if (!productAsked) {
-                          setMessages(msgs => [...msgs, { sender: 'bot', text: 'Type your product or service:' }]);
-                          setProductAsked(true);
-                        }
-                      }
-                    }}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <div>
-                <input
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={step <= creativeQuestions.length ? 
-                    creativeQuestions[step - 1]?.placeholder || "Type your answer..." : 
-                    "Type your product or service..."
-                  }
-                />
-                <button type="submit">Send</button>
               </div>
             )}
-          </form>
-        )}
-      
-            {/* Show rating modal */}
-      <RatingModal
-              show={showRatingModal}
-        onClose={handleRatingClose}
-        onSubmit={handleRatingSubmit}
-            />
             
-        <style jsx>{`
-          .chatbot-layout {
-            display: flex;
-            height: 100vh;
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 25%, #60a5fa  50%, #93c5fd  75%, #dbeafe 100%);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            position: relative;
-            overflow-x: hidden;
-          }
-
-          .chatbot-layout::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.03"><circle cx="50" cy="50" r="2"/></g></svg>');
-            opacity: 0.3;
-          }
-
-          .image-sidebar {
-            width: 380px;
-            background: rgba(255, 255, 255, 0.95);
-            border-right: none;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(20px);
-            position: relative;
-            z-index: 10;
-          }
-
-          .image-sidebar.closed {
-            width: 70px;
-          }
-
-          .sidebar-header {
-            padding: 1.5rem;
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 20px rgba(30, 64, 175, 0.3);
-          }
-
-          .sidebar-header h3 {
-            margin: 0;
-            font-size: 1.2rem;
-            font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-          }
-
-          .toggle-sidebar {
-            background: rgba(255,255,255,0.15);
-            border: none;
-            color: white;
-            padding: 0.7rem;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-          }
-
-          .toggle-sidebar:hover {
-            background: rgba(255,255,255,0.25);
-            transform: scale(1.05);
-          }
-
-          .sidebar-upload-zone {
-            margin: 1.5rem;
-            border: 3px dashed #93c5fd;
-            border-radius: 16px;
-            padding: 2rem 1rem;
-            text-align: center;
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-          }
-
-          .sidebar-upload-zone::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(30, 64, 175, 0.1) 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-          }
-
-          .sidebar-upload-zone:hover::before {
-            opacity: 1;
-          }
-
-          .sidebar-upload-zone.drag-active {
-            border-color: #3b82f6;
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            transform: scale(1.02);
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
-          }
-
-          .sidebar-upload-zone:hover {
-            border-color: #3b82f6;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
-          }
-
-          .upload-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.8rem;
-            color: #3b82f6;
-          }
-
-          .sidebar-upload-zone p {
-            margin: 0.5rem 0;
-            color: #1e40af;
-            font-weight: 600;
-          }
-
-          .browse-btn {
-            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-top: 0.8rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-            font-size: 0.95rem;
-          }
-
-          .browse-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-          }
-
-          .uploaded-images-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 0 1.5rem 1.5rem;
-            scrollbar-width: thin;
-            scrollbar-color: #93c5fd transparent;
-          }
-
-          .uploaded-images-list::-webkit-scrollbar {
-            width: 6px;
-          }
-
-          .uploaded-images-list::-webkit-scrollbar-track {
-            background: transparent;
-          }
-
-          .uploaded-images-list::-webkit-scrollbar-thumb {
-            background: #93c5fd;
-            border-radius: 3px;
-          }
-
-          .no-images {
-            text-align: center;
-            padding: 3rem 1.5rem;
-            color: #64748b;
-          }
-
-          .no-images p {
-            font-weight: 600;
-            margin-bottom: 0.8rem;
-            font-size: 1.1rem;
-            color: #1e40af;
-          }
-
-          .no-images span {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: #64748b;
-          }
-
-          .image-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            margin-bottom: 1.5rem;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          }
-
-          .image-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(59, 130, 246, 0.2);
-            border-color: #3b82f6;
-          }
-
-          .image-preview {
-            position: relative;
-            height: 140px;
-            overflow: hidden;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-          }
-
-          .image-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-          }
-
-          .image-card:hover .image-preview img {
-            transform: scale(1.05);
-          }
-
-          .remove-image-btn {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: rgba(239, 68, 68, 0.9);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-          }
-
-          .remove-image-btn:hover {
-            background: #ef4444;
-            transform: scale(1.1);
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
-          }
-
-          .image-details {
-            padding: 1.5rem;
-          }
-
-          .filename {
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
-            word-break: break-word;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-          }
-
-          .filename::before {
-            content: '📄';
-            font-size: 1.1rem;
-          }
-
-          .form-group {
-            margin-bottom: 1rem;
-          }
-
-          .form-group label {
-            display: block;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-          }
-
-          .form-group select,
-          .form-group textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            background: white;
-            font-family: inherit;
-          }
-
-          .form-group select:focus,
-          .form-group textarea:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-            transform: translateY(-1px);
-          }
-
-          .form-group textarea {
-            resize: vertical;
-            min-height: 70px;
-            line-height: 1.5;
-          }
-
-          .main-chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 25%, #60a5fa  50%, #93c5fd  75%, #dbeafe 100%);
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-          }
-
-          .chatbot-outer {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            max-width: 100%;
-            position: relative;
-            z-index: 1;
-          }
-
-          .container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 2rem;
-            max-width: 1000px;
-            margin: 0 auto;
-            width: 100%;
-          }
-
-          .container h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: white;
-            text-align: center;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-          }
-
-          .adgenie-logo {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-          }
-
-          .adgenie-logo span {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: white;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
-          }
-
-          .subtitle {
-            color: rgba(255,255,255,0.9);
-            text-align: center;
-            margin-bottom: 2rem;
-            font-size: 1.1rem;
-            font-weight: 500;
-            text-shadow: 0 1px 5px rgba(0,0,0,0.1);
-          }
-
-          .chat {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem 0;
-            background: rgba(255,255,255,0.95);
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            backdrop-filter: blur(20px);
-            margin-bottom: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-          }
-
-          /* Enhanced message bubbles */
-          .chat :global(.msg) {
-            margin-bottom: 1rem;
-            padding: 0 1.5rem;
-          }
-
-          .chat :global(.bubble) {
-            max-width: 80%;
-            padding: 1rem 1.5rem;
-            border-radius: 18px;
-            line-height: 1.6;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            font-weight: 500;
-          }
-
-          .chat :global(.msg.bot .bubble) {
-            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-            color: white;
-            margin-right: auto;
-          }
-
-          .chat :global(.msg.user .bubble) {
-            background: white;
-            color: #1e293b;
-            margin-left: auto;
-            border: 1px solid #e2e8f0;
-          }
-
-          /* Enhanced form styling */
-          .input-row {
-            background: rgba(255,255,255,0.95);
-            padding: 1.5rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-          }
-
-          .input-row input {
-            width: 100%;
-            padding: 1rem 1.5rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 15px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: white;
-            font-family: inherit;
-          }
-
-          .input-row input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-            transform: translateY(-2px);
-          }
-
-          /* Enhanced button styling */
-          .input-row button,
-          .option-btn {
-            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-            margin: 0.5rem;
-          }
-
-          .input-row button:hover,
-          .option-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-          }
-
-          .option-btn.selected {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-          }
-
-          /* Options grid */
-          .options-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 0.8rem;
-            margin-top: 1rem;
-          }
-
-          /* Info tip styling */
-          .info-tip {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            border: 1px solid #3b82f6;
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            color: #1e40af;
-            font-weight: 500;
-          }
-
-          /* Script preview enhancements */
-          .script-actions {
-            background: rgba(255,255,255,0.95);
-            padding: 1.5rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            backdrop-filter: blur(20px);
-            margin-top: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-          }
-
-          .generate-video-btn {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 15px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
-            width: 100%;
-          }
-
-          .generate-video-btn:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
-          }
-
-          .generate-video-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-          }
-
-          .veo3-features {
-            margin-top: 1rem;
-            text-align: center;
-            color: #64748b;
-            font-size: 0.9rem;
-            font-weight: 500;
-          }
-
-          /* Loading indicator */
-          .loading-indicator {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 2rem;
-            background: rgba(255,255,255,0.95);
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            backdrop-filter: blur(20px);
-            margin-top: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-          }
-
-          .loading-indicator .spinner {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            animation: spin 1s linear infinite;
-          }
-
-          .loading-indicator p {
-            color: #3b82f6;
-            font-weight: 600;
-            margin: 0;
-          }
-
-          /* Mobile Responsive */
-          @media (max-width: 768px) {
-            .chatbot-layout {
-              flex-direction: column;
-              height: auto;
-              min-height: 100vh;
-            }
-
-            .image-sidebar {
-              width: 100%;
-              height: auto;
-              max-height: 50vh;
-              order: 2;
-            }
-
-            .image-sidebar.closed {
-              width: 100%;
-              height: 80px;
-            }
-
-            .main-chat-area {
-              order: 1;
-              min-height: 50vh;
-            }
-
-            .container {
-              padding: 1.5rem;
-            }
-
-            .container h1 {
-              font-size: 2rem;
-            }
-
-            .sidebar-header h3 {
-              font-size: 1rem;
-            }
-
-            .image-sidebar {
-              width: 100%;
-            }
-
-            .options-grid {
-              grid-template-columns: 1fr;
-            }
-          }
-
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-
-          /* Loading animation */
-          .chat :global(.spinner) {
-            display: inline-block;
-            animation: spin 1s linear infinite;
-          }
-        `}</style>
+            {/* Script Preview */}
+            {scriptGenerated && currentScript && (
+              <ScriptPreview
+                script={currentScript}
+                scriptAnalysis={scriptAnalysis}
+                companyInfo={companyInfo}
+                userAnswers={answers}
+                onImprove={handleScriptImprovement}
+                onApprove={handleScriptApproval}
+                loading={loading}
+              />
+            )}
+            
+            {/* Final Result */}
+            {result && (
+              <div className="result-section">
+                <div className="result-card">
+                  <h3>🎉 Your VEO-3 AI Video Ad is Ready!</h3>
+                  
+                  {/* VEO-3 Features Display */}
+                  {result.veo3_features && (
+                    <div className="features-display">
+                      <h4>✨ VEO-3 Features Used:</h4>
+                      <ul>
+                        {result.veo3_features.map((feature, index) => (
+                          <li key={index}>
+                            {feature.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {/* Technical Details */}
+                  {result.technical_details && (
+                    <div className="technical-details">
+                      <h4>🔧 Technical Details:</h4>
+                      <div>
+                        <p><strong>Duration:</strong> {result.duration} seconds (2 seamless segments)</p>
+                        <p><strong>Segments Generated:</strong> {result.segments_generated}</p>
+                        <p><strong>Image Assets Integrated:</strong> {result.technical_details.image_assets_integrated}</p>
+                        <p><strong>Frame Continuation:</strong> {result.technical_details.continuation_frame}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="download-buttons">
+                    <a
+                      href={`${API_BASE_URL}${result.video_url}`}
+                      download
+                      className="download-btn primary"
+                    >
+                      🎬 Download VEO-3 Video
+                    </a>
+                    
+                    {result.report_url && (
+                      <a
+                        href={`${API_BASE_URL}${result.report_url}`}
+                        download
+                        className="download-btn secondary"
+                      >
+                        📄 Download Report
+                      </a>
+                    )}
+                    
+                    {!hasRated && (
+                      <button
+                        onClick={() => setShowRatingModal(true)}
+                        className="download-btn rating"
+                      >
+                        ⭐ Rate This VEO-3 Ad
+                      </button>
+                    )}
+                  </div>
+                  
+                  <p className="result-description">
+                    🎯 Your video was generated using Google's VEO-3 with frame-to-video continuation for seamless transitions. 
+                    {uploadedImages.length > 0 && ` Your ${uploadedImages.length} uploaded assets were integrated into the scenes.`}
+                    {' '}Download and share your professional AI-created ad!
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* Input form */}
+          {!result && !loading && !scriptGenerated && (
+            <div className="chat-input">
+              {!answers.company_url ? (
+                <div>
+                  <div className="input-tip">
+                    💡 <strong>Tip:</strong> Just enter the website domain (e.g., "apple.com" or "nike.com"). 
+                    Our AI will research your company automatically.
+                  </div>
+                  <form onSubmit={handleSend} className="input-form">
+                    <input
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      placeholder="Enter your company website URL..."
+                      className="text-input"
+                    />
+                    <button type="submit" className="send-btn">Send</button>
+                  </form>
+                </div>
+              ) : step === 0 ? (
+                <div className="options-grid">
+                  {industryOptions.map(opt => (
+                    <button
+                      key={opt}
+                      type="button"
+                      className="option-btn"
+                      onClick={() => {
+                        setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
+                        setAnswers(ans => ({ ...ans, industry: opt }));
+                        setStep(1);
+                        setMessages(msgs => [...msgs, { sender: 'bot', text: creativeQuestions[0].text }]);
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              ) : step <= creativeQuestions.length && creativeQuestions[step - 1]?.options ? (
+                <div className="options-grid">
+                  {creativeQuestions[step - 1].options.map(opt => (
+                    <button
+                      key={opt}
+                      type="button"
+                      className="option-btn"
+                      onClick={() => {
+                        console.log('Button clicked:', opt, 'Current step:', step, 'Question:', creativeQuestions[step - 1]);
+                        setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
+                        const currentQuestion = creativeQuestions[step - 1];
+                        const updatedAnswers = { ...answers, [currentQuestion.key]: opt };
+                        console.log('Updating answers:', updatedAnswers);
+                        setAnswers(updatedAnswers);
+                        
+                        if (step < creativeQuestions.length) {
+                          setStep(step + 1);
+                          const nextQuestion = creativeQuestions[step];
+                          setMessages(msgs => [...msgs, { sender: 'bot', text: nextQuestion.text }]);
+                        } else {
+                          setStep(step + 1);
+                          if (!productAsked && productsList.length > 0) {
+                            setMessages(msgs => [...msgs, { sender: 'bot', text: 'Select a product or service to promote:' }]);
+                            setProductAsked(true);
+                          } else if (!productAsked) {
+                            setMessages(msgs => [...msgs, { sender: 'bot', text: 'Type your product or service:' }]);
+                            setProductAsked(true);
+                          }
+                        }
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <form onSubmit={handleSend} className="input-form">
+                  <input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={step <= creativeQuestions.length ? 
+                      creativeQuestions[step - 1]?.placeholder || "Type your answer..." : 
+                      "Type your product or service..."
+                    }
+                    className="text-input"
+                  />
+                  <button type="submit" className="send-btn">Send</button>
+                </form>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Image Drop Panel */}
+        <div className="image-panel">
+          <div className="panel-header">
+            <h2>Image drop box</h2>
+          </div>
+          
+          <div 
+            className={`drop-zone ${dragActive ? 'drag-active' : ''}`}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+          >
+            <div className="drop-content">
+              <div className="drop-icon">📁</div>
+              <p>Drop images here</p>
+              <button 
+                className="browse-btn"
+                onClick={() => document.getElementById('file-input').click()}
+              >
+                Browse Files
+              </button>
+              <input
+                id="file-input"
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={(e) => e.target.files[0] && handleImageUpload(e.target.files[0])}
+              />
+            </div>
+          </div>
+
+          {/* Uploaded Images */}
+          {uploadedImages.length > 0 && (
+            <div className="uploaded-images">
+              <h3>Uploaded Images ({uploadedImages.length})</h3>
+              <div className="images-list">
+                {uploadedImages.map(img => (
+                  <div key={img.id} className="image-item">
+                    <div className="image-preview">
+                      <img src={img.preview} alt={img.filename} />
+                      <button 
+                        className="remove-btn"
+                        onClick={() => removeImage(img.id)}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <div className="image-name">{img.filename}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Show rating modal */}
+      <RatingModal
+        show={showRatingModal}
+        onClose={handleRatingClose}
+        onSubmit={handleRatingSubmit}
+      />
+
+      <style jsx>{`
+        .chatbot-container {
+          height: 100vh;
+          background: linear-gradient(135deg, #D789D7 0%, #9C27B0 25%, #673AB7 50%, #3F51B5 75%, #1A237E 100%);
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .header {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(20px);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          padding: 1rem 2rem;
+          display: flex;
+          align-items: center;
+        }
+
+        .logo {
+          display: flex;
+          align-items: center;
+          gap: 0.8rem;
+          color: white;
+          font-weight: 600;
+          font-size: 1.1rem;
+        }
+
+        .main-layout {
+          flex: 1;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 2rem;
+          padding: 2rem;
+          min-height: 0;
+        }
+
+        .chat-panel,
+        .image-panel {
+          background: rgba(255, 255, 255, 0.95);
+          border-radius: 24px;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+
+        .panel-header {
+          background: rgba(63, 81, 181, 0.1);
+          padding: 1.5rem;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .panel-header h2 {
+          margin: 0;
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: #1A237E;
+          text-align: center;
+        }
+
+        .chat-messages {
+          flex: 1;
+          overflow-y: auto;
+          padding: 1.5rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .message {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .message.bot {
+          align-items: flex-start;
+        }
+
+        .message.user {
+          align-items: flex-end;
+        }
+
+        .message-bubble {
+          max-width: 80%;
+          padding: 1rem 1.5rem;
+          border-radius: 18px;
+          line-height: 1.6;
+          font-weight: 500;
+        }
+
+        .message.bot .message-bubble {
+          background: linear-gradient(135deg, #3F51B5 0%, #9C27B0 100%);
+          color: white;
+        }
+
+        .message.user .message-bubble {
+          background: #f1f5f9;
+          color: #1e293b;
+          border: 1px solid #e2e8f0;
+        }
+
+        .loading-spinner {
+          display: inline-block;
+          margin-left: 0.5rem;
+          animation: spin 1s linear infinite;
+        }
+
+        .options-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 0.8rem;
+          margin-top: 1rem;
+        }
+
+        .option-btn {
+          background: linear-gradient(135deg, #3F51B5 0%, #9C27B0 100%);
+          color: white;
+          border: none;
+          padding: 0.8rem 1.5rem;
+          border-radius: 12px;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 0.95rem;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(63, 81, 181, 0.3);
+        }
+
+        .option-btn:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 25px rgba(63, 81, 181, 0.4);
+        }
+
+        .chat-input {
+          padding: 1.5rem;
+          border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .input-tip {
+          background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+          border: 1px solid #3F51B5;
+          border-radius: 12px;
+          padding: 1rem;
+          margin-bottom: 1rem;
+          font-size: 0.9rem;
+          color: #1A237E;
+          font-weight: 500;
+        }
+
+        .input-form {
+          display: flex;
+          gap: 0.8rem;
+        }
+
+        .text-input {
+          flex: 1;
+          padding: 1rem 1.5rem;
+          border: 2px solid #e5e7eb;
+          border-radius: 15px;
+          font-size: 1rem;
+          transition: all 0.3s ease;
+          background: white;
+          font-family: inherit;
+        }
+
+        .text-input:focus {
+          outline: none;
+          border-color: #3F51B5;
+          box-shadow: 0 0 0 4px rgba(63, 81, 181, 0.1);
+          transform: translateY(-2px);
+        }
+
+        .send-btn {
+          background: linear-gradient(135deg, #3F51B5 0%, #9C27B0 100%);
+          color: white;
+          border: none;
+          padding: 1rem 2rem;
+          border-radius: 15px;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 1rem;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(63, 81, 181, 0.3);
+        }
+
+        .send-btn:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 25px rgba(63, 81, 181, 0.4);
+        }
+
+        .drop-zone {
+          flex: 1;
+          margin: 1.5rem;
+          border: 3px dashed #9C27B0;
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+          cursor: pointer;
+        }
+
+        .drop-zone.drag-active {
+          border-color: #3F51B5;
+          background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+          transform: scale(1.02);
+          box-shadow: 0 10px 30px rgba(63, 81, 181, 0.2);
+        }
+
+        .drop-zone:hover {
+          border-color: #3F51B5;
+          background: linear-gradient(135deg, #f8f9fa 0%, #f5f5f5 100%);
+        }
+
+        .drop-content {
+          text-align: center;
+          color: #64748b;
+        }
+
+        .drop-icon {
+          font-size: 3rem;
+          margin-bottom: 1rem;
+          color: #9C27B0;
+        }
+
+        .drop-content p {
+          font-size: 1.2rem;
+          font-weight: 500;
+          margin-bottom: 1.5rem;
+          color: #1A237E;
+        }
+
+        .browse-btn {
+          background: linear-gradient(135deg, #3F51B5 0%, #9C27B0 100%);
+          color: white;
+          border: none;
+          padding: 1rem 2rem;
+          border-radius: 12px;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 1rem;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(63, 81, 181, 0.3);
+        }
+
+        .browse-btn:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 25px rgba(63, 81, 181, 0.4);
+        }
+
+        .uploaded-images {
+          padding: 1.5rem;
+          border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .uploaded-images h3 {
+          margin: 0 0 1rem 0;
+          font-size: 1.1rem;
+          color: #1A237E;
+          font-weight: 600;
+        }
+
+        .images-list {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+          gap: 1rem;
+        }
+
+        .image-item {
+          position: relative;
+        }
+
+        .image-preview {
+          position: relative;
+          aspect-ratio: 1;
+          border-radius: 12px;
+          overflow: hidden;
+          background: #f1f5f9;
+        }
+
+        .image-preview img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .remove-btn {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          background: rgba(239, 68, 68, 0.9);
+          color: white;
+          border: none;
+          border-radius: 50%;
+          width: 24px;
+          height: 24px;
+          cursor: pointer;
+          font-size: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+          background: #ef4444;
+          transform: scale(1.1);
+        }
+
+        .image-name {
+          margin-top: 0.5rem;
+          font-size: 0.8rem;
+          color: #64748b;
+          text-align: center;
+          word-break: break-word;
+        }
+
+        .result-section {
+          margin-top: 1rem;
+        }
+
+        .result-card {
+          background: linear-gradient(135deg, #e8f5e8 0%, #f0f4ff 100%);
+          border: 2px solid #10b981;
+          border-radius: 16px;
+          padding: 2rem;
+        }
+
+        .result-card h3 {
+          color: #1e293b;
+          margin-bottom: 1.5rem;
+          font-size: 1.5rem;
+        }
+
+        .features-display {
+          background: rgba(16, 185, 129, 0.1);
+          padding: 1rem;
+          border-radius: 8px;
+          margin-bottom: 1rem;
+          border: 1px solid #10b981;
+        }
+
+        .features-display h4 {
+          color: #065f46;
+          margin-bottom: 0.5rem;
+          font-size: 1.1rem;
+        }
+
+        .features-display ul {
+          margin: 0;
+          padding-left: 1.2rem;
+          color: #065f46;
+        }
+
+        .features-display li {
+          margin-bottom: 0.3rem;
+        }
+
+        .technical-details {
+          background: rgba(251, 191, 36, 0.1);
+          padding: 1rem;
+          border-radius: 8px;
+          margin-bottom: 1rem;
+          border: 1px solid #fbbf24;
+        }
+
+        .technical-details h4 {
+          color: #92400e;
+          margin-bottom: 0.5rem;
+          font-size: 1.1rem;
+        }
+
+        .technical-details div {
+          color: #92400e;
+          font-size: 0.9rem;
+        }
+
+        .technical-details p {
+          margin: 0.2rem 0;
+        }
+
+        .download-buttons {
+          margin: 1.5rem 0;
+          display: flex;
+          gap: 1rem;
+          flex-wrap: wrap;
+        }
+
+        .download-btn {
+          color: white;
+          padding: 1rem 2rem;
+          text-decoration: none;
+          border-radius: 12px;
+          display: inline-block;
+          font-size: 1rem;
+          font-weight: 600;
+          transition: all 0.3s ease;
+          border: none;
+          cursor: pointer;
+        }
+
+        .download-btn.primary {
+          background: linear-gradient(135deg, #3F51B5 0%, #9C27B0 100%);
+          box-shadow: 0 4px 15px rgba(63, 81, 181, 0.3);
+        }
+
+        .download-btn.secondary {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .download-btn.rating {
+          background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+          box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+        }
+
+        .download-btn:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 25px rgba(63, 81, 181, 0.4);
+        }
+
+        .result-description {
+          color: #64748b;
+          font-size: 0.9rem;
+          margin-top: 1rem;
+          line-height: 1.5;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+          .main-layout {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            padding: 1rem;
+          }
+
+          .panel-header h2 {
+            font-size: 1.2rem;
+          }
+
+          .options-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .download-buttons {
+            flex-direction: column;
+          }
+
+          .images-list {
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+          }
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
