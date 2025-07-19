@@ -950,133 +950,86 @@ function Chatbot() {
         </div>
             
         {/* Input form */}
-            {!result && !loading && !scriptGenerated && (
+        {!result && !loading && !scriptGenerated && (
           <form className="input-row" onSubmit={handleSend}>
             {!answers.company_url ? (
               <div>
-                <div style={{ 
-                  background: '#e3f2fd', 
-                  border: '1px solid #2196f3', 
-                  borderRadius: '8px', 
-                  padding: '12px', 
-                  marginBottom: '12px',
-                  fontSize: '14px',
-                  color: '#1976d2'
-                }}>
+                <div className="info-tip">
                   💡 <strong>Tip:</strong> Just enter the website domain (e.g., "apple.com" or "nike.com"). 
-                      Our AI will research your company automatically.
+                  Our AI will research your company automatically.
                 </div>
                 <input
                   value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      placeholder="Enter your company website URL..."
-                      style={{
-                        width: '100%',
-                        padding: '1rem',
-                        borderRadius: '12px',
-                        border: '1px solid var(--teal-mid)',
-                        background: 'var(--input-bg)',
-                        color: 'var(--text-light)',
-                        fontSize: '1rem'
-                      }}
-                    />
-                </div>
-                ) : step === 0 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {industryOptions.map(opt => (
-                      <button
-                        key={opt}
-                        type="button"
-                style={{
-                          background: 'var(--button-bg)',
-                          color: 'var(--button-text)',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '0.6rem 1.2rem',
-                  fontFamily: 'Orbitron, sans-serif',
-                  fontWeight: 'bold',
-                        cursor: 'pointer'
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Enter your company website URL..."
+                />
+              </div>
+            ) : step === 0 ? (
+              <div className="options-grid">
+                {industryOptions.map(opt => (
+                  <button
+                    key={opt}
+                    type="button"
+                    className="option-btn"
+                    onClick={() => {
+                      setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
+                      setAnswers(ans => ({ ...ans, industry: opt }));
+                      setStep(1);
+                      setMessages(msgs => [...msgs, { sender: 'bot', text: creativeQuestions[0].text }]);
                     }}
-                        onClick={() => {
-                          setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
-                          setAnswers(ans => ({ ...ans, industry: opt }));
-                          setStep(1);
-                          setMessages(msgs => [...msgs, { sender: 'bot', text: creativeQuestions[0].text }]);
-                        }}
-                      >
-                        {opt}
-                      </button>
-                    ))}
-                  </div>
-                ) : step <= creativeQuestions.length && creativeQuestions[step - 1]?.options ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {creativeQuestions[step - 1].options.map(opt => (
-                      <button
-                        key={opt}
-                        type="button"
-                  style={{
-                          background: 'var(--button-bg)',
-                          color: 'var(--button-text)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '0.6rem 1.2rem',
-                    fontFamily: 'Orbitron, sans-serif',
-                    fontWeight: 'bold',
-                        cursor: 'pointer'
-                    }}
-                        onClick={() => {
-                          console.log('Button clicked:', opt, 'Current step:', step, 'Question:', creativeQuestions[step - 1]);
-                          setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
-                          const currentQuestion = creativeQuestions[step - 1];
-                          const updatedAnswers = { ...answers, [currentQuestion.key]: opt };
-                          console.log('Updating answers:', updatedAnswers);
-                          setAnswers(updatedAnswers);
-                          
-                          if (step < creativeQuestions.length) {
-                            setStep(step + 1);
-                            const nextQuestion = creativeQuestions[step];
-                            setMessages(msgs => [...msgs, { sender: 'bot', text: nextQuestion.text }]);
-                          } else {
-                            setStep(step + 1);
-                            if (!productAsked && productsList.length > 0) {
-                              setMessages(msgs => [...msgs, { sender: 'bot', text: 'Select a product or service to promote:' }]);
-                              setProductAsked(true);
-                            } else if (!productAsked) {
-                              setMessages(msgs => [...msgs, { sender: 'bot', text: 'Type your product or service:' }]);
-                              setProductAsked(true);
-                            }
-                          }
-                        }}
-                      >
-                        {opt}
-                      </button>
-                      ))}
-                  </div>
-              ) : (
-                <input
-                  value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                  placeholder="Type your answer..."
-                    style={{
-                      width: '100%',
-                      padding: '1rem',
-                      borderRadius: '12px',
-                      border: '1px solid var(--teal-mid)',
-                      background: 'var(--input-bg)',
-                      color: 'var(--text-light)',
-                      fontSize: '1rem'
-                    }}
-                    />
-                )}
-                
-                {/* Only show submit button for text inputs */}
-                {((answers.company_url && step === 0) || 
-                  (step > 0 && step <= creativeQuestions.length && !creativeQuestions[step - 1]?.options) ||
-                  (productAsked && !productSelected)) && (
-                  <button type="submit" className="send-btn">
-                    Send
+                  >
+                    {opt}
                   </button>
-                )}
+                ))}
+              </div>
+            ) : step <= creativeQuestions.length && creativeQuestions[step - 1]?.options ? (
+              <div className="options-grid">
+                {creativeQuestions[step - 1].options.map(opt => (
+                  <button
+                    key={opt}
+                    type="button"
+                    className="option-btn"
+                    onClick={() => {
+                      console.log('Button clicked:', opt, 'Current step:', step, 'Question:', creativeQuestions[step - 1]);
+                      setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
+                      const currentQuestion = creativeQuestions[step - 1];
+                      const updatedAnswers = { ...answers, [currentQuestion.key]: opt };
+                      console.log('Updating answers:', updatedAnswers);
+                      setAnswers(updatedAnswers);
+                      
+                      if (step < creativeQuestions.length) {
+                        setStep(step + 1);
+                        const nextQuestion = creativeQuestions[step];
+                        setMessages(msgs => [...msgs, { sender: 'bot', text: nextQuestion.text }]);
+                      } else {
+                        setStep(step + 1);
+                        if (!productAsked && productsList.length > 0) {
+                          setMessages(msgs => [...msgs, { sender: 'bot', text: 'Select a product or service to promote:' }]);
+                          setProductAsked(true);
+                        } else if (!productAsked) {
+                          setMessages(msgs => [...msgs, { sender: 'bot', text: 'Type your product or service:' }]);
+                          setProductAsked(true);
+                        }
+                      }
+                    }}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div>
+                <input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={step <= creativeQuestions.length ? 
+                    creativeQuestions[step - 1]?.placeholder || "Type your answer..." : 
+                    "Type your product or service..."
+                  }
+                />
+                <button type="submit">Send</button>
+              </div>
+            )}
           </form>
         )}
       
@@ -1091,217 +1044,310 @@ function Chatbot() {
               .chatbot-layout {
                 display: flex;
                 height: 100vh;
-                background: #f5f7fa;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
               }
 
               .image-sidebar {
-                width: 350px;
-                background: white;
-                border-right: 2px solid #e1e8ed;
+                width: 380px;
+                background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+                border-right: none;
                 display: flex;
                 flex-direction: column;
-                transition: all 0.3s ease;
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                 overflow: hidden;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
               }
 
               .image-sidebar.closed {
-                width: 50px;
+                width: 70px;
               }
 
               .sidebar-header {
-                padding: 1rem;
+                padding: 1.5rem;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 color: white;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                border-bottom: 1px solid #e1e8ed;
+                box-shadow: 0 2px 20px rgba(102, 126, 234, 0.3);
               }
 
               .sidebar-header h3 {
                 margin: 0;
-                font-size: 1.1rem;
+                font-size: 1.2rem;
+                font-weight: 700;
                 white-space: nowrap;
                 overflow: hidden;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
               }
 
               .toggle-sidebar {
-                background: rgba(255,255,255,0.2);
+                background: rgba(255,255,255,0.15);
                 border: none;
                 color: white;
-                padding: 0.5rem;
-                border-radius: 4px;
+                padding: 0.7rem;
+                border-radius: 12px;
                 cursor: pointer;
-                font-size: 1rem;
-                transition: background 0.2s;
+                font-size: 1.1rem;
+                transition: all 0.3s ease;
+                backdrop-filter: blur(10px);
               }
 
               .toggle-sidebar:hover {
-                background: rgba(255,255,255,0.3);
+                background: rgba(255,255,255,0.25);
+                transform: scale(1.05);
               }
 
               .sidebar-upload-zone {
-                margin: 1rem;
-                border: 2px dashed #ccc;
-                border-radius: 12px;
-                padding: 1.5rem;
+                margin: 1.5rem;
+                border: 3px dashed #e2e8f0;
+                border-radius: 16px;
+                padding: 2rem 1rem;
                 text-align: center;
-                background: #f9f9f9;
-                transition: all 0.3s ease;
+                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                 cursor: pointer;
+                position: relative;
+                overflow: hidden;
+              }
+
+              .sidebar-upload-zone::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+              }
+
+              .sidebar-upload-zone:hover::before {
+                opacity: 1;
               }
 
               .sidebar-upload-zone.drag-active {
-                border-color: #2196f3;
-                background: #f3f8ff;
+                border-color: #667eea;
+                background: linear-gradient(135deg, #eff6ff 0%, #f0f4ff 100%);
                 transform: scale(1.02);
+                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+              }
+
+              .sidebar-upload-zone:hover {
+                border-color: #667eea;
+                transform: translateY(-2px);
               }
 
               .upload-icon {
-                font-size: 2rem;
-                margin-bottom: 0.5rem;
+                font-size: 2.5rem;
+                margin-bottom: 0.8rem;
+                color: #667eea;
+              }
+
+              .sidebar-upload-zone p {
+                margin: 0.5rem 0;
+                color: #475569;
+                font-weight: 500;
               }
 
               .browse-btn {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 color: white;
                 border: none;
-                padding: 0.6rem 1.2rem;
-                border-radius: 8px;
+                padding: 0.8rem 1.5rem;
+                border-radius: 12px;
                 cursor: pointer;
                 font-weight: 600;
-                margin-top: 0.5rem;
-                transition: transform 0.2s;
+                margin-top: 0.8rem;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+                font-size: 0.95rem;
               }
 
               .browse-btn:hover {
-                transform: translateY(-2px);
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
               }
 
               .uploaded-images-list {
                 flex: 1;
                 overflow-y: auto;
-                padding: 0 1rem 1rem;
+                padding: 0 1.5rem 1.5rem;
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e1 transparent;
+              }
+
+              .uploaded-images-list::-webkit-scrollbar {
+                width: 6px;
+              }
+
+              .uploaded-images-list::-webkit-scrollbar-track {
+                background: transparent;
+              }
+
+              .uploaded-images-list::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 3px;
               }
 
               .no-images {
                 text-align: center;
-                padding: 2rem 1rem;
-                color: #666;
+                padding: 3rem 1.5rem;
+                color: #64748b;
               }
 
               .no-images p {
                 font-weight: 600;
-                margin-bottom: 0.5rem;
+                margin-bottom: 0.8rem;
+                font-size: 1.1rem;
+                color: #475569;
               }
 
               .no-images span {
-                font-size: 0.9rem;
-                line-height: 1.4;
+                font-size: 0.95rem;
+                line-height: 1.6;
+                color: #64748b;
               }
 
               .image-card {
                 background: white;
-                border: 1px solid #e1e8ed;
-                border-radius: 12px;
-                margin-bottom: 1rem;
+                border: 1px solid #e2e8f0;
+                border-radius: 16px;
+                margin-bottom: 1.5rem;
                 overflow: hidden;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                transition: transform 0.2s, box-shadow 0.2s;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
               }
 
               .image-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+                transform: translateY(-4px);
+                box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+                border-color: #667eea;
               }
 
               .image-preview {
                 position: relative;
-                height: 120px;
+                height: 140px;
                 overflow: hidden;
+                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
               }
 
               .image-preview img {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
+                transition: transform 0.3s ease;
+              }
+
+              .image-card:hover .image-preview img {
+                transform: scale(1.05);
               }
 
               .remove-image-btn {
                 position: absolute;
-                top: 8px;
-                right: 8px;
-                background: rgba(255,68,68,0.9);
+                top: 12px;
+                right: 12px;
+                background: rgba(239, 68, 68, 0.9);
                 color: white;
                 border: none;
                 border-radius: 50%;
-                width: 28px;
-                height: 28px;
+                width: 32px;
+                height: 32px;
                 cursor: pointer;
                 font-size: 14px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                transition: all 0.2s;
+                transition: all 0.3s ease;
+                backdrop-filter: blur(10px);
               }
 
               .remove-image-btn:hover {
-                background: #ff4444;
+                background: #ef4444;
                 transform: scale(1.1);
+                box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
               }
 
               .image-details {
-                padding: 1rem;
+                padding: 1.5rem;
               }
 
               .filename {
-                font-weight: 600;
-                color: #333;
-                margin-bottom: 0.8rem;
-                font-size: 0.9rem;
+                font-weight: 700;
+                color: #1e293b;
+                margin-bottom: 1rem;
+                font-size: 0.95rem;
                 word-break: break-word;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+              }
+
+              .filename::before {
+                content: '📄';
+                font-size: 1.1rem;
               }
 
               .form-group {
-                margin-bottom: 0.8rem;
+                margin-bottom: 1rem;
               }
 
               .form-group label {
                 display: block;
                 font-weight: 600;
-                color: #555;
-                margin-bottom: 0.3rem;
-                font-size: 0.85rem;
+                color: #374151;
+                margin-bottom: 0.5rem;
+                font-size: 0.9rem;
               }
 
               .form-group select,
               .form-group textarea {
                 width: 100%;
-                padding: 0.5rem;
-                border: 1px solid #ddd;
-                border-radius: 6px;
-                font-size: 0.85rem;
-                transition: border-color 0.2s;
+                padding: 0.75rem;
+                border: 2px solid #e5e7eb;
+                border-radius: 12px;
+                font-size: 0.9rem;
+                transition: all 0.3s ease;
+                background: white;
+                font-family: inherit;
               }
 
               .form-group select:focus,
               .form-group textarea:focus {
                 outline: none;
                 border-color: #667eea;
-                box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+                box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+                transform: translateY(-1px);
               }
 
               .form-group textarea {
                 resize: vertical;
-                min-height: 60px;
-                font-family: inherit;
+                min-height: 70px;
+                line-height: 1.5;
               }
 
               .main-chat-area {
                 flex: 1;
                 display: flex;
                 flex-direction: column;
-                background: #f5f7fa;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                position: relative;
+                overflow: hidden;
+              }
+
+              .main-chat-area::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.03"><circle cx="30" cy="30" r="2"/></g></svg>');
+                opacity: 0.5;
               }
 
               .chatbot-outer {
@@ -1309,29 +1355,216 @@ function Chatbot() {
                 display: flex;
                 flex-direction: column;
                 max-width: 100%;
+                position: relative;
+                z-index: 1;
               }
 
               .container {
                 flex: 1;
                 display: flex;
                 flex-direction: column;
-                padding: 1rem 2rem;
-                max-width: 900px;
+                padding: 2rem;
+                max-width: 1000px;
                 margin: 0 auto;
                 width: 100%;
               }
 
-              .subtitle {
-                color: #666;
+              .container h1 {
+                font-size: 2.5rem;
+                font-weight: 800;
+                color: white;
                 text-align: center;
-                margin-bottom: 1rem;
-                font-size: 1rem;
+                margin-bottom: 0.5rem;
+                text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+              }
+
+              .subtitle {
+                color: rgba(255,255,255,0.9);
+                text-align: center;
+                margin-bottom: 2rem;
+                font-size: 1.1rem;
+                font-weight: 500;
+                text-shadow: 0 1px 5px rgba(0,0,0,0.1);
               }
 
               .chat {
                 flex: 1;
                 overflow-y: auto;
                 padding: 1rem 0;
+                background: rgba(255,255,255,0.95);
+                border-radius: 20px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+                backdrop-filter: blur(20px);
+                margin-bottom: 1rem;
+              }
+
+              /* Enhanced message bubbles */
+              .chat :global(.msg) {
+                margin-bottom: 1rem;
+                padding: 0 1.5rem;
+              }
+
+              .chat :global(.bubble) {
+                max-width: 80%;
+                padding: 1rem 1.5rem;
+                border-radius: 18px;
+                line-height: 1.6;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                font-weight: 500;
+              }
+
+              .chat :global(.msg.bot .bubble) {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                margin-right: auto;
+              }
+
+              .chat :global(.msg.user .bubble) {
+                background: white;
+                color: #1e293b;
+                margin-left: auto;
+                border: 1px solid #e2e8f0;
+              }
+
+              /* Enhanced form styling */
+              .input-row {
+                background: rgba(255,255,255,0.95);
+                padding: 1.5rem;
+                border-radius: 20px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+                backdrop-filter: blur(20px);
+              }
+
+              .input-row input {
+                width: 100%;
+                padding: 1rem 1.5rem;
+                border: 2px solid #e5e7eb;
+                border-radius: 15px;
+                font-size: 1rem;
+                transition: all 0.3s ease;
+                background: white;
+                font-family: inherit;
+              }
+
+              .input-row input:focus {
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+                transform: translateY(-2px);
+              }
+
+              /* Enhanced button styling */
+              .input-row button,
+              .option-btn {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                padding: 0.8rem 1.5rem;
+                border-radius: 12px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 0.95rem;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+                margin: 0.5rem;
+              }
+
+              .input-row button:hover,
+              .option-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+              }
+
+              .option-btn.selected {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+              }
+
+              /* Options grid */
+              .options-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 0.8rem;
+                margin-top: 1rem;
+              }
+
+              /* Info tip styling */
+              .info-tip {
+                background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+                border: 1px solid #3b82f6;
+                border-radius: 12px;
+                padding: 1rem;
+                margin-bottom: 1rem;
+                font-size: 0.9rem;
+                color: #1e40af;
+              }
+
+              /* Script preview enhancements */
+              .script-actions {
+                background: rgba(255,255,255,0.95);
+                padding: 1.5rem;
+                border-radius: 20px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+                backdrop-filter: blur(20px);
+                margin-top: 1rem;
+              }
+
+              .generate-video-btn {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                color: white;
+                border: none;
+                padding: 1rem 2rem;
+                border-radius: 15px;
+                cursor: pointer;
+                font-weight: 700;
+                font-size: 1.1rem;
+                transition: all 0.3s ease;
+                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+                width: 100%;
+              }
+
+              .generate-video-btn:hover:not(:disabled) {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+              }
+
+              .generate-video-btn:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                transform: none;
+              }
+
+              .veo3-features {
+                margin-top: 1rem;
+                text-align: center;
+                color: #64748b;
+                font-size: 0.9rem;
+                font-weight: 500;
+              }
+
+              /* Loading indicator */
+              .loading-indicator {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 2rem;
+                background: rgba(255,255,255,0.95);
+                border-radius: 20px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+                backdrop-filter: blur(20px);
+                margin-top: 1rem;
+              }
+
+              .loading-indicator .spinner {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+                animation: spin 1s linear infinite;
+              }
+
+              .loading-indicator p {
+                color: #667eea;
+                font-weight: 600;
+                margin: 0;
               }
 
               /* Mobile Responsive */
@@ -1345,31 +1578,46 @@ function Chatbot() {
                 .image-sidebar {
                   width: 100%;
                   height: auto;
-                  max-height: 40vh;
+                  max-height: 50vh;
                   order: 2;
                 }
 
                 .image-sidebar.closed {
                   width: 100%;
-                  height: 60px;
+                  height: 80px;
                 }
 
                 .main-chat-area {
                   order: 1;
+                  min-height: 50vh;
                 }
 
                 .container {
-                  padding: 1rem;
+                  padding: 1.5rem;
+                }
+
+                .container h1 {
+                  font-size: 2rem;
                 }
 
                 .sidebar-header h3 {
                   font-size: 1rem;
+                }
+
+                .image-sidebar {
+                  width: 100%;
                 }
               }
 
               @keyframes spin {
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
+              }
+
+              /* Loading animation */
+              .chat :global(.spinner) {
+                display: inline-block;
+                animation: spin 1s linear infinite;
               }
             `}</style>
           </div>
