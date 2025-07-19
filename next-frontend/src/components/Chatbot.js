@@ -137,6 +137,7 @@ function Chatbot() {
   const [uploadedImages, setUploadedImages] = useState([]);
   const [dragActive, setDragActive] = useState(false);
   const [imageContextOptions, setImageContextOptions] = useState({});
+  const [showImageSidebar, setShowImageSidebar] = useState(true);
 
   const chatRef = useRef(null);
 
@@ -232,6 +233,7 @@ function Chatbot() {
           suggested_contexts: result.suggested_contexts,
           context: result.suggested_contexts[0] || 'product',
           placement: 'in use', // Default placement
+          description: '', // User can add custom description
           preview: URL.createObjectURL(file)
         };
         
@@ -240,7 +242,7 @@ function Chatbot() {
         
         setMessages(msgs => [...msgs, {
           sender: 'bot',
-          text: `✅ Uploaded "${file.name}" - Detected as: ${result.suggested_contexts[0]}. You can adjust the context below.`
+          text: `✅ Uploaded "${file.name}" - Check the sidebar to add a description and adjust settings!`
         }]);
       } else {
         setMessages(msgs => [...msgs, {
@@ -270,11 +272,21 @@ function Chatbot() {
     );
   };
 
+  const updateImageDescription = (imageId, description) => {
+    setUploadedImages(prev => 
+      prev.map(img => 
+        img.id === imageId 
+          ? { ...img, description }
+          : img
+      )
+    );
+  };
+
   const removeImage = (imageId) => {
     setUploadedImages(prev => prev.filter(img => img.id !== imageId));
     setMessages(msgs => [...msgs, {
       sender: 'bot',
-      text: 'Image removed. You can upload more images anytime!'
+      text: 'Image removed successfully!'
     }]);
   };
 
@@ -446,7 +458,8 @@ function Chatbot() {
             uploaded_images: uploadedImages.map(img => ({
               file_path: img.file_path,
               context: img.context,
-              placement: img.placement
+              placement: img.placement,
+              description: img.description
             }))
           })
         });
@@ -475,7 +488,7 @@ function Chatbot() {
             sender: 'bot', 
             text: successMessage + '\n\nReview it below and make any improvements before generating the video.'
           }]);
-        } else {
+      } else {
           throw new Error(data.error || 'VEO-3 script generation failed');
         }
       } catch (err) {
@@ -494,7 +507,7 @@ function Chatbot() {
 
   // Handle script improvement
   const handleScriptImprovement = async (improvementRequest) => {
-    setLoading(true);
+      setLoading(true);
     setLoadingMessage('Improving your script...');
     setMessages(msgs => [...msgs, { sender: 'bot', text: `Improving script: "${improvementRequest}"...` }]);
     
@@ -520,7 +533,7 @@ function Chatbot() {
 
   // Handle script approval
   const handleScriptApproval = async () => {
-    setLoading(true);
+      setLoading(true);
     setLoadingMessage('Generating your VEO-3 video with frame continuation...');
     setMessages(msgs => [...msgs, { sender: 'bot', text: 'Perfect! Generating your VEO-3 video with seamless frame continuation...' }]);
     
@@ -612,145 +625,95 @@ function Chatbot() {
   };
 
   return (
-    <div className="chatbot-outer">
-      <div className="container">
-        <h1>🎬 VEO-3 AI Ad Generator</h1>
-        <p style={{ color: '#666', textAlign: 'center', marginBottom: '1rem' }}>
-          Create seamless 16-second ads with frame continuation & image uploads
-        </p>
-        
-        {/* VEO-3 Image Upload Zone */}
-        {!scriptGenerated && (
-          <div 
-            className={`image-upload-zone ${dragActive ? 'drag-active' : ''}`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-            style={{
-              border: `2px dashed ${dragActive ? '#2196f3' : '#ccc'}`,
-              borderRadius: '12px',
-              padding: '2rem',
-              textAlign: 'center',
-              marginBottom: '1rem',
-              backgroundColor: dragActive ? '#f3f8ff' : '#f9f9f9',
-              transition: 'all 0.3s ease'
-            }}
+    <div className="chatbot-layout">
+      {/* Image Sidebar */}
+      <div className={`image-sidebar ${showImageSidebar ? 'open' : 'closed'}`}>
+        <div className="sidebar-header">
+          <h3>🎬 Visual Assets</h3>
+          <button 
+            className="toggle-sidebar"
+            onClick={() => setShowImageSidebar(!showImageSidebar)}
           >
-            <div className="upload-content">
-              <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📁</div>
-              <p>
-                Drag & drop images here or{' '}
-                <button 
-                  type="button"
-                  onClick={() => document.getElementById('file-input').click()}
-                  style={{
-                    background: 'var(--button-bg)',
-                    color: 'var(--button-text)',
-                    border: 'none',
-                    borderRadius: '6px',
-                    padding: '0.4rem 0.8rem',
-                    cursor: 'pointer',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  browse
-                </button>
-              </p>
-              <span style={{ fontSize: '0.9rem', color: '#666' }}>
-                Upload product images, dashboards, logos, or any visual assets
-              </span>
-              <input
-                id="file-input"
-                type="file"
-                accept="image/*"
-                style={{ display: 'none' }}
-                onChange={(e) => e.target.files[0] && handleImageUpload(e.target.files[0])}
-              />
-            </div>
-          </div>
-        )}
+            {showImageSidebar ? '◀' : '▶'}
+          </button>
+        </div>
 
-        {/* Uploaded Images Management */}
-        {uploadedImages.length > 0 && (
-          <div style={{ marginBottom: '1rem' }}>
-            <h3 style={{ color: '#333', marginBottom: '0.8rem' }}>
-              📸 Uploaded Assets ({uploadedImages.length})
-            </h3>
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
-              gap: '1rem' 
-            }}>
-              {uploadedImages.map(img => (
-                <div key={img.id} style={{
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  padding: '0.8rem',
-                  backgroundColor: '#fff'
-                }}>
-                  <div style={{ position: 'relative', marginBottom: '0.5rem' }}>
-                    <img 
-                      src={img.preview} 
-                      alt={img.filename}
-                      style={{
-                        width: '100%',
-                        height: '80px',
-                        objectFit: 'cover',
-                        borderRadius: '4px'
-                      }}
+        {/* Upload Zone in Sidebar */}
+        <div 
+          className={`sidebar-upload-zone ${dragActive ? 'drag-active' : ''}`}
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+        >
+          <div className="upload-icon">📁</div>
+          <p>Drop images here</p>
+          <button 
+            className="browse-btn"
+            onClick={() => document.getElementById('sidebar-file-input').click()}
+          >
+            Browse Files
+          </button>
+          <input
+            id="sidebar-file-input"
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={(e) => e.target.files[0] && handleImageUpload(e.target.files[0])}
+          />
+        </div>
+
+        {/* Uploaded Images List */}
+        <div className="uploaded-images-list">
+          {uploadedImages.length === 0 ? (
+            <div className="no-images">
+              <p>No images uploaded yet</p>
+              <span>Upload product photos, dashboards, logos, or any visuals you want in your ad!</span>
+            </div>
+          ) : (
+            uploadedImages.map(img => (
+              <div key={img.id} className="image-card">
+                <div className="image-preview">
+                  <img src={img.preview} alt={img.filename} />
+                  <button 
+                    className="remove-image-btn"
+                    onClick={() => removeImage(img.id)}
+                    title="Remove image"
+                  >
+                    ✕
+                  </button>
+                </div>
+                
+                <div className="image-details">
+                  <div className="filename">{img.filename}</div>
+                  
+                  <div className="form-group">
+                    <label>Description:</label>
+                    <textarea
+                      placeholder="Describe what this image shows..."
+                      value={img.description}
+                      onChange={(e) => updateImageDescription(img.id, e.target.value)}
+                      rows="2"
                     />
-                    <button 
-                      onClick={() => removeImage(img.id)}
-                      style={{
-                        position: 'absolute',
-                        top: '4px',
-                        right: '4px',
-                        background: '#ff4444',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '50%',
-                        width: '20px',
-                        height: '20px',
-                        cursor: 'pointer',
-                        fontSize: '12px'
-                      }}
-                    >
-                      ✕
-                    </button>
                   </div>
-                  <div style={{ fontSize: '0.8rem' }}>
-                    <label style={{ display: 'block', marginBottom: '0.3rem', fontWeight: 'bold' }}>
-                      Context:
-                    </label>
+                  
+                  <div className="form-group">
+                    <label>Context:</label>
                     <select 
                       value={img.context} 
                       onChange={(e) => updateImageContext(img.id, e.target.value, img.placement)}
-                      style={{
-                        width: '100%',
-                        padding: '0.3rem',
-                        borderRadius: '4px',
-                        border: '1px solid #ccc',
-                        marginBottom: '0.5rem'
-                      }}
                     >
                       {Object.keys(imageContextOptions).map(context => (
                         <option key={context} value={context}>{context}</option>
                       ))}
                     </select>
-                    
-                    <label style={{ display: 'block', marginBottom: '0.3rem', fontWeight: 'bold' }}>
-                      How to show it:
-                    </label>
+                  </div>
+                  
+                  <div className="form-group">
+                    <label>How to show:</label>
                     <select 
                       value={img.placement}
                       onChange={(e) => updateImageContext(img.id, img.context, e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '0.3rem',
-                        borderRadius: '4px',
-                        border: '1px solid #ccc'
-                      }}
                     >
                       {imageContextOptions[img.context]?.map(placement => (
                         <option key={placement} value={placement}>{placement}</option>
@@ -758,34 +721,45 @@ function Chatbot() {
                     </select>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-        
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Main Chat Area */}
+      <div className="main-chat-area">
+    <div className="chatbot-outer">
+      <div className="container">
+            <h1>🎬 VEO-3 AI Ad Generator</h1>
+            <p className="subtitle">
+              Create seamless 16-second ads with frame continuation
+              {uploadedImages.length > 0 && ` • ${uploadedImages.length} assets uploaded`}
+            </p>
+            
         <div className="chat" ref={chatRef}>
           {messages.map((msg, idx) => (
             <div key={idx} className={`msg ${msg.sender}`}>
               <div className="bubble">{msg.text}</div>
             </div>
           ))}
-          
-          {/* Loading indicator */}
-          {loading && (
-            <div className="msg bot">
-              <div className="bubble">
-                {loadingMessage}
-                <div style={{ 
-                  display: 'inline-block', 
-                  marginLeft: '0.5rem',
-                  animation: 'spin 1s linear infinite' 
-                }}>
-                  ⚡
+              
+              {/* Loading indicator */}
+              {loading && (
+                <div className="msg bot">
+                  <div className="bubble">
+                    {loadingMessage}
+                    <div style={{ 
+                      display: 'inline-block', 
+                      marginLeft: '0.5rem',
+                      animation: 'spin 1s linear infinite' 
+                    }}>
+                      ⚡
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
-          
+              )}
+              
           {/* Product options */}
           {step >= creativeQuestions.length && researchDone && !productSelected && productAsked && productsList.length > 0 && (
             <div className="msg bot">
@@ -805,13 +779,13 @@ function Chatbot() {
                       cursor: 'pointer',
                       marginBottom: '0.3rem'
                     }}
-                    onClick={() => {
-                      setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
-                      const updatedAnswers = { ...answers, product: opt };
-                      setAnswers(updatedAnswers);
-                      setProductSelected(true);
-                      maybeGenerateScript(updatedAnswers);
-                    }}
+                        onClick={() => {
+                          setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
+                          const updatedAnswers = { ...answers, product: opt };
+                          setAnswers(updatedAnswers);
+                          setProductSelected(true);
+                          maybeGenerateScript(updatedAnswers);
+                        }}
                   >
                     {opt}
                   </button>
@@ -835,113 +809,113 @@ function Chatbot() {
               </div>
             </div>
           )}
-          
-          {/* Script Preview */}
-          {scriptGenerated && currentScript && (
-            <ScriptPreview
-              script={currentScript}
-              scriptAnalysis={scriptAnalysis}
-              companyInfo={companyInfo}
-              userAnswers={answers}
-              onImprove={handleScriptImprovement}
-              onApprove={handleScriptApproval}
-              loading={loading}
-            />
-          )}
-          
-          {/* Final Result */}
+              
+              {/* Script Preview */}
+              {scriptGenerated && currentScript && (
+                <ScriptPreview
+                  script={currentScript}
+                  scriptAnalysis={scriptAnalysis}
+                  companyInfo={companyInfo}
+                  userAnswers={answers}
+                  onImprove={handleScriptImprovement}
+                  onApprove={handleScriptApproval}
+                  loading={loading}
+                />
+              )}
+              
+              {/* Final Result */}
           {result && (
             <div>
-              <div style={{ margin: '1em 0', padding: '1.5em', background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)', borderRadius: '12px', border: '2px solid #28a745' }}>
-                <h3 style={{ color: '#333', marginBottom: '1em', fontSize: '1.5rem' }}>
-                  🎉 Your VEO-3 AI Video Ad is Ready!
-                </h3>
-                
-                {/* VEO-3 Features Display */}
-                {result.veo3_features && (
-                  <div style={{ 
-                    background: '#e8f5e8', 
-                    padding: '1rem', 
-                    borderRadius: '8px', 
-                    marginBottom: '1rem',
-                    border: '1px solid #28a745'
-                  }}>
-                    <h4 style={{ color: '#155724', marginBottom: '0.5rem', fontSize: '1.1rem' }}>
-                      ✨ VEO-3 Features Used:
-                    </h4>
-                    <ul style={{ margin: '0', paddingLeft: '1.2rem', color: '#155724' }}>
-                      {result.veo3_features.map((feature, index) => (
-                        <li key={index} style={{ marginBottom: '0.3rem' }}>
-                          {feature.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                
-                {/* Technical Details */}
-                {result.technical_details && (
-                  <div style={{ 
-                    background: '#fff3cd', 
-                    padding: '1rem', 
-                    borderRadius: '8px', 
-                    marginBottom: '1rem',
-                    border: '1px solid #ffc107'
-                  }}>
-                    <h4 style={{ color: '#856404', marginBottom: '0.5rem', fontSize: '1.1rem' }}>
-                      🔧 Technical Details:
-                    </h4>
-                    <div style={{ color: '#856404', fontSize: '0.9rem' }}>
-                      <p><strong>Duration:</strong> {result.duration} seconds (2 seamless segments)</p>
-                      <p><strong>Segments Generated:</strong> {result.segments_generated}</p>
-                      <p><strong>Image Assets Integrated:</strong> {result.technical_details.image_assets_integrated}</p>
-                      <p><strong>Frame Continuation:</strong> {result.technical_details.continuation_frame}</p>
-                    </div>
-                  </div>
-                )}
-                
-                <div style={{ margin: '1.5em 0' }}>
+                  <div style={{ margin: '1em 0', padding: '1.5em', background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)', borderRadius: '12px', border: '2px solid #28a745' }}>
+                    <h3 style={{ color: '#333', marginBottom: '1em', fontSize: '1.5rem' }}>
+                      🎉 Your VEO-3 AI Video Ad is Ready!
+                    </h3>
+                    
+                    {/* VEO-3 Features Display */}
+                    {result.veo3_features && (
+                      <div style={{ 
+                        background: '#e8f5e8', 
+                        padding: '1rem', 
+                        borderRadius: '8px', 
+                        marginBottom: '1rem',
+                        border: '1px solid #28a745'
+                      }}>
+                        <h4 style={{ color: '#155724', marginBottom: '0.5rem', fontSize: '1.1rem' }}>
+                          ✨ VEO-3 Features Used:
+                        </h4>
+                        <ul style={{ margin: '0', paddingLeft: '1.2rem', color: '#155724' }}>
+                          {result.veo3_features.map((feature, index) => (
+                            <li key={index} style={{ marginBottom: '0.3rem' }}>
+                              {feature.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {/* Technical Details */}
+                    {result.technical_details && (
+                      <div style={{ 
+                        background: '#fff3cd', 
+                        padding: '1rem', 
+                        borderRadius: '8px', 
+                        marginBottom: '1rem',
+                        border: '1px solid #ffc107'
+                      }}>
+                        <h4 style={{ color: '#856404', marginBottom: '0.5rem', fontSize: '1.1rem' }}>
+                          🔧 Technical Details:
+                        </h4>
+                        <div style={{ color: '#856404', fontSize: '0.9rem' }}>
+                          <p><strong>Duration:</strong> {result.duration} seconds (2 seamless segments)</p>
+                          <p><strong>Segments Generated:</strong> {result.segments_generated}</p>
+                          <p><strong>Image Assets Integrated:</strong> {result.technical_details.image_assets_integrated}</p>
+                          <p><strong>Frame Continuation:</strong> {result.technical_details.continuation_frame}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div style={{ margin: '1.5em 0' }}>
                   <a
                     href={`${API_BASE_URL}${result.video_url}`}
                     download
                     style={{ 
                       color: '#fff', 
                       backgroundColor: '#007bff', 
-                      padding: '14px 28px', 
+                          padding: '14px 28px', 
                       textDecoration: 'none', 
-                      borderRadius: '10px',
+                          borderRadius: '10px',
                       display: 'inline-block',
                       marginRight: '1em',
-                      marginBottom: '0.5em',
+                          marginBottom: '0.5em',
                       fontSize: '16px',
-                      fontWeight: 'bold',
-                      boxShadow: '0 4px 8px rgba(0,123,255,0.3)'
+                          fontWeight: 'bold',
+                          boxShadow: '0 4px 8px rgba(0,123,255,0.3)'
                     }}
                   >
-                    🎬 Download VEO-3 Video
+                        🎬 Download VEO-3 Video
                   </a>
                   
-                  {result.report_url && (
-                    <a
-                      href={`${API_BASE_URL}${result.report_url}`}
-                      download
-                      style={{ 
-                        color: '#fff', 
-                        backgroundColor: '#28a745', 
-                        padding: '14px 28px', 
-                        textDecoration: 'none', 
-                        borderRadius: '10px',
-                        display: 'inline-block',
-                        marginRight: '1em',
-                        marginBottom: '0.5em',
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                        boxShadow: '0 4px 8px rgba(40,167,69,0.3)'
-                      }}
-                    >
-                      📄 Download Report
-                    </a>
-                  )}
+                      {result.report_url && (
+                  <a
+                    href={`${API_BASE_URL}${result.report_url}`}
+                    download
+                    style={{ 
+                      color: '#fff', 
+                      backgroundColor: '#28a745', 
+                            padding: '14px 28px', 
+                      textDecoration: 'none', 
+                            borderRadius: '10px',
+                      display: 'inline-block',
+                            marginRight: '1em',
+                            marginBottom: '0.5em',
+                      fontSize: '16px',
+                            fontWeight: 'bold',
+                            boxShadow: '0 4px 8px rgba(40,167,69,0.3)'
+                    }}
+                  >
+                    📄 Download Report
+                  </a>
+                      )}
                   
                   {!hasRated && (
                     <button
@@ -949,34 +923,34 @@ function Chatbot() {
                       style={{ 
                         color: '#fff', 
                         backgroundColor: '#ffc107', 
-                        padding: '14px 28px', 
+                            padding: '14px 28px', 
                         border: 'none',
-                        borderRadius: '10px',
+                            borderRadius: '10px',
                         display: 'inline-block',
-                        marginBottom: '0.5em',
+                            marginBottom: '0.5em',
                         fontSize: '16px',
                         fontWeight: 'bold',
-                        cursor: 'pointer',
-                        boxShadow: '0 4px 8px rgba(255,193,7,0.3)'
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 8px rgba(255,193,7,0.3)'
                       }}
                     >
-                      ⭐ Rate This VEO-3 Ad
+                          ⭐ Rate This VEO-3 Ad
                     </button>
                   )}
                 </div>
                 
-                <p style={{ color: '#666', fontSize: '14px', marginTop: '1em', lineHeight: '1.5' }}>
-                  🎯 Your video was generated using Google's VEO-3 with frame-to-video continuation for seamless transitions. 
-                  {uploadedImages.length > 0 && ` Your ${uploadedImages.length} uploaded assets were integrated into the scenes.`}
-                  {' '}Download and share your professional AI-created ad!
+                    <p style={{ color: '#666', fontSize: '14px', marginTop: '1em', lineHeight: '1.5' }}>
+                      🎯 Your video was generated using Google's VEO-3 with frame-to-video continuation for seamless transitions. 
+                      {uploadedImages.length > 0 && ` Your ${uploadedImages.length} uploaded assets were integrated into the scenes.`}
+                      {' '}Download and share your professional AI-created ad!
                 </p>
               </div>
             </div>
           )}
         </div>
-        
+            
         {/* Input form */}
-        {!result && !loading && !scriptGenerated && (
+            {!result && !loading && !scriptGenerated && (
           <form className="input-row" onSubmit={handleSend}>
             {!answers.company_url ? (
               <div>
@@ -990,135 +964,416 @@ function Chatbot() {
                   color: '#1976d2'
                 }}>
                   💡 <strong>Tip:</strong> Just enter the website domain (e.g., "apple.com" or "nike.com"). 
-                  Our AI will research your company automatically.
+                      Our AI will research your company automatically.
                 </div>
                 <input
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Enter your company website URL..."
-                  style={{
-                    width: '100%',
-                    padding: '1rem',
-                    borderRadius: '12px',
-                    border: '1px solid var(--teal-mid)',
-                    background: 'var(--input-bg)',
-                    color: 'var(--text-light)',
-                    fontSize: '1rem'
-                  }}
-                />
-              </div>
-            ) : step === 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {industryOptions.map(opt => (
-                  <button
-                    key={opt}
-                    type="button"
+                      onChange={(e) => setInput(e.target.value)}
+                      placeholder="Enter your company website URL..."
+                      style={{
+                        width: '100%',
+                        padding: '1rem',
+                        borderRadius: '12px',
+                        border: '1px solid var(--teal-mid)',
+                        background: 'var(--input-bg)',
+                        color: 'var(--text-light)',
+                        fontSize: '1rem'
+                      }}
+                    />
+                </div>
+                ) : step === 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {industryOptions.map(opt => (
+                      <button
+                        key={opt}
+                        type="button"
                 style={{
-                      background: 'var(--button-bg)',
-                      color: 'var(--button-text)',
+                          background: 'var(--button-bg)',
+                          color: 'var(--button-text)',
                   border: 'none',
                   borderRadius: '8px',
                   padding: '0.6rem 1.2rem',
                   fontFamily: 'Orbitron, sans-serif',
                   fontWeight: 'bold',
-                      cursor: 'pointer'
+                        cursor: 'pointer'
                     }}
-                    onClick={() => {
-                      setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
-                      setAnswers(ans => ({ ...ans, industry: opt }));
-                      setStep(1);
-                      setMessages(msgs => [...msgs, { sender: 'bot', text: creativeQuestions[0].text }]);
-                    }}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            ) : step <= creativeQuestions.length && creativeQuestions[step - 1]?.options ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {creativeQuestions[step - 1].options.map(opt => (
-                  <button
-                    key={opt}
-                    type="button"
+                        onClick={() => {
+                          setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
+                          setAnswers(ans => ({ ...ans, industry: opt }));
+                          setStep(1);
+                          setMessages(msgs => [...msgs, { sender: 'bot', text: creativeQuestions[0].text }]);
+                        }}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                ) : step <= creativeQuestions.length && creativeQuestions[step - 1]?.options ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {creativeQuestions[step - 1].options.map(opt => (
+                      <button
+                        key={opt}
+                        type="button"
                   style={{
-                      background: 'var(--button-bg)',
-                      color: 'var(--button-text)',
+                          background: 'var(--button-bg)',
+                          color: 'var(--button-text)',
                     border: 'none',
                     borderRadius: '8px',
                     padding: '0.6rem 1.2rem',
                     fontFamily: 'Orbitron, sans-serif',
                     fontWeight: 'bold',
-                      cursor: 'pointer'
+                        cursor: 'pointer'
                     }}
-                    onClick={() => {
-                      console.log('Button clicked:', opt, 'Current step:', step, 'Question:', creativeQuestions[step - 1]);
-                      setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
-                      const currentQuestion = creativeQuestions[step - 1];
-                      const updatedAnswers = { ...answers, [currentQuestion.key]: opt };
-                      console.log('Updating answers:', updatedAnswers);
-                      setAnswers(updatedAnswers);
-                      
-                      if (step < creativeQuestions.length) {
-                        setStep(step + 1);
-                        const nextQuestion = creativeQuestions[step];
-                        setMessages(msgs => [...msgs, { sender: 'bot', text: nextQuestion.text }]);
-                      } else {
-                        setStep(step + 1);
-                        if (!productAsked && productsList.length > 0) {
-                          setMessages(msgs => [...msgs, { sender: 'bot', text: 'Select a product or service to promote:' }]);
-                          setProductAsked(true);
-                        } else if (!productAsked) {
-                          setMessages(msgs => [...msgs, { sender: 'bot', text: 'Type your product or service:' }]);
-                          setProductAsked(true);
-                        }
-                      }
-                    }}
-                  >
-                    {opt}
-                  </button>
-                  ))}
-              </div>
+                        onClick={() => {
+                          console.log('Button clicked:', opt, 'Current step:', step, 'Question:', creativeQuestions[step - 1]);
+                          setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
+                          const currentQuestion = creativeQuestions[step - 1];
+                          const updatedAnswers = { ...answers, [currentQuestion.key]: opt };
+                          console.log('Updating answers:', updatedAnswers);
+                          setAnswers(updatedAnswers);
+                          
+                          if (step < creativeQuestions.length) {
+                            setStep(step + 1);
+                            const nextQuestion = creativeQuestions[step];
+                            setMessages(msgs => [...msgs, { sender: 'bot', text: nextQuestion.text }]);
+                          } else {
+                            setStep(step + 1);
+                            if (!productAsked && productsList.length > 0) {
+                              setMessages(msgs => [...msgs, { sender: 'bot', text: 'Select a product or service to promote:' }]);
+                              setProductAsked(true);
+                            } else if (!productAsked) {
+                              setMessages(msgs => [...msgs, { sender: 'bot', text: 'Type your product or service:' }]);
+                              setProductAsked(true);
+                            }
+                          }
+                        }}
+                      >
+                        {opt}
+                      </button>
+                      ))}
+                  </div>
               ) : (
                 <input
                   value={input}
-                onChange={(e) => setInput(e.target.value)}
+                    onChange={(e) => setInput(e.target.value)}
                   placeholder="Type your answer..."
-                style={{
-                  width: '100%',
-                  padding: '1rem',
-                  borderRadius: '12px',
-                  border: '1px solid var(--teal-mid)',
-                  background: 'var(--input-bg)',
-                  color: 'var(--text-light)',
-                  fontSize: '1rem'
-                }}
-                />
-            )}
-            
-            {/* Only show submit button for text inputs */}
-            {((answers.company_url && step === 0) || 
-              (step > 0 && step <= creativeQuestions.length && !creativeQuestions[step - 1]?.options) ||
-              (productAsked && !productSelected)) && (
-              <button type="submit" className="send-btn">
-                Send
-              </button>
-            )}
+                    style={{
+                      width: '100%',
+                      padding: '1rem',
+                      borderRadius: '12px',
+                      border: '1px solid var(--teal-mid)',
+                      background: 'var(--input-bg)',
+                      color: 'var(--text-light)',
+                      fontSize: '1rem'
+                    }}
+                    />
+                )}
+                
+                {/* Only show submit button for text inputs */}
+                {((answers.company_url && step === 0) || 
+                  (step > 0 && step <= creativeQuestions.length && !creativeQuestions[step - 1]?.options) ||
+                  (productAsked && !productSelected)) && (
+                  <button type="submit" className="send-btn">
+                    Send
+                  </button>
+                )}
           </form>
         )}
       
-        {/* Show rating modal */}
+            {/* Show rating modal */}
       <RatingModal
-          show={showRatingModal}
+              show={showRatingModal}
         onClose={handleRatingClose}
         onSubmit={handleRatingSubmit}
-        />
-        
-        <style jsx>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
+            />
+            
+            <style jsx>{`
+              .chatbot-layout {
+                display: flex;
+                height: 100vh;
+                background: #f5f7fa;
+              }
+
+              .image-sidebar {
+                width: 350px;
+                background: white;
+                border-right: 2px solid #e1e8ed;
+                display: flex;
+                flex-direction: column;
+                transition: all 0.3s ease;
+                overflow: hidden;
+              }
+
+              .image-sidebar.closed {
+                width: 50px;
+              }
+
+              .sidebar-header {
+                padding: 1rem;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid #e1e8ed;
+              }
+
+              .sidebar-header h3 {
+                margin: 0;
+                font-size: 1.1rem;
+                white-space: nowrap;
+                overflow: hidden;
+              }
+
+              .toggle-sidebar {
+                background: rgba(255,255,255,0.2);
+                border: none;
+                color: white;
+                padding: 0.5rem;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 1rem;
+                transition: background 0.2s;
+              }
+
+              .toggle-sidebar:hover {
+                background: rgba(255,255,255,0.3);
+              }
+
+              .sidebar-upload-zone {
+                margin: 1rem;
+                border: 2px dashed #ccc;
+                border-radius: 12px;
+                padding: 1.5rem;
+                text-align: center;
+                background: #f9f9f9;
+                transition: all 0.3s ease;
+                cursor: pointer;
+              }
+
+              .sidebar-upload-zone.drag-active {
+                border-color: #2196f3;
+                background: #f3f8ff;
+                transform: scale(1.02);
+              }
+
+              .upload-icon {
+                font-size: 2rem;
+                margin-bottom: 0.5rem;
+              }
+
+              .browse-btn {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                padding: 0.6rem 1.2rem;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: 600;
+                margin-top: 0.5rem;
+                transition: transform 0.2s;
+              }
+
+              .browse-btn:hover {
+                transform: translateY(-2px);
+              }
+
+              .uploaded-images-list {
+                flex: 1;
+                overflow-y: auto;
+                padding: 0 1rem 1rem;
+              }
+
+              .no-images {
+                text-align: center;
+                padding: 2rem 1rem;
+                color: #666;
+              }
+
+              .no-images p {
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+              }
+
+              .no-images span {
+                font-size: 0.9rem;
+                line-height: 1.4;
+              }
+
+              .image-card {
+                background: white;
+                border: 1px solid #e1e8ed;
+                border-radius: 12px;
+                margin-bottom: 1rem;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                transition: transform 0.2s, box-shadow 0.2s;
+              }
+
+              .image-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+              }
+
+              .image-preview {
+                position: relative;
+                height: 120px;
+                overflow: hidden;
+              }
+
+              .image-preview img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+              }
+
+              .remove-image-btn {
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                background: rgba(255,68,68,0.9);
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 28px;
+                height: 28px;
+                cursor: pointer;
+                font-size: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s;
+              }
+
+              .remove-image-btn:hover {
+                background: #ff4444;
+                transform: scale(1.1);
+              }
+
+              .image-details {
+                padding: 1rem;
+              }
+
+              .filename {
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 0.8rem;
+                font-size: 0.9rem;
+                word-break: break-word;
+              }
+
+              .form-group {
+                margin-bottom: 0.8rem;
+              }
+
+              .form-group label {
+                display: block;
+                font-weight: 600;
+                color: #555;
+                margin-bottom: 0.3rem;
+                font-size: 0.85rem;
+              }
+
+              .form-group select,
+              .form-group textarea {
+                width: 100%;
+                padding: 0.5rem;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                font-size: 0.85rem;
+                transition: border-color 0.2s;
+              }
+
+              .form-group select:focus,
+              .form-group textarea:focus {
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+              }
+
+              .form-group textarea {
+                resize: vertical;
+                min-height: 60px;
+                font-family: inherit;
+              }
+
+              .main-chat-area {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                background: #f5f7fa;
+              }
+
+              .chatbot-outer {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                max-width: 100%;
+              }
+
+              .container {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                padding: 1rem 2rem;
+                max-width: 900px;
+                margin: 0 auto;
+                width: 100%;
+              }
+
+              .subtitle {
+                color: #666;
+                text-align: center;
+                margin-bottom: 1rem;
+                font-size: 1rem;
+              }
+
+              .chat {
+                flex: 1;
+                overflow-y: auto;
+                padding: 1rem 0;
+              }
+
+              /* Mobile Responsive */
+              @media (max-width: 768px) {
+                .chatbot-layout {
+                  flex-direction: column;
+                  height: auto;
+                  min-height: 100vh;
+                }
+
+                .image-sidebar {
+                  width: 100%;
+                  height: auto;
+                  max-height: 40vh;
+                  order: 2;
+                }
+
+                .image-sidebar.closed {
+                  width: 100%;
+                  height: 60px;
+                }
+
+                .main-chat-area {
+                  order: 1;
+                }
+
+                .container {
+                  padding: 1rem;
+                }
+
+                .sidebar-header h3 {
+                  font-size: 1rem;
+                }
+              }
+
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}</style>
+          </div>
+        </div>
       </div>
     </div>
   );

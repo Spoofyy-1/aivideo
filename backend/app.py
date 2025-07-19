@@ -808,8 +808,8 @@ Format as valid JSON with {num_segments} segments:
             temperature=0.7,
             max_tokens=3000  # Increased for longer ads
         )
-        
-        content = response.choices[0].message.content.strip()
+
+    content = response.choices[0].message.content.strip()
         
         # Parse JSON response
         import re
@@ -3658,7 +3658,11 @@ def generate_enhanced_script_with_images(product_name, product_description, targ
     for img in uploaded_images:
         context = img.get('context', 'product')
         placement = img.get('placement', 'in use')
-        image_instructions.append(f"- Include uploaded {context} {placement}")
+        description = img.get('description', '')
+        if description:
+            image_instructions.append(f"- Include uploaded {context} {placement}: {description}")
+        else:
+            image_instructions.append(f"- Include uploaded {context} {placement}")
     
     image_integration_text = "\n".join(image_instructions) if image_instructions else ""
     
@@ -3784,6 +3788,38 @@ def create_fallback_script_with_images(product_name, uploaded_images):
         "brand_message": f"Choose {product_name}",
         "narrator_voice": "Professional, warm, engaging"
     }
+
+def format_answers_for_prompt(answers):
+    """Format user answers into a readable prompt format"""
+    if not answers:
+        return "No specific preferences provided."
+    
+    formatted_lines = []
+    
+    # Map answer keys to readable labels
+    answer_labels = {
+        'ad_type': 'Ad Type',
+        'mood': 'Mood/Vibe',
+        'authenticity_level': 'Authenticity Level',
+        'humor_tolerance': 'Humor Preference',
+        'educational_value': 'Educational Approach',
+        'sound_optimization': 'Sound/Audio Strategy',
+        'main_character': 'Main Character',
+        'target_platform': 'Target Platform',
+        'transformation_story': 'Transformation Story',
+        'slogan': 'Preferred Slogan',
+        'cta': 'Call to Action',
+        'features': 'Key Features',
+        'industry': 'Industry',
+        'company_url': 'Company Website'
+    }
+    
+    for key, value in answers.items():
+        if value and value.strip() and value.upper() != 'N/A':
+            label = answer_labels.get(key, key.replace('_', ' ').title())
+            formatted_lines.append(f"- {label}: {value}")
+    
+    return '\n'.join(formatted_lines) if formatted_lines else "Standard preferences apply."
 
 @app.route('/generate-video-veo3-continuation', methods=['POST'])
 def generate_video_veo3_continuation():

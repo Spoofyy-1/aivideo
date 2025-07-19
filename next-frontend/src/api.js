@@ -118,7 +118,7 @@ export async function testAPI() {
       console.error('Test API error:', error);
       throw error;
     }
-}
+} 
 
 export const generateScript = async (answers) => {
   console.log('Generating script with answers:', answers);
