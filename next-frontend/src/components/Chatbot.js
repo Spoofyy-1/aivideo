@@ -51,36 +51,12 @@ const adTypeOptions = [
 
 const industryOptions = [
   'Technology',
-  'Healthcare',
-  'Retail',
+  'Healthcare', 
+  'E-commerce',
   'Finance',
   'Education',
   'Food & Beverage',
-  'Travel',
-  'Automotive',
-  'Fashion',
   'Real Estate',
-  'Entertainment',
-  'Fitness',
-  'Beauty',
-  'Gaming',
-  'Software',
-  'E-commerce',
-  'Marketing',
-  'Consulting',
-  'Photography',
-  'Music',
-  'Sports',
-  'Home & Garden',
-  'Pets',
-  'Crypto',
-  'SaaS',
-  'Manufacturing',
-  'Agriculture',
-  'Construction',
-  'Legal',
-  'Non-profit',
-  'Wellness',
   'Other'
 ];
 
@@ -974,6 +950,8 @@ function Chatbot() {
           flex-direction: column;
           gap: 1rem;
           background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+          min-height: 300px;
+          max-height: calc(100vh - 400px);
         }
 
         .message {
@@ -1016,22 +994,50 @@ function Chatbot() {
 
         .options-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
           gap: 0.8rem;
           margin-top: 1rem;
+          max-height: 300px;
+          overflow-y: auto;
+          overflow-x: hidden;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(156, 39, 176, 0.6) rgba(45, 55, 72, 0.3);
+          padding-right: 8px;
+        }
+
+        .options-grid::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .options-grid::-webkit-scrollbar-track {
+          background: rgba(45, 55, 72, 0.3);
+          border-radius: 4px;
+        }
+
+        .options-grid::-webkit-scrollbar-thumb {
+          background: rgba(156, 39, 176, 0.6);
+          border-radius: 4px;
+        }
+
+        .options-grid::-webkit-scrollbar-thumb:hover {
+          background: rgba(156, 39, 176, 0.8);
         }
 
         .option-btn {
           background: linear-gradient(135deg, #3F51B5 0%, #9C27B0 100%);
           color: white;
           border: none;
-          padding: 0.8rem 1.5rem;
+          padding: 0.8rem 1.2rem;
           border-radius: 12px;
           cursor: pointer;
           font-weight: 600;
-          font-size: 0.95rem;
+          font-size: 0.9rem;
           transition: all 0.3s ease;
           box-shadow: 0 4px 15px rgba(63, 81, 181, 0.3);
+          text-align: center;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .option-btn:hover {
@@ -1355,7 +1361,19 @@ function Chatbot() {
           }
 
           .options-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
+            max-height: 250px;
+            gap: 0.6rem;
+          }
+
+          .option-btn {
+            padding: 0.7rem 1rem;
+            font-size: 0.85rem;
+          }
+
+          .chat-messages {
+            min-height: 200px;
+            max-height: calc(100vh - 350px);
           }
 
           .download-buttons {
