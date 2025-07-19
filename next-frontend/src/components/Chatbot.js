@@ -85,14 +85,11 @@ const industryOptions = [
 ];
 
 const durationOptions = [
-  '8 seconds (1 segment - Quick & Punchy)',
-  '16 seconds (2 segments - Standard)',
-  '24 seconds (3 segments - Detailed)',
-  '32 seconds (4 segments - Comprehensive)'
+  '16 seconds (2 segments - VEO-3 Optimized)' // Fixed to 16 seconds only
 ];
 
 const creativeQuestions = [
-  { key: 'duration', text: "How long should your ad be?", options: durationOptions },
+  // Removed duration question since it's fixed to 16 seconds
   { key: 'ad_type', text: "What type of ad do you want? (e.g., Normal, Unhinged, Informative, Emotional, Cinematic, Funny, Heartwarming, Aspirational, Testimonial, Product Demo, Viral/Meme, Story-Driven, Minimalist, High-Energy, Social Proof, Pop Culture Reference, etc.)", options: adTypeOptions },
   { key: 'mood', text: 'What is the mood or vibe you want for your ad? (e.g., energetic, trustworthy, fun, etc.)' },
   { key: 'authenticity_level', text: '🎯 2025 TREND: How authentic/raw should your ad feel? (Polished & Professional / Authentic & Natural / Raw & Unfiltered / Phone-Shot Style)' },
@@ -109,7 +106,8 @@ const creativeQuestions = [
 
 function Chatbot() {
   const [messages, setMessages] = useState([
-    { sender: 'bot', text: "Hi! I'm your AI Ad Generator. I'll ask a few quick questions to help tailor your ad. Ready? Let's go!" },
+    { sender: 'bot', text: "Hi! I'm your VEO-3 AI Ad Generator. Upload images, answer questions, and I'll create seamless 16-second ads with frame continuation!" },
+    { sender: 'bot', text: '📁 First, drag & drop any images you want in your ad (product photos, dashboards, logos, etc.) or skip to start with questions.' },
     { sender: 'bot', text: 'What is your company website URL?' }
   ]);
   const [answers, setAnswers] = useState({});
@@ -134,6 +132,11 @@ function Chatbot() {
   // Rating modal state
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [hasRated, setHasRated] = useState(false);
+
+  // VEO-3 Image Upload State
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const [dragActive, setDragActive] = useState(false);
+  const [imageContextOptions, setImageContextOptions] = useState({});
 
   const chatRef = useRef(null);
 
@@ -182,6 +185,97 @@ function Chatbot() {
     setMessages(msgs => [...msgs, { sender: 'bot', text: 'Type your product or service:' }]);
     setProductAsked(true);
     setProductSelected(false);
+  };
+
+  // VEO-3 Image Upload Handlers
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleImageUpload(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleImageUpload = async (file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    try {
+      setLoading(true);
+      setLoadingMessage('Uploading image...');
+      
+      const response = await fetch(`${API_BASE_URL}/upload-image`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // Add uploaded image to state with context selection
+        const newImage = {
+          id: Date.now(),
+          file_path: result.file_path,
+          filename: result.filename,
+          suggested_contexts: result.suggested_contexts,
+          context: result.suggested_contexts[0] || 'product',
+          placement: 'in use', // Default placement
+          preview: URL.createObjectURL(file)
+        };
+        
+        setUploadedImages(prev => [...prev, newImage]);
+        setImageContextOptions(result.context_options);
+        
+        setMessages(msgs => [...msgs, {
+          sender: 'bot',
+          text: `✅ Uploaded "${file.name}" - Detected as: ${result.suggested_contexts[0]}. You can adjust the context below.`
+        }]);
+      } else {
+        setMessages(msgs => [...msgs, {
+          sender: 'bot',
+          text: '❌ Failed to upload image. Please try again.'
+        }]);
+      }
+    } catch (error) {
+      console.error('Image upload error:', error);
+      setMessages(msgs => [...msgs, {
+        sender: 'bot',
+        text: '❌ Failed to upload image. Please try again.'
+      }]);
+    } finally {
+      setLoading(false);
+      setLoadingMessage('');
+    }
+  };
+
+  const updateImageContext = (imageId, context, placement) => {
+    setUploadedImages(prev => 
+      prev.map(img => 
+        img.id === imageId 
+          ? { ...img, context, placement }
+          : img
+      )
+    );
+  };
+
+  const removeImage = (imageId) => {
+    setUploadedImages(prev => prev.filter(img => img.id !== imageId));
+    setMessages(msgs => [...msgs, {
+      sender: 'bot',
+      text: 'Image removed. You can upload more images anytime!'
+    }]);
   };
 
   // Updated send handler to generate script first
@@ -289,6 +383,7 @@ function Chatbot() {
       currentAnswers: answers,
       answersToCheck,
       hasProduct: !!answersToCheck.product,
+      uploadedImages: uploadedImages.length,
       creativeQuestionsStatus: creativeQuestions.map(q => ({
         key: q.key,
         value: answersToCheck[q.key],
@@ -319,23 +414,76 @@ function Chatbot() {
     });
     
     if (allQuestionsAnswered && hasProduct && hasCompanyUrl && hasIndustry) {
-      setLoadingMessage('Generating your script...');
+      setLoadingMessage('Generating VEO-3 optimized script...');
       setLoading(true);
-      setMessages(msgs => [...msgs, { sender: 'bot', text: 'Generating your ad script, please wait...' }]);
+      
+      const scriptMessage = uploadedImages.length > 0 
+        ? `Generating your 16-second VEO-3 script with ${uploadedImages.length} uploaded assets...`
+        : 'Generating your 16-second VEO-3 script with frame continuation...';
+      
+      setMessages(msgs => [...msgs, { sender: 'bot', text: scriptMessage }]);
       
       try {
-        console.log('Calling generateScript API with:', answersToCheck);
-        const data = await generateScript(answersToCheck);
-        console.log('Script generation successful:', data);
+        console.log('Calling VEO-3 script generation with:', {
+          answers: answersToCheck,
+          uploadedImages: uploadedImages.length
+        });
         
-        setCurrentScript(data.script);
-        setScriptAnalysis(data.script_analysis);
-        setCompanyInfo(data.company_info);
-        setScriptGenerated(true);
-        setMessages(msgs => [...msgs, { sender: 'bot', text: 'Your script is ready! Review it below and make any improvements you want before generating the video.' }]);
+        // Use new VEO-3 script generation endpoint
+        const response = await fetch(`${API_BASE_URL}/generate-script-with-images`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            product_name: answersToCheck.product,
+            product_description: `${answersToCheck.features || ''} ${answersToCheck.industry || ''}`.trim(),
+            target_audience: answersToCheck.industry || 'general audience',
+            answers: {
+              ...answersToCheck,
+              duration: '16' // Fixed to 16 seconds
+            },
+            uploaded_images: uploadedImages.map(img => ({
+              file_path: img.file_path,
+              context: img.context,
+              placement: img.placement
+            }))
+          })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          console.log('VEO-3 script generation successful:', data);
+          
+          setCurrentScript(data.script);
+          setScriptAnalysis({
+            veo3_optimized: true,
+            duration: 16,
+            segments: 2,
+            features: data.veo3_features,
+            uploaded_assets: uploadedImages.length
+          });
+          setCompanyInfo({ company_url: answersToCheck.company_url });
+          setScriptGenerated(true);
+          
+          const successMessage = uploadedImages.length > 0
+            ? `🎬 VEO-3 script ready! Optimized for 16 seconds with ${uploadedImages.length} uploaded assets integrated. Frame continuation enabled for seamless transitions!`
+            : '🎬 VEO-3 script ready! Optimized for 16 seconds with frame continuation for seamless transitions!';
+            
+          setMessages(msgs => [...msgs, { 
+            sender: 'bot', 
+            text: successMessage + '\n\nReview it below and make any improvements before generating the video.'
+          }]);
+        } else {
+          throw new Error(data.error || 'VEO-3 script generation failed');
+        }
       } catch (err) {
-        console.error('Script generation error:', err);
-        setMessages(msgs => [...msgs, { sender: 'bot', text: `Sorry, something went wrong generating your script: ${err.message}. Please try again.` }]);
+        console.error('VEO-3 script generation error:', err);
+        setMessages(msgs => [...msgs, { 
+          sender: 'bot', 
+          text: `Sorry, something went wrong generating your VEO-3 script: ${err.message}. Please try again.` 
+        }]);
       }
       setLoading(false);
       setLoadingMessage('');
@@ -370,35 +518,82 @@ function Chatbot() {
     setLoadingMessage('');
   };
 
-  // Handle script approval and video generation
+  // Handle script approval
   const handleScriptApproval = async () => {
     setLoading(true);
-    setLoadingMessage('Generating your video...');
-    setMessages(msgs => [...msgs, { sender: 'bot', text: 'Great! Now generating your video from the approved script. This may take a few minutes...' }]);
+    setLoadingMessage('Generating your VEO-3 video with frame continuation...');
+    setMessages(msgs => [...msgs, { sender: 'bot', text: 'Perfect! Generating your VEO-3 video with seamless frame continuation...' }]);
     
     try {
-      const data = await generateVideoFromScript({
+      console.log('Starting VEO-3 video generation with:', {
         script: currentScript,
-        company_info: companyInfo,
-        user_answers: answers
+        uploadedImages: uploadedImages.length
       });
       
-      setResult(data);
-      setMessages(msgs => [...msgs, { sender: 'bot', text: 'Your AI video ad is ready! 🎉' }]);
+      const response = await fetch(`${API_BASE_URL}/generate-video-veo3-continuation`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          script: currentScript,
+          uploaded_images: uploadedImages.map(img => ({
+            file_path: img.file_path,
+            context: img.context,
+            placement: img.placement
+          }))
+        })
+      });
+
+      const data = await response.json();
       
-      // Show rating modal after a short delay
+      if (data.success) {
+        console.log('VEO-3 video generation successful:', data);
+        
+        setResult({
+          ...data,
+          veo3_features: data.veo3_features_used || [
+            'frame_to_video_continuation',
+            'uploaded_image_integration',
+            'seamless_camera_movement',
+            'enhanced_physics_and_realism'
+          ]
+        });
+        
+        const successMessage = `🎬 VEO-3 video generated successfully!
+
+✨ Features used:
+• Frame-to-video continuation for seamless transitions
+• ${data.technical_details?.image_assets_integrated || 0} uploaded assets integrated
+• Enhanced physics and realism
+• Cinematic camera movements
+
+🎥 Duration: ${data.duration} seconds (2 seamless segments)`;
+
+        setMessages(msgs => [...msgs, { 
+          sender: 'bot', 
+          text: successMessage
+        }]);
+        
+        // Show rating modal after successful generation
         setTimeout(() => {
           if (!hasRated) {
             setShowRatingModal(true);
           }
-        }, 3000);
-      } catch (err) {
-      console.error('Video generation error:', err);
-      setMessages(msgs => [...msgs, { sender: 'bot', text: 'Sorry, something went wrong generating your video. Please try again or contact support.' }]);
+        }, 2000);
+      } else {
+        throw new Error(data.error || 'VEO-3 video generation failed');
       }
-    
+    } catch (err) {
+      console.error('VEO-3 video generation error:', err);
+      setMessages(msgs => [...msgs, { 
+        sender: 'bot', 
+        text: `❌ Error generating VEO-3 video: ${err.message}. Please try again.` 
+      }]);
+    } finally {
       setLoading(false);
       setLoadingMessage('');
+    }
   };
 
   // Handle rating submission
@@ -419,7 +614,155 @@ function Chatbot() {
   return (
     <div className="chatbot-outer">
       <div className="container">
-        <h1>AI Ad Generator</h1>
+        <h1>🎬 VEO-3 AI Ad Generator</h1>
+        <p style={{ color: '#666', textAlign: 'center', marginBottom: '1rem' }}>
+          Create seamless 16-second ads with frame continuation & image uploads
+        </p>
+        
+        {/* VEO-3 Image Upload Zone */}
+        {!scriptGenerated && (
+          <div 
+            className={`image-upload-zone ${dragActive ? 'drag-active' : ''}`}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+            style={{
+              border: `2px dashed ${dragActive ? '#2196f3' : '#ccc'}`,
+              borderRadius: '12px',
+              padding: '2rem',
+              textAlign: 'center',
+              marginBottom: '1rem',
+              backgroundColor: dragActive ? '#f3f8ff' : '#f9f9f9',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            <div className="upload-content">
+              <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📁</div>
+              <p>
+                Drag & drop images here or{' '}
+                <button 
+                  type="button"
+                  onClick={() => document.getElementById('file-input').click()}
+                  style={{
+                    background: 'var(--button-bg)',
+                    color: 'var(--button-text)',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '0.4rem 0.8rem',
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  browse
+                </button>
+              </p>
+              <span style={{ fontSize: '0.9rem', color: '#666' }}>
+                Upload product images, dashboards, logos, or any visual assets
+              </span>
+              <input
+                id="file-input"
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={(e) => e.target.files[0] && handleImageUpload(e.target.files[0])}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Uploaded Images Management */}
+        {uploadedImages.length > 0 && (
+          <div style={{ marginBottom: '1rem' }}>
+            <h3 style={{ color: '#333', marginBottom: '0.8rem' }}>
+              📸 Uploaded Assets ({uploadedImages.length})
+            </h3>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
+              gap: '1rem' 
+            }}>
+              {uploadedImages.map(img => (
+                <div key={img.id} style={{
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
+                  padding: '0.8rem',
+                  backgroundColor: '#fff'
+                }}>
+                  <div style={{ position: 'relative', marginBottom: '0.5rem' }}>
+                    <img 
+                      src={img.preview} 
+                      alt={img.filename}
+                      style={{
+                        width: '100%',
+                        height: '80px',
+                        objectFit: 'cover',
+                        borderRadius: '4px'
+                      }}
+                    />
+                    <button 
+                      onClick={() => removeImage(img.id)}
+                      style={{
+                        position: 'absolute',
+                        top: '4px',
+                        right: '4px',
+                        background: '#ff4444',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '20px',
+                        height: '20px',
+                        cursor: 'pointer',
+                        fontSize: '12px'
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div style={{ fontSize: '0.8rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.3rem', fontWeight: 'bold' }}>
+                      Context:
+                    </label>
+                    <select 
+                      value={img.context} 
+                      onChange={(e) => updateImageContext(img.id, e.target.value, img.placement)}
+                      style={{
+                        width: '100%',
+                        padding: '0.3rem',
+                        borderRadius: '4px',
+                        border: '1px solid #ccc',
+                        marginBottom: '0.5rem'
+                      }}
+                    >
+                      {Object.keys(imageContextOptions).map(context => (
+                        <option key={context} value={context}>{context}</option>
+                      ))}
+                    </select>
+                    
+                    <label style={{ display: 'block', marginBottom: '0.3rem', fontWeight: 'bold' }}>
+                      How to show it:
+                    </label>
+                    <select 
+                      value={img.placement}
+                      onChange={(e) => updateImageContext(img.id, img.context, e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '0.3rem',
+                        borderRadius: '4px',
+                        border: '1px solid #ccc'
+                      }}
+                    >
+                      {imageContextOptions[img.context]?.map(placement => (
+                        <option key={placement} value={placement}>{placement}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
         <div className="chat" ref={chatRef}>
           {messages.map((msg, idx) => (
             <div key={idx} className={`msg ${msg.sender}`}>
@@ -509,44 +852,96 @@ function Chatbot() {
           {/* Final Result */}
           {result && (
             <div>
-              <div style={{ margin: '1em 0', padding: '1em', background: '#f0f0f0', borderRadius: '8px' }}>
-                <h3 style={{ color: '#333', marginBottom: '1em' }}>🎉 Your AI Video Ad is Ready!</h3>
+              <div style={{ margin: '1em 0', padding: '1.5em', background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)', borderRadius: '12px', border: '2px solid #28a745' }}>
+                <h3 style={{ color: '#333', marginBottom: '1em', fontSize: '1.5rem' }}>
+                  🎉 Your VEO-3 AI Video Ad is Ready!
+                </h3>
                 
-                <div style={{ margin: '1em 0' }}>
+                {/* VEO-3 Features Display */}
+                {result.veo3_features && (
+                  <div style={{ 
+                    background: '#e8f5e8', 
+                    padding: '1rem', 
+                    borderRadius: '8px', 
+                    marginBottom: '1rem',
+                    border: '1px solid #28a745'
+                  }}>
+                    <h4 style={{ color: '#155724', marginBottom: '0.5rem', fontSize: '1.1rem' }}>
+                      ✨ VEO-3 Features Used:
+                    </h4>
+                    <ul style={{ margin: '0', paddingLeft: '1.2rem', color: '#155724' }}>
+                      {result.veo3_features.map((feature, index) => (
+                        <li key={index} style={{ marginBottom: '0.3rem' }}>
+                          {feature.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {/* Technical Details */}
+                {result.technical_details && (
+                  <div style={{ 
+                    background: '#fff3cd', 
+                    padding: '1rem', 
+                    borderRadius: '8px', 
+                    marginBottom: '1rem',
+                    border: '1px solid #ffc107'
+                  }}>
+                    <h4 style={{ color: '#856404', marginBottom: '0.5rem', fontSize: '1.1rem' }}>
+                      🔧 Technical Details:
+                    </h4>
+                    <div style={{ color: '#856404', fontSize: '0.9rem' }}>
+                      <p><strong>Duration:</strong> {result.duration} seconds (2 seamless segments)</p>
+                      <p><strong>Segments Generated:</strong> {result.segments_generated}</p>
+                      <p><strong>Image Assets Integrated:</strong> {result.technical_details.image_assets_integrated}</p>
+                      <p><strong>Frame Continuation:</strong> {result.technical_details.continuation_frame}</p>
+                    </div>
+                  </div>
+                )}
+                
+                <div style={{ margin: '1.5em 0' }}>
                   <a
                     href={`${API_BASE_URL}${result.video_url}`}
                     download
                     style={{ 
                       color: '#fff', 
                       backgroundColor: '#007bff', 
-                      padding: '12px 24px', 
+                      padding: '14px 28px', 
                       textDecoration: 'none', 
-                      borderRadius: '8px',
+                      borderRadius: '10px',
                       display: 'inline-block',
                       marginRight: '1em',
+                      marginBottom: '0.5em',
                       fontSize: '16px',
-                      fontWeight: 'bold'
+                      fontWeight: 'bold',
+                      boxShadow: '0 4px 8px rgba(0,123,255,0.3)'
                     }}
                   >
-                    📹 Download Video
+                    🎬 Download VEO-3 Video
                   </a>
                   
-                  <a
-                    href={`${API_BASE_URL}${result.report_url}`}
-                    download
-                    style={{ 
-                      color: '#fff', 
-                      backgroundColor: '#28a745', 
-                      padding: '12px 24px', 
-                      textDecoration: 'none', 
-                      borderRadius: '8px',
-                      display: 'inline-block',
-                      fontSize: '16px',
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    📄 Download Report
-                  </a>
+                  {result.report_url && (
+                    <a
+                      href={`${API_BASE_URL}${result.report_url}`}
+                      download
+                      style={{ 
+                        color: '#fff', 
+                        backgroundColor: '#28a745', 
+                        padding: '14px 28px', 
+                        textDecoration: 'none', 
+                        borderRadius: '10px',
+                        display: 'inline-block',
+                        marginRight: '1em',
+                        marginBottom: '0.5em',
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        boxShadow: '0 4px 8px rgba(40,167,69,0.3)'
+                      }}
+                    >
+                      📄 Download Report
+                    </a>
+                  )}
                   
                   {!hasRated && (
                     <button
@@ -554,23 +949,26 @@ function Chatbot() {
                       style={{ 
                         color: '#fff', 
                         backgroundColor: '#ffc107', 
-                        padding: '12px 24px', 
+                        padding: '14px 28px', 
                         border: 'none',
-                        borderRadius: '8px',
+                        borderRadius: '10px',
                         display: 'inline-block',
-                        marginLeft: '1em',
+                        marginBottom: '0.5em',
                         fontSize: '16px',
                         fontWeight: 'bold',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 8px rgba(255,193,7,0.3)'
                       }}
                     >
-                      ⭐ Rate This Ad
+                      ⭐ Rate This VEO-3 Ad
                     </button>
                   )}
                 </div>
                 
-                <p style={{ color: '#666', fontSize: '14px', marginTop: '1em' }}>
-                  Your video was generated from the script you approved. Download and share your AI-created ad!
+                <p style={{ color: '#666', fontSize: '14px', marginTop: '1em', lineHeight: '1.5' }}>
+                  🎯 Your video was generated using Google's VEO-3 with frame-to-video continuation for seamless transitions. 
+                  {uploadedImages.length > 0 && ` Your ${uploadedImages.length} uploaded assets were integrated into the scenes.`}
+                  {' '}Download and share your professional AI-created ad!
                 </p>
               </div>
             </div>
