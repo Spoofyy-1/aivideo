@@ -3687,33 +3687,26 @@ VEO-3 REQUIREMENTS:
 - Optimize for VEO-3's camera controls and scene builder
 - Ensure continuous motion between segments
 
-SCRIPT FORMAT:
+SCRIPT FORMAT (return valid JSON):
 {{
-  "total_duration": 16,
-  "segments": {{
-    "segment1": {{
-      "duration": 8,
-      "voiceover": "[Exactly 15 words for 8-second timing]",
-      "visual_description": "[Detailed scene including uploaded assets]",
-      "camera_movement": "[Specific VEO-3 camera instructions]",
-      "last_frame_description": "[Critical: Describe exact final frame for continuation]"
-    }},
-    "segment2": {{
-      "duration": 8,
-      "voiceover": "[Exactly 15 words for 8-second timing]",
-      "visual_description": "[Scene that flows from segment1's last frame]",
-      "camera_movement": "[VEO-3 camera instructions for smooth continuation]",
-      "continuation_method": "frames_to_video"
-    }}
+  "segment1": {{
+    "scene_description": "Detailed visual description including uploaded assets",
+    "prompt": "Complete VEO-3 prompt with [voiceover: exact words]", 
+    "voiceover_script": "Exactly 15 words for perfect 8-second timing",
+    "mood": "Emotional atmosphere",
+    "camera": "Camera movement description",
+    "veo3_optimization": "VEO-3 techniques applied"
   }},
-  "veo3_features": {{
-    "frame_continuation": true,
-    "uploaded_assets": {len(uploaded_images)},
-    "camera_controls": "cinematic_movement",
-    "scene_builder": "seamless_transition"
+  "segment2": {{
+    "scene_description": "Scene that flows from segment1's last frame",
+    "prompt": "Complete VEO-3 prompt with [voiceover: exact words]",
+    "voiceover_script": "Exactly 15 words for perfect 8-second timing", 
+    "mood": "Emotional atmosphere",
+    "camera": "Camera movement description",
+    "veo3_optimization": "VEO-3 techniques applied"
   }},
-  "brand_message": "{{slogan or call_to_action}}",
-  "narrator_voice": "Professional, warm, engaging - consistent across both segments"
+  "slogan": "Brand slogan (2-8 words)",
+  "call_to_action": "Clear CTA (2-8 words)"
 }}
 
 Focus on:
@@ -3724,11 +3717,9 @@ Focus on:
 
     try:
         # Use OpenAI for script generation
-        openai_api_key = get_openai_api_key()
-        if not openai_api_key:
-            raise Exception("OpenAI API key not found")
-            
-        client = OpenAI(api_key=openai_api_key)
+        client = get_openai_client()
+        if not client:
+            raise Exception("OpenAI client not available")
         
         response = client.chat.completions.create(
             model="gpt-4",

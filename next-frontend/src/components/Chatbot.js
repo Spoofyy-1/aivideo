@@ -883,6 +883,15 @@ function Chatbot() {
                       </button>
                     </div>
                     <div className="image-name">{img.filename}</div>
+                    <div className="image-description">
+                      <textarea
+                        placeholder="Describe this image (e.g., 'Product dashboard showing analytics', 'CEO headshot for testimonial', etc.)"
+                        value={img.description || ''}
+                        onChange={(e) => updateImageDescription(img.id, e.target.value)}
+                        className="description-input"
+                        rows="3"
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1184,12 +1193,14 @@ function Chatbot() {
 
         .images-list {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-          gap: 1rem;
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 1.5rem;
         }
 
         .image-item {
           position: relative;
+          display: flex;
+          flex-direction: column;
         }
 
         .image-preview {
@@ -1235,6 +1246,39 @@ function Chatbot() {
           color: rgba(255, 255, 255, 0.7);
           text-align: center;
           word-break: break-word;
+        }
+
+        .image-description {
+          margin-top: 0.5rem;
+          display: flex;
+          justify-content: center;
+        }
+
+        .description-input {
+          flex: 1;
+          padding: 0.5rem 0.8rem;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 8px;
+          font-size: 0.8rem;
+          color: white;
+          background: rgba(45, 55, 72, 0.8);
+          font-family: inherit;
+          resize: none;
+          min-height: 40px;
+          max-height: 80px;
+          overflow-y: auto;
+          width: 100%;
+        }
+
+        .description-input:focus {
+          outline: none;
+          border-color: #3F51B5;
+          box-shadow: 0 0 0 4px rgba(63, 81, 181, 0.1);
+          transform: translateY(-2px);
+        }
+
+        .description-input::placeholder {
+          color: rgba(255, 255, 255, 0.5);
         }
 
         .result-section {
