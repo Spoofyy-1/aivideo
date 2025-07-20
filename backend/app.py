@@ -3863,8 +3863,10 @@ def generate_video_veo3_continuation():
                 })
             return jsonify({"success": False, "error": f"Failed to generate segment 1: {error_msg}"})
         
-        # Extract last frame from Segment 1
-        last_frame = extract_last_frame(segment1_result['video_url'])
+        # Extract last frame from Segment 1 for continuation
+        segment1_video_path = segment1_result.get('video_path', segment1_result.get('video_url'))
+        last_frame = extract_last_frame(segment1_video_path)
+        print(f"DEBUG: Extracted last frame: {last_frame}")
         
         # Generate Segment 2 using frame continuation
         segment2_result = generate_veo3_segment_with_continuation(
@@ -3875,17 +3877,41 @@ def generate_video_veo3_continuation():
         )
         
         if not segment2_result.get('success'):
-            return jsonify({"success": False, "error": "Failed to generate segment 2"})
+            error_msg = segment2_result.get('error', 'Unknown error')
+            return jsonify({"success": False, "error": f"Failed to generate segment 2: {error_msg}"})
         
-        # Combine segments (they should be seamless due to frame continuation)
-        final_video = combine_seamless_segments([
-            segment1_result['video_url'],
-            segment2_result['video_url']
-        ])
+        # Get video paths for combining
+        segment1_path = segment1_result.get('video_path')
+        segment2_path = segment2_result.get('video_path')
+        
+        if not segment1_path or not segment2_path:
+            return jsonify({"success": False, "error": "Video paths not available from VEO-3 generation"})
+        
+        # Generate unique session ID and create user directory
+        session_id = generate_unique_session_id()
+        user_dir = ensure_user_directory(session_id)
+        
+        # Combine segments into final video using existing combine_videos function
+        final_filename = f"veo3_ad_{session_id}.mp4"
+        final_output_path = os.path.join(user_dir, final_filename)
+        
+        print(f"DEBUG: Combining videos: {segment1_path} + {segment2_path} -> {final_output_path}")
+        
+        # Use existing video combination function
+        final_video_path = combine_videos([segment1_path, segment2_path], final_output_path)
+        
+        if not os.path.exists(final_video_path):
+            return jsonify({"success": False, "error": "Final video was not created successfully"})
+        
+        # Create download URL that works with our backend
+        video_download_url = f'/download/video/{session_id}/{final_filename}'
+        
+        print(f"DEBUG: Final video saved to: {final_video_path}")
+        print(f"DEBUG: Download URL: {video_download_url}")
         
         return jsonify({
             "success": True,
-            "video_url": final_video,
+            "video_url": video_download_url,
             "duration": 16,
             "segments_generated": 2,
             "veo3_features_used": [
@@ -3895,10 +3921,11 @@ def generate_video_veo3_continuation():
                 "enhanced_physics_and_realism"
             ],
             "technical_details": {
-                "segment1_url": segment1_result['video_url'],
-                "segment2_url": segment2_result['video_url'],
-                "continuation_frame": "extracted_and_applied",
-                "image_assets_integrated": len(uploaded_images)
+                "segment1_features": segment1_result.get('features_used', []),
+                "segment2_features": segment2_result.get('features_used', []),
+                "continuation_frame": "extracted_and_applied" if last_frame else "not_available",
+                "image_assets_integrated": len(uploaded_images),
+                "session_id": session_id
             }
         })
         
@@ -4182,22 +4209,23 @@ def extract_last_frame(video_path):
         # Return None if extraction fails - VEO-3 will work without frame continuation
         return None
 
-def combine_seamless_segments(segment_urls):
-    """Combine video segments that should be seamless due to frame continuation"""
+def combine_seamless_segments(segment_paths):
+    """Combine video segments using the existing combine_videos function"""
     try:
-        # In real implementation, this would:
-        # 1. Download all segment videos
-        # 2. Concatenate them without any transition effects
-        # 3. Since they use frame continuation, they should be seamless
-        # 4. Upload final video and return URL
+        import tempfile
         
-        # Simulate final video URL
-        final_url = f"https://veo3-api.google.com/final/seamless_ad_{int(time.time())}.mp4"
-        return final_url
+        # Create temporary output file
+        temp_output = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
+        temp_output.close()
+        
+        # Use existing video combination function
+        final_path = combine_videos(segment_paths, temp_output.name)
+        
+        return final_path
         
     except Exception as e:
         print(f"Error combining segments: {e}")
-        return segment_urls[0]  # Return first segment as fallback
+        raise Exception(f"Failed to combine video segments: {e}")
 
 if __name__ == '__main__':
     try:
