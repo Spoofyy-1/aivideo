@@ -65,19 +65,11 @@ const durationOptions = [
 ];
 
 const creativeQuestions = [
-  // Removed duration question since it's fixed to 16 seconds
-  { key: 'ad_type', text: "What type of ad do you want? (e.g., Normal, Unhinged, Informative, Emotional, Cinematic, Funny, Heartwarming, Aspirational, Testimonial, Product Demo, Viral/Meme, Story-Driven, Minimalist, High-Energy, Social Proof, Pop Culture Reference, etc.)", options: adTypeOptions },
-  { key: 'mood', text: 'What is the mood or vibe you want for your ad? (e.g., energetic, trustworthy, fun, etc.)' },
-  { key: 'authenticity_level', text: '🎯 2025 TREND: How authentic/raw should your ad feel? (Polished & Professional / Authentic & Natural / Raw & Unfiltered / Phone-Shot Style)' },
-  { key: 'humor_tolerance', text: '😂 2025 TREND: Are you open to humor in your ads? (Yes, make it funny! / Subtle humor only / Light and playful / No humor, keep it serious)' },
-  { key: 'educational_value', text: '📚 2025 TREND: Should your ad teach something valuable? (Yes, educate first / Quick tip or insight / Problem-solving focus / Entertainment over education)' },
-  { key: 'sound_optimization', text: '🔇 2025 TREND: Will people watch with sound OFF? (Optimize for silent viewing / Include captions / Visual storytelling focus / Assume sound is ON)' },
-  { key: 'main_character', text: "Who should be the main character in your ad? (e.g., CEO, satisfied customer, everyday person, celebrity, animated character, etc. Type 'N/A' if no specific preference)" },
-  { key: 'target_platform', text: '📱 2025 TREND: Primary platform for this ad? (TikTok/Instagram Reels / YouTube Shorts / Facebook/Instagram Feed / LinkedIn / Multiple platforms)' },
-  { key: 'transformation_story', text: '✨ 2025 TREND: Show a transformation? (Before/after results / Problem to solution / Struggle to success / No transformation story)' },
-  { key: 'slogan', text: "Do you have a specific slogan you want to use? (Type 'N/A' if you want us to create one)" },
-  { key: 'cta', text: "Is there a specific call to action you want viewers to hear? (Type 'N/A' if you want us to create one)" },
-  { key: 'features', text: 'Any features or benefits you want to highlight?' }
+  { key: 'ad_type', text: "What style of ad do you want?", options: adTypeOptions },
+  { key: 'mood', text: 'What mood should your ad have? (e.g., energetic, trustworthy, fun, professional, emotional)' },
+  { key: 'target_audience', text: 'Who is your target audience? (e.g., young professionals, parents, seniors, tech enthusiasts)' },
+  { key: 'main_message', text: 'What is the main message you want to communicate? (e.g., "fastest delivery", "most affordable", "life-changing results")' },
+  { key: 'cta', text: "What action should viewers take? (e.g., 'Visit our website', 'Download the app', 'Call now', or type 'Auto' for us to create one)" }
 ];
 
 function Chatbot() {
@@ -600,162 +592,198 @@ function Chatbot() {
   };
 
   return (
-    <div className="chatbot-container">
-      {/* Main Content */}
-      <div className="main-layout">
-        {/* Chat Panel */}
-        <div className="chat-panel">
-          <div className="panel-header">
-            <h2>Chat</h2>
-          </div>
-          
-          <div className="chat-messages" ref={chatRef}>
-          {messages.map((msg, idx) => (
-              <div key={idx} className={`message ${msg.sender}`}>
-                <div className="message-bubble">{msg.text}</div>
-            </div>
-          ))}
+    <div className="chat-container">
+      {/* Only show script preview when script is generated, hide everything else */}
+      {scriptGenerated ? (
+        <div className="script-only-container">
+          <ScriptPreview
+            script={currentScript}
+            scriptAnalysis={scriptAnalysis}
+            companyInfo={companyInfo}
+            userAnswers={answers}
+            onImprove={handleScriptImprovement}
+            onApprove={handleScriptApproval}
+            loading={loading}
+          />
+        </div>
+      ) : (
+        <>
+          {/* VEO-3 Image Upload Section - only show before script generation */}
+          <div className="image-upload-section">
+            <h3 className="upload-title">📁 Upload Images for Your Ad (Optional)</h3>
+            <p className="upload-subtitle">Drag & drop product photos, dashboards, logos, or any visuals you want in your VEO-3 video</p>
             
-            {/* Loading indicator */}
-            {loading && (
-              <div className="message bot">
-                <div className="message-bubble">
-                  {loadingMessage}
-                  <div className="loading-spinner">⚡</div>
-                </div>
-              </div>
-            )}
-            
-          {/* Product options */}
-          {step >= creativeQuestions.length && researchDone && !productSelected && productAsked && productsList.length > 0 && (
-              <div className="message bot">
-                <div className="message-bubble">
-                  <div className="options-grid">
-                {productsList.map(opt => (
-                  <button
-                    key={opt}
-                    type="button"
-                        className="option-btn"
-                        onClick={() => {
-                          setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
-                          const updatedAnswers = { ...answers, product: opt };
-                          setAnswers(updatedAnswers);
-                          setProductSelected(true);
-                          maybeGenerateScript(updatedAnswers);
-                        }}
-                  >
-                    {opt}
-                  </button>
-                ))}
-                <button
-                  type="button"
-                      className="option-btn"
-                  onClick={handleCustomProduct}
-                >
-                  Other
-                </button>
-                  </div>
-              </div>
-            </div>
-          )}
-            
-            {/* Script Preview */}
-            {scriptGenerated && currentScript && (
-              <ScriptPreview
-                script={currentScript}
-                scriptAnalysis={scriptAnalysis}
-                companyInfo={companyInfo}
-                userAnswers={answers}
-                onImprove={handleScriptImprovement}
-                onApprove={handleScriptApproval}
-                loading={loading}
+            <div 
+              className={`image-dropzone ${dragActive ? 'drag-active' : ''}`}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+              onClick={() => document.getElementById('image-input').click()}
+            >
+              <input
+                type="file"
+                id="image-input"
+                multiple
+                accept="image/*"
+                onChange={handleImageUpload}
+                style={{ display: 'none' }}
               />
-            )}
-            
-            {/* Final Result */}
-          {result && (
-              <div className="result-section">
-                <div className="result-card">
-                  <h3>🎉 Your VEO-3 AI Video Ad is Ready!</h3>
-                  
-                  {/* VEO-3 Features Display */}
-                  {result.veo3_features && (
-                    <div className="features-display">
-                      <h4>✨ VEO-3 Features Used:</h4>
-                      <ul>
-                        {result.veo3_features.map((feature, index) => (
-                          <li key={index}>
-                            {feature.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  
-                  {/* Technical Details */}
-                  {result.technical_details && (
-                    <div className="technical-details">
-                      <h4>🔧 Technical Details:</h4>
-            <div>
-                        <p><strong>Duration:</strong> {result.duration} seconds (2 seamless segments)</p>
-                        <p><strong>Segments Generated:</strong> {result.segments_generated}</p>
-                        <p><strong>Image Assets Integrated:</strong> {result.technical_details.image_assets_integrated}</p>
-                        <p><strong>Frame Continuation:</strong> {result.technical_details.continuation_frame}</p>
+              <div className="dropzone-content">
+                <span className="upload-icon">📷</span>
+                <p>Click here or drag & drop images</p>
+                <small>Supports JPG, PNG, GIF (Max 5 images)</small>
+              </div>
+            </div>
+
+            {/* Uploaded Images Grid */}
+            {uploadedImages.length > 0 && (
+              <div className="uploaded-images-container">
+                <h4>📸 Uploaded Images ({uploadedImages.length}/5)</h4>
+                <div className="uploaded-images-grid">
+                  {uploadedImages.map((image, index) => (
+                    <div key={index} className="uploaded-image-card">
+                      <img src={image.preview} alt={`Upload ${index + 1}`} />
+                      <div className="image-details">
+                        <select
+                          value={image.context}
+                          onChange={(e) => updateImageContext(index, 'context', e.target.value)}
+                          className="context-select"
+                        >
+                          <option value="product">Product</option>
+                          <option value="dashboard">Dashboard</option>
+                          <option value="person">Person</option>
+                          <option value="logo">Logo</option>
+                          <option value="text">Text</option>
+                          <option value="technology">Technology</option>
+                          <option value="food">Food</option>
+                          <option value="vehicle">Vehicle</option>
+                        </select>
+                        
+                        <select
+                          value={image.placement}
+                          onChange={(e) => updateImageContext(index, 'placement', e.target.value)}
+                          className="placement-select"
+                        >
+                          <option value="in use">In Use</option>
+                          <option value="on table">On Table</option>
+                          <option value="in hands">In Hands</option>
+                          <option value="floating">Floating</option>
+                          <option value="close-up">Close-up</option>
+                          <option value="background">Background</option>
+                        </select>
+                        
+                        <textarea
+                          placeholder="Describe this image..."
+                          value={image.description}
+                          onChange={(e) => updateImageContext(index, 'description', e.target.value)}
+                          className="description-input"
+                          rows="2"
+                        />
+                        
+                        <button
+                          onClick={() => removeImage(index)}
+                          className="remove-image-btn"
+                        >
+                          ❌ Remove
+                        </button>
                       </div>
                     </div>
-                  )}
-                  
-                  <div className="download-buttons">
-                  <a
-                    href={`${API_BASE_URL}${result.video_url}`}
-                    download
-                      className="download-btn primary"
-                    >
-                      🎬 Download VEO-3 Video
-                    </a>
-                    
-                    {result.report_url && (
-                  <a
-                    href={`${API_BASE_URL}${result.report_url}`}
-                    download
-                        className="download-btn secondary"
-                  >
-                    📄 Download Report
-                  </a>
-                    )}
-                  
-                  {!hasRated && (
-                    <button
-                      onClick={() => setShowRatingModal(true)}
-                        className="download-btn rating"
-                      >
-                        ⭐ Rate This VEO-3 Ad
-                    </button>
-                  )}
+                  ))}
                 </div>
-                
-                  <p className="result-description">
-                    🎯 Your video was generated using Google's VEO-3 with frame-to-video continuation for seamless transitions. 
-                    {uploadedImages.length > 0 && ` Your ${uploadedImages.length} uploaded assets were integrated into the scenes.`}
-                    {' '}Download and share your professional AI-created ad!
-                </p>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
-        {/* Input form */}
-          {!result && !loading && !scriptGenerated && (
-            <div className="chat-input">
-            {!answers.company_url ? (
-              <div>
-                  <div className="input-tip">
-                  💡 <strong>Tip:</strong> Just enter the website domain (e.g., "apple.com" or "nike.com"). 
-                    Our AI will research your company automatically.
+          {/* Chat messages */}
+          <div className="chat-messages" ref={chatRef}>
+            {messages.map((msg, index) => (
+              <div key={index} className={`msg ${msg.sender}`}>
+                <div className="bubble">
+                  {msg.text}
                 </div>
+              </div>
+            ))}
+
+            {/* Loading message */}
+            {loading && (
+              <div className="msg bot">
+                <div className="bubble">
+                  {loadingMessage || 'Processing...'}
+                </div>
+              </div>
+            )}
+
+            {/* Industry options */}
+            {researchDone && !answers.industry && (
+              <div className="options-container">
+                <div className="options-title">Select your industry:</div>
+                <div className="options-grid">
+                  {industryOptions.map((option, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleOptionClick(option)}
+                      className="option-btn"
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Product selection after industry */}
+            {researchDone && answers.industry && !productAsked && !productSelected && step >= creativeQuestions.length && (
+              <div className="options-container">
+                <div className="options-title">Select a product or service to promote:</div>
+                <div className="options-grid">
+                  {productsList.slice(0, 6).map((product, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleProductSelect(product)}
+                      className="option-btn"
+                    >
+                      {product}
+                    </button>
+                  ))}
+                  <button onClick={handleCustomProduct} className="option-btn custom">
+                    Type your product/service
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Creative question options */}
+            {answers.industry && step < creativeQuestions.length && (
+              <div className="options-container">
+                <div className="options-title">Choose your ad style:</div>
+                <div className="options-grid">
+                  {adTypeOptions.map((option, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleOptionClick(option)}
+                      className="option-btn"
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Input form - only show when not loading and script not generated */}
+          {!loading && !scriptGenerated && (
+            <div className="chat-input">
+              {!answers.company_url ? (
+                <div>
+                  <div className="input-tip">
+                    💡 <strong>Tip:</strong> Just enter the website domain (e.g., "apple.com" or "nike.com"). 
+                    Our AI will research your company automatically.
+                  </div>
                   <form onSubmit={handleSend} className="input-form">
-                <input
-                  value={input}
+                    <input
+                      value={input}
                       onChange={(e) => setInput(e.target.value)}
                       placeholder="Enter your company website URL..."
                       className="text-input"
@@ -763,149 +791,113 @@ function Chatbot() {
                     <button type="submit" className="send-btn">Send</button>
                   </form>
                 </div>
-              ) : step === 0 ? (
-                <div className="options-grid">
-                  {industryOptions.map(opt => (
-                    <button
-                      key={opt}
-                      type="button"
-                      className="option-btn"
-                      onClick={() => {
-                        setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
-                        setAnswers(ans => ({ ...ans, industry: opt }));
-                        setStep(1);
-                        setMessages(msgs => [...msgs, { sender: 'bot', text: creativeQuestions[0].text }]);
-                      }}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              ) : step <= creativeQuestions.length && creativeQuestions[step - 1]?.options ? (
-                <div className="options-grid">
-                  {creativeQuestions[step - 1].options.map(opt => (
-                    <button
-                      key={opt}
-                      type="button"
-                      className="option-btn"
-                      onClick={() => {
-                        console.log('Button clicked:', opt, 'Current step:', step, 'Question:', creativeQuestions[step - 1]);
-                        setMessages(msgs => [...msgs, { sender: 'user', text: opt }]);
-                        const currentQuestion = creativeQuestions[step - 1];
-                        const updatedAnswers = { ...answers, [currentQuestion.key]: opt };
-                        console.log('Updating answers:', updatedAnswers);
-                        setAnswers(updatedAnswers);
-                        
-                        if (step < creativeQuestions.length) {
-                          setStep(step + 1);
-                          const nextQuestion = creativeQuestions[step];
-                          setMessages(msgs => [...msgs, { sender: 'bot', text: nextQuestion.text }]);
-                        } else {
-                          setStep(step + 1);
-                          if (!productAsked && productsList.length > 0) {
-                            setMessages(msgs => [...msgs, { sender: 'bot', text: 'Select a product or service to promote:' }]);
-                            setProductAsked(true);
-                          } else if (!productAsked) {
-                            setMessages(msgs => [...msgs, { sender: 'bot', text: 'Type your product or service:' }]);
-                            setProductAsked(true);
-                          }
-                        }
-                      }}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              ) : (
+              ) : (step <= creativeQuestions.length && !answers.industry) || 
+                   (step <= creativeQuestions.length && creativeQuestions[step - 1] && !creativeQuestions[step - 1].options) ||
+                   (productAsked && !productSelected) ? (
                 <form onSubmit={handleSend} className="input-form">
-                <input
-                  value={input}
+                  <input
+                    value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder={step <= creativeQuestions.length ? 
-                      creativeQuestions[step - 1]?.placeholder || "Type your answer..." : 
-                      "Type your product or service..."
+                    placeholder={
+                      productAsked && !productSelected ? "Type your product or service..." :
+                      step <= creativeQuestions.length ? 
+                        creativeQuestions[step - 1]?.placeholder || "Type your answer..." : 
+                        "Type your answer..."
                     }
                     className="text-input"
                   />
                   <button type="submit" className="send-btn">Send</button>
-          </form>
-        )}
+                </form>
+              ) : null}
             </div>
           )}
-      </div>
-      
-        {/* Image Drop Panel */}
-        <div className="image-panel">
-          <div className="panel-header">
-            <h2>Image drop box</h2>
-          </div>
-          
-          <div 
-            className={`drop-zone ${dragActive ? 'drag-active' : ''}`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-          >
-            <div className="drop-content">
-              <div className="drop-icon">📁</div>
-              <p>Drop images here</p>
-              <button 
-                className="browse-btn"
-                onClick={() => document.getElementById('file-input').click()}
-              >
-                Browse Files
-              </button>
-              <input
-                id="file-input"
-                type="file"
-                accept="image/*"
-                style={{ display: 'none' }}
-                onChange={(e) => e.target.files[0] && handleImageUpload(e.target.files[0])}
-              />
-            </div>
-          </div>
+        </>
+      )}
 
-          {/* Uploaded Images */}
-          {uploadedImages.length > 0 && (
-            <div className="uploaded-images">
-              <h3>Uploaded Images ({uploadedImages.length})</h3>
-              <div className="images-list">
-                {uploadedImages.map(img => (
-                  <div key={img.id} className="image-item">
-                    <div className="image-preview">
-                      <img src={img.preview} alt={img.filename} />
-                      <button 
-                        className="remove-btn"
-                        onClick={() => removeImage(img.id)}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                    <div className="image-name">{img.filename}</div>
-                    <div className="image-description">
-                      <textarea
-                        placeholder="Describe this image (e.g., 'Product dashboard showing analytics', 'CEO headshot for testimonial', etc.)"
-                        value={img.description || ''}
-                        onChange={(e) => updateImageDescription(img.id, e.target.value)}
-                        className="description-input"
-                        rows="3"
-                      />
-                    </div>
-                  </div>
-                ))}
+      {/* Show result when video is generated */}
+      {result && (
+        <div className="result-section">
+          <div className="result-card">
+            <h3>🎉 Your VEO-3 AI Video Ad is Ready!</h3>
+            
+            {/* VEO-3 Features Display */}
+            {result.veo3_features && (
+              <div className="features-display">
+                <h4>✨ VEO-3 Features Used:</h4>
+                <ul>
+                  {result.veo3_features.map((feature, index) => (
+                    <li key={index}>
+                      {feature.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    </li>
+                  ))}
+                </ul>
               </div>
+            )}
+            
+            {/* Technical Details */}
+            {result.technical_details && (
+              <div className="technical-details">
+                <h4>🔧 Technical Details:</h4>
+                <div>
+                  <p><strong>Duration:</strong> {result.duration} seconds (2 seamless segments)</p>
+                  <p><strong>Segments Generated:</strong> {result.segments_generated}</p>
+                  <p><strong>Image Assets Integrated:</strong> {result.technical_details.image_assets_integrated}</p>
+                  <p><strong>Frame Continuation:</strong> {result.technical_details.continuation_frame}</p>
+                </div>
+              </div>
+            )}
+            
+            <div className="download-buttons">
+              <a
+                href={`${API_BASE_URL}${result.video_url}`}
+                download
+                className="download-btn primary"
+              >
+                🎬 Download VEO-3 Video
+              </a>
+              
+              {result.report_url && (
+                <a
+                  href={`${API_BASE_URL}${result.report_url}`}
+                  download
+                  className="download-btn secondary"
+                >
+                  📄 Download Report
+                </a>
+              )}
+              
+              {!hasRated && (
+                <button
+                  onClick={() => setShowRatingModal(true)}
+                  className="download-btn rating"
+                >
+                  ⭐ Rate This VEO-3 Ad
+                </button>
+              )}
             </div>
-          )}
+            
+            <p className="result-description">
+              🎯 Your video was generated using Google's VEO-3 with frame-to-video continuation for seamless transitions. 
+              {uploadedImages.length > 0 && ` Your ${uploadedImages.length} uploaded assets were integrated into the scenes.`}
+              {' '}Download and share your professional AI-created ad!
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Show rating modal */}
-      <RatingModal
-        show={showRatingModal}
-        onClose={handleRatingClose}
-        onSubmit={handleRatingSubmit}
-      />
+      {showRatingModal && (
+        <RatingModal
+          isOpen={showRatingModal}
+          onClose={handleRatingClose}
+          onSubmit={handleRatingSubmit}
+          sessionId={result?.session_id}
+          adType={answers.ad_type}
+          industry={answers.industry}
+          companyUrl={answers.company_url}
+          adScript={JSON.stringify(currentScript)}
+        />
+      )}
 
       <style jsx>{`
         .chatbot-container {

@@ -21,6 +21,7 @@ import replicate
 from openai import OpenAI
 from werkzeug.utils import secure_filename
 import cv2
+import urllib.parse
 
 print("DEBUG: All imports completed successfully")
 
@@ -337,7 +338,7 @@ def normalize_url(url):
     return url
 
 def research_company(url):
-    """Research company using ChatGPT and web scraping."""
+    """Research company using ChatGPT and web scraping, including logo extraction."""
     try:
         # Normalize the URL first
         normalized_url = normalize_url(url)
@@ -352,6 +353,9 @@ def research_company(url):
         soup = BeautifulSoup(response.text, 'html.parser')
         text_content = soup.get_text()[:4000]  # Limit content length
         
+        # Extract company logo
+        logo_url = extract_company_logo(soup, normalized_url)
+        
         # Use ChatGPT to analyze company
         prompt = f"""Analyze this company based on their website content and provide key information in JSON format:
         Website content: {text_content}
@@ -364,77 +368,60 @@ def research_company(url):
             "brand_voice_style": "Brand voice and style",
             "key_benefits": "Key benefits for customers",
             "products_services": ["product1", "product2", "product3"],
-            "avoid_topics": ["topic1", "topic2", "topic3"]
+            "avoid_topics": ["topic1", "topic2", "topic3"],
+            "logo_url": "{logo_url or 'none'}"
         }}
         
         Do not include any text before or after the JSON object. Only return the JSON.
         """
         
-        # Use modern OpenAI API syntax
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a professional company researcher. Analyze websites and extract key business information in JSON format only."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=1000
+        )
+        
+        result_text = response.choices[0].message.content.strip()
+        
+        # Parse JSON response
         try:
-            response = client.chat.completions.create(
-                model="gpt-4.1",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,
-                max_tokens=10000
-            )
-        except Exception as api_error:
-            print(f"OpenAI API Error: {api_error}")
-            # Check if it's a content policy violation
-            if "content policy" in str(api_error).lower() or "safety" in str(api_error).lower():
-                raise ValueError(f"Content policy violation: The ad prompt was rejected by OpenAI. This may be due to sensitive content in the ad type or prompt. Error: {str(api_error)}")
-            else:
-                raise ValueError(f"OpenAI API Error: {str(api_error)}")
-
-        content = response.choices[0].message.content.strip()
-        print("OpenAI raw response:", repr(content))  # Debug print
-
-        # Check if OpenAI refused the request
-        if "I'm sorry, I can't assist" in content or "I cannot help" in content or "I'm unable to" in content or "I can't comply" in content or "I can't comply with" in content:
-            print("OpenAI refused the request - likely content policy violation")
-            raise ValueError(f"OpenAI refused the request, likely due to content policy. Response: {repr(content)}")
-
-        # Try to extract JSON from the response
-        try:
-            if not content:
-                raise ValueError("OpenAI returned an empty response.")
+            result = json.loads(result_text)
             
-            # First try to parse as direct JSON
-            return json.loads(content)
-        except json.JSONDecodeError as e:
-            print(f"Direct JSON parsing failed: {e}")
+            # Add logo URL to result if found
+            if logo_url:
+                result['logo_url'] = logo_url
+                print(f"DEBUG: Found company logo: {logo_url}")
             
-            # Try to extract JSON from markdown code blocks
-            import re
-            json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
-            if json_match:
-                try:
-                    return json.loads(json_match.group(1))
-                except json.JSONDecodeError as e2:
-                    print(f"Markdown JSON parsing failed: {e2}")
-            
-            # Try to find any JSON object in the response
-            json_match = re.search(r'\{.*\}', content, re.DOTALL)
-            if json_match:
-                try:
-                    return json.loads(json_match.group(0))
-                except json.JSONDecodeError as e3:
-                    print(f"Regex JSON parsing failed: {e3}")
-            
-            # If all JSON parsing fails, create a structured response from the text
-            print("All JSON parsing failed, creating structured response from text")
+            return result
+        except json.JSONDecodeError:
+            print("DEBUG: Failed to parse JSON, returning fallback")
             return {
-                "main_product_service": "Unable to parse - see raw response",
-                "target_audience": "Unable to parse - see raw response", 
-                "unique_selling_points": "Unable to parse - see raw response",
-                "brand_voice_style": "Unable to parse - see raw response",
-                "key_benefits": "Unable to parse - see raw response",
-                "products_services": [],
-                "avoid_topics": [],
-                "raw_response": content[:1000]  # Include first 1000 chars for debugging
+                "main_product_service": "Business services",
+                "target_audience": "General business customers", 
+                "unique_selling_points": "Quality and reliability",
+                "brand_voice_style": "Professional and trustworthy",
+                "key_benefits": "Improved efficiency and results",
+                "products_services": ["Main service", "Additional services"],
+                "avoid_topics": ["Controversial topics"],
+                "logo_url": logo_url or "none"
             }
+            
     except Exception as e:
-        return f"Error researching company: {str(e)}"
+        print(f"ERROR in company research: {e}")
+        return {
+            "main_product_service": "Business services",
+            "target_audience": "General customers",
+            "unique_selling_points": "Quality service",
+            "brand_voice_style": "Professional",
+            "key_benefits": "Great results",
+            "products_services": ["Services"],
+            "avoid_topics": [],
+            "logo_url": "none"
+        }
 
 def extract_products_services(research_text):
     """Extract a list of products/services from the research_company output using OpenAI."""
@@ -3662,69 +3649,94 @@ def generate_script_with_images():
         return jsonify({"success": False, "error": str(e)}), 500
 
 def generate_enhanced_script_with_images(product_name, product_description, target_audience, answers, uploaded_images):
-    """Generate script with VEO-3 frame continuation and image integration"""
+    """Generate script with VEO-3 frame continuation and image integration with product research"""
     
-    # Build image integration instructions
-    image_instructions = []
+    # First, do web research on the product to get key features
+    try:
+        web_research = research_product_online(product_name)
+        print(f"DEBUG: Web research for {product_name}: {web_research[:200]}...")
+    except Exception as e:
+        print(f"DEBUG: Web research failed: {e}")
+        web_research = ""
+    
+    # Get company info including logo from user answers if available
+    company_url = answers.get('company_url', '')
+    company_logo = ""
+    if company_url:
+        try:
+            # Research company to get logo
+            company_info = research_company(company_url)
+            if isinstance(company_info, dict) and company_info.get('logo_url') and company_info['logo_url'] != 'none':
+                company_logo = f"Company logo from {company_info['logo_url']}"
+                print(f"DEBUG: Including company logo in script: {company_logo}")
+        except Exception as e:
+            print(f"DEBUG: Failed to get company logo: {e}")
+    
+    # Build image descriptions for prompting
+    image_descriptions = []
     for img in uploaded_images:
         context = img.get('context', 'product')
         placement = img.get('placement', 'in use')
         description = img.get('description', '')
+        
         if description:
-            image_instructions.append(f"- Include uploaded {context} {placement}: {description}")
+            image_descriptions.append(f"{context} {placement}: {description}")
         else:
-            image_instructions.append(f"- Include uploaded {context} {placement}")
+            image_descriptions.append(f"{context} {placement}")
     
-    image_integration_text = "\n".join(image_instructions) if image_instructions else ""
+    # Add company logo to image integration if found
+    if company_logo:
+        image_descriptions.append(company_logo)
     
-    # Enhanced prompt for VEO-3 capabilities
-    prompt = f"""Create a compelling 16-second advertisement script for {product_name}.
+    image_integration = ". ".join(image_descriptions) if image_descriptions else ""
+    
+    prompt = f"""Create a VEO-3 optimized 16-second advertisement script for {product_name}.
 
 PRODUCT INFO:
-{product_description}
-Target Audience: {target_audience}
+- Name: {product_name}
+- Description: {product_description}
+- Target Audience: {target_audience}
+- User Preferences: {format_answers_for_prompt(answers)}
+- Web Research: {web_research}
 
-USER PREFERENCES:
-{format_answers_for_prompt(answers)}
-
-IMAGE ASSETS TO INTEGRATE:
-{image_integration_text}
+UPLOADED IMAGES TO INTEGRATE:
+{image_integration}
 
 VEO-3 REQUIREMENTS:
-- EXACTLY 16 seconds total (2 segments of 8 seconds each)
-- Segment 1: Strong visual hook with uploaded assets
-- Segment 2: Continues seamlessly from Segment 1's last frame
-- Include frame-to-video continuation points
-- Optimize for VEO-3's camera controls and scene builder
-- Ensure continuous motion between segments
+- EXACTLY 30 words per segment voiceover (no more, no less)
+- 2 segments total (Segment 1 + Segment 2)
+- Frame-to-video continuation between segments
+- Each segment must integrate uploaded images naturally
+- NATURAL, CONVERSATIONAL narrator delivery - NOT robotic
+- Cinematic visual descriptions
 
-SCRIPT FORMAT (return valid JSON):
+NARRATOR STYLE REQUIREMENTS:
+- Sound like a real person talking, not an AI
+- Use natural speech patterns with contractions (can't, won't, it's, you'll)
+- Vary sentence structure - some short, some longer
+- Include natural pauses and emphasis
+- Sound enthusiastic but authentic, not overly promotional
+- Use everyday language people actually speak
+
+CRITICAL: Each voiceover_script must be EXACTLY 30 words for perfect 8-second timing.
+
+Return ONLY this JSON format:
 {{
   "segment1": {{
-    "scene_description": "Detailed visual description including uploaded assets",
-    "prompt": "Complete VEO-3 prompt with [voiceover: exact words]", 
-    "voiceover_script": "Exactly 15 words for perfect 8-second timing",
-    "mood": "Emotional atmosphere",
-    "camera": "Camera movement description",
-    "veo3_optimization": "VEO-3 techniques applied"
+    "voiceover_script": "exactly 30 words that sound like natural human speech with contractions and conversational tone",
+    "visual_description": "detailed scene description incorporating uploaded images: {image_integration}",
+    "camera_movement": "cinematic camera instruction for VEO-3",
+    "narrator_delivery": "conversational, enthusiastic but natural, like talking to a friend"
   }},
   "segment2": {{
-    "scene_description": "Scene that flows from segment1's last frame",
-    "prompt": "Complete VEO-3 prompt with [voiceover: exact words]",
-    "voiceover_script": "Exactly 15 words for perfect 8-second timing", 
-    "mood": "Emotional atmosphere",
-    "camera": "Camera movement description",
-    "veo3_optimization": "VEO-3 techniques applied"
-  }},
-  "slogan": "Brand slogan (2-8 words)",
-  "call_to_action": "Clear CTA (2-8 words)"
+    "voiceover_script": "exactly 30 words continuing the story naturally with strong call to action, using everyday language",
+    "visual_description": "continuation scene description incorporating uploaded images: {image_integration}",
+    "camera_movement": "smooth camera continuation from segment 1",
+    "narrator_delivery": "natural conclusion, urgent but not pushy, like a helpful recommendation"
+  }}
 }}
 
-Focus on:
-1. Seamless visual flow between segments
-2. Natural integration of uploaded images
-3. VEO-3's superior physics and realism
-4. Camera movements that enhance continuity"""
+Focus on making it sound like a real person recommending something they genuinely believe in, not a robotic advertisement."""
 
     try:
         # Use OpenAI for script generation
@@ -3943,7 +3955,7 @@ def generate_veo3_segment_with_images(segment_script, uploaded_images, segment_n
         if not os.getenv("REPLICATE_API_TOKEN"):
             raise Exception("REPLICATE_API_TOKEN not found in environment variables")
         
-        # Build VEO-3 prompt with image integration
+        # Build comprehensive image descriptions for this segment
         image_descriptions = []
         image_files = []
         
@@ -3952,50 +3964,61 @@ def generate_veo3_segment_with_images(segment_script, uploaded_images, segment_n
             placement = img.get('placement', 'in use')
             description = img.get('description', '')
             
+            # Build detailed description for VEO-3
             if description:
-                image_descriptions.append(f"{context} {placement}: {description}")
+                full_desc = f"{description} ({context} {placement})"
             else:
-                image_descriptions.append(f"{context} {placement}")
+                full_desc = f"{context} shown {placement}"
+            
+            image_descriptions.append(full_desc)
             
             # Collect image file paths for VEO-3 ingredients
             if img.get('file_path'):
                 image_files.append(img['file_path'])
         
-        image_integration = ". ".join(image_descriptions) if image_descriptions else ""
+        # Create comprehensive image integration text
+        image_integration = ", ".join(image_descriptions) if image_descriptions else ""
         
-        # Get visual description or scene description
-        visual_desc = segment_script.get('visual_description') or segment_script.get('scene_description', 'Professional commercial scene')
-        camera_movement = segment_script.get('camera_movement') or segment_script.get('camera', 'Steady cinematic shot')
+        # Get script properties with better handling
+        visual_desc = segment_script.get('visual_description', 'Professional commercial scene')
+        camera_movement = segment_script.get('camera_movement', 'Cinematic camera movement')
         voiceover = segment_script.get('voiceover_script', '')
+        narrator_delivery = segment_script.get('narrator_delivery', 'conversational and natural')
         
-        # Build comprehensive VEO-3 prompt
-        veo3_prompt = f"""Commercial advertisement, {visual_desc}. {image_integration}. Camera: {camera_movement}. Professional narrator voiceover: "{voiceover}". High quality cinematic commercial lighting, 8 seconds duration."""
+        # Build comprehensive VEO-3 prompt with 30-word voiceover and natural delivery
+        if segment_number == 1:
+            veo3_prompt = f"""Opening scene: {visual_desc}. Featured elements: {image_integration}. Camera: {camera_movement}. Natural narrator ({narrator_delivery}) says: "{voiceover}". Authentic conversational tone, not robotic. Commercial lighting, 8 seconds."""
+        else:
+            veo3_prompt = f"""Continuation scene: {visual_desc}. Featured elements: {image_integration}. Camera: {camera_movement}. Natural narrator ({narrator_delivery}) says: "{voiceover}". Human-like delivery, enthusiastic but genuine. Seamless flow, 8 seconds."""
         
-        # Truncate prompt if too long for VEO-3
+        # Truncate prompt if too long for VEO-3 (keep under 500 chars)
         if len(veo3_prompt) > 500:
-            veo3_prompt = f"Commercial: {visual_desc}. {image_integration[:100]}. {camera_movement}. Narrator: \"{voiceover}\". Cinematic 8s."
+            if segment_number == 1:
+                veo3_prompt = f"Opening: {visual_desc[:100]}. Elements: {image_integration[:100]}. Camera: {camera_movement[:50]}. Narrator: \"{voiceover}\". Commercial 8s."
+            else:
+                veo3_prompt = f"Continue: {visual_desc[:100]}. Elements: {image_integration[:100]}. Camera: {camera_movement[:50]}. Narrator: \"{voiceover}\". Flow 8s."
         
         print(f"DEBUG: VEO-3 API call for segment {segment_number}")
         print(f"DEBUG: Prompt: {veo3_prompt}")
-        print(f"DEBUG: Using {len(image_files)} uploaded images")
+        print(f"DEBUG: Using {len(image_files)} uploaded images with descriptions")
+        print(f"DEBUG: Image descriptions: {image_descriptions}")
         
         # Prepare VEO-3 input parameters
         veo3_input = {
             "prompt": veo3_prompt,
             "duration": 8,
             "aspect_ratio": "16:9",
-            "resolution": "720p",  # Use 720p for faster generation
+            "resolution": "720p",
             "quality": "high"
         }
         
-        # Add image ingredients if available
+        # Add image ingredients if available (VEO-3 can use up to 3 reference images)
         if image_files:
-            # For VEO-3, we can include reference images
-            # Note: This depends on the actual VEO-3 API parameters
-            veo3_input["reference_images"] = image_files[:3]  # Limit to 3 images
+            veo3_input["reference_images"] = image_files[:3]
+            print(f"DEBUG: Added {len(image_files[:3])} reference images to VEO-3 input")
         
         # Call actual VEO-3 API via Replicate
-        print(f"DEBUG: Calling VEO-3 API with {len(image_files)} images...")
+        print(f"DEBUG: Calling VEO-3 API for segment {segment_number} with image integration...")
         output = replicate.run(
             "google/veo-3",
             input=veo3_input
@@ -4033,7 +4056,9 @@ def generate_veo3_segment_with_images(segment_script, uploaded_images, segment_n
             "video_path": video_path,
             "video_url": video_url,
             "segment": segment_number,
-            "features_used": ["veo3_generation", "image_integration"] + (["reference_images"] if image_files else [])
+            "features_used": ["veo3_generation", "image_integration", "30_word_voiceover"] + (["reference_images"] if image_files else []),
+            "image_count": len(image_files),
+            "prompt_used": veo3_prompt
         }
         
     except Exception as e:
@@ -4047,7 +4072,7 @@ def generate_veo3_segment_with_continuation(segment_script, reference_frame, upl
         if not os.getenv("REPLICATE_API_TOKEN"):
             raise Exception("REPLICATE_API_TOKEN not found in environment variables")
         
-        # Build image integration
+        # Build comprehensive image descriptions for continuation segment
         image_descriptions = []
         image_files = []
         
@@ -4056,30 +4081,37 @@ def generate_veo3_segment_with_continuation(segment_script, reference_frame, upl
             placement = img.get('placement', 'in use')
             description = img.get('description', '')
             
+            # Build detailed description for VEO-3 continuation
             if description:
-                image_descriptions.append(f"{context} {placement}: {description}")
+                full_desc = f"{description} ({context} {placement})"
             else:
-                image_descriptions.append(f"{context} {placement}")
+                full_desc = f"{context} shown {placement}"
+            
+            image_descriptions.append(full_desc)
             
             if img.get('file_path'):
                 image_files.append(img['file_path'])
         
-        image_integration = ". ".join(image_descriptions) if image_descriptions else ""
+        # Create comprehensive image integration text
+        image_integration = ", ".join(image_descriptions) if image_descriptions else ""
         
         # Get script properties
-        visual_desc = segment_script.get('visual_description') or segment_script.get('scene_description', 'Continuation of previous scene')
-        camera_movement = segment_script.get('camera_movement') or segment_script.get('camera', 'Smooth camera continuation')
+        visual_desc = segment_script.get('visual_description', 'Continuation of previous scene')
+        camera_movement = segment_script.get('camera_movement', 'Smooth camera continuation')
         voiceover = segment_script.get('voiceover_script', '')
+        narrator_delivery = segment_script.get('narrator_delivery', 'conversational and natural')
         
-        # Build continuation prompt
-        continuation_prompt = f"""Continue seamlessly from previous frame. {visual_desc}. {image_integration}. Camera: {camera_movement}. Professional narrator voiceover: "{voiceover}". Maintain lighting and perspective continuity, 8 seconds duration."""
+        # Build continuation prompt that explicitly references frame continuation
+        continuation_prompt = f"""CONTINUE seamlessly from previous frame. Scene: {visual_desc}. Featured elements: {image_integration}. Camera: {camera_movement}. Natural narrator ({narrator_delivery}) says: "{voiceover}". Maintain lighting and perspective continuity, 8 seconds."""
         
-        # Truncate if too long
+        # Truncate if too long (VEO-3 limit)
         if len(continuation_prompt) > 500:
-            continuation_prompt = f"Continue from previous frame: {visual_desc}. {camera_movement}. Narrator: \"{voiceover}\". Seamless 8s."
+            continuation_prompt = f"CONTINUE from previous: {visual_desc[:80]}. Elements: {image_integration[:80]}. Camera: {camera_movement[:40]}. Narrator: \"{voiceover}\". Seamless 8s."
         
         print(f"DEBUG: VEO-3 frame continuation for segment {segment_number}")
         print(f"DEBUG: Continuation prompt: {continuation_prompt}")
+        print(f"DEBUG: Reference frame available: {'Yes' if reference_frame else 'No'}")
+        print(f"DEBUG: Image descriptions for continuation: {image_descriptions}")
         
         # Prepare VEO-3 input for frame continuation
         veo3_input = {
@@ -4090,14 +4122,19 @@ def generate_veo3_segment_with_continuation(segment_script, reference_frame, upl
             "quality": "high"
         }
         
-        # Add reference frame for continuation
+        # CRITICAL: Add reference frame for true frame-to-video continuation
         if reference_frame:
-            veo3_input["reference_frame"] = reference_frame
-            print(f"DEBUG: Using reference frame for continuation")
+            # For VEO-3, the reference frame should be passed as an image input
+            with open(reference_frame, 'rb') as frame_file:
+                veo3_input["image"] = frame_file.read()
+            print(f"DEBUG: Added reference frame: {reference_frame}")
+        else:
+            print(f"WARNING: No reference frame available - continuation may not be seamless")
         
-        # Add image ingredients if available
+        # Add uploaded images as additional reference if available
         if image_files:
             veo3_input["reference_images"] = image_files[:3]
+            print(f"DEBUG: Added {len(image_files[:3])} reference images for continuation")
         
         # Call VEO-3 API with frame continuation
         print(f"DEBUG: Calling VEO-3 frame continuation API...")
@@ -4139,7 +4176,10 @@ def generate_veo3_segment_with_continuation(segment_script, reference_frame, upl
             "video_url": video_url,
             "segment": segment_number,
             "continuation_method": "frames_to_video",
-            "features_used": ["frame_continuation", "veo3_generation"] + (["reference_images"] if image_files else [])
+            "features_used": ["frame_continuation", "veo3_generation", "30_word_voiceover"] + (["reference_images"] if image_files else []),
+            "reference_frame_used": bool(reference_frame),
+            "image_count": len(image_files),
+            "prompt_used": continuation_prompt
         }
         
     except Exception as e:
@@ -4226,6 +4266,127 @@ def combine_seamless_segments(segment_paths):
     except Exception as e:
         print(f"Error combining segments: {e}")
         raise Exception(f"Failed to combine video segments: {e}")
+
+def research_product_online(product_name):
+    """Research a product online to get key features and information"""
+    try:
+        # Use OpenAI to research the product with web-like knowledge
+        client = get_openai_client()
+        if not client:
+            return f"Product research not available. Focus on {product_name} as described by user."
+        
+        prompt = f"""Research the product "{product_name}" and provide key information that would be useful for creating an advertisement.
+
+Focus on:
+- Key features and benefits
+- Target audience
+- Unique selling points
+- Common use cases
+- Competitive advantages
+- Technical specifications (if relevant)
+
+Provide a concise summary in 2-3 sentences that highlights the most important selling points for advertising."""
+
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a product research expert who provides concise, accurate information about products for advertising purposes."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=200
+        )
+        
+        research_result = response.choices[0].message.content.strip()
+        print(f"DEBUG: Product research completed for {product_name}")
+        return research_result
+        
+    except Exception as e:
+        print(f"ERROR: Product research failed: {e}")
+        return f"Research unavailable. Focus on {product_name} features mentioned by user."
+
+def extract_company_logo(soup, base_url):
+    """Extract company logo from website HTML"""
+    try:
+        import urllib.parse
+        
+        # Common logo selectors to try
+        logo_selectors = [
+            'img[alt*="logo" i]',
+            'img[src*="logo" i]',
+            'img[class*="logo" i]',
+            'img[id*="logo" i]',
+            '.logo img',
+            '#logo img',
+            'header img',
+            '.header img',
+            '.navbar img',
+            '.nav img',
+            '.brand img',
+            '.site-logo',
+            '.company-logo'
+        ]
+        
+        for selector in logo_selectors:
+            logo_element = soup.select_one(selector)
+            if logo_element:
+                logo_src = logo_element.get('src')
+                if logo_src:
+                    # Convert relative URLs to absolute
+                    if logo_src.startswith('//'):
+                        logo_src = 'https:' + logo_src
+                    elif logo_src.startswith('/'):
+                        logo_src = urllib.parse.urljoin(base_url, logo_src)
+                    elif not logo_src.startswith('http'):
+                        logo_src = urllib.parse.urljoin(base_url, logo_src)
+                    
+                    # Validate it's likely a logo (common image formats)
+                    if any(ext in logo_src.lower() for ext in ['.png', '.jpg', '.jpeg', '.svg', '.gif', '.webp']):
+                        print(f"DEBUG: Found logo with selector '{selector}': {logo_src}")
+                        return logo_src
+        
+        # Try structured data (JSON-LD)
+        json_ld_scripts = soup.find_all('script', type='application/ld+json')
+        for script in json_ld_scripts:
+            try:
+                data = json.loads(script.string)
+                if isinstance(data, dict):
+                    logo = data.get('logo')
+                    if logo:
+                        if isinstance(logo, str):
+                            return logo
+                        elif isinstance(logo, dict) and logo.get('url'):
+                            return logo['url']
+            except:
+                continue
+        
+        # Try Open Graph tags
+        og_image = soup.find('meta', property='og:image')
+        if og_image and og_image.get('content'):
+            og_url = og_image['content']
+            if 'logo' in og_url.lower():
+                return og_url
+        
+        # Try favicon as last resort
+        favicon = soup.find('link', rel='icon') or soup.find('link', rel='shortcut icon')
+        if favicon and favicon.get('href'):
+            favicon_url = favicon['href']
+            if favicon_url.startswith('//'):
+                favicon_url = 'https:' + favicon_url
+            elif favicon_url.startswith('/'):
+                favicon_url = urllib.parse.urljoin(base_url, favicon_url)
+            elif not favicon_url.startswith('http'):
+                favicon_url = urllib.parse.urljoin(base_url, favicon_url)
+            
+            print(f"DEBUG: Using favicon as logo: {favicon_url}")
+            return favicon_url
+        
+        print("DEBUG: No logo found on website")
+        return None
+        
+    except Exception as e:
+        print(f"ERROR extracting logo: {e}")
+        return None
 
 if __name__ == '__main__':
     try:
