@@ -634,7 +634,7 @@ function Chatbot() {
   };
 
   return (
-    <div className="chat-container">
+    <div className="chatbot-container">
       {/* Only show script preview when script is generated, hide everything else */}
       {scriptGenerated ? (
         <div className="script-only-container">
@@ -649,90 +649,194 @@ function Chatbot() {
           />
         </div>
       ) : (
-        <>
-          {/* VEO-3 Image Upload Section - only show before script generation */}
-          <div className="image-upload-section">
-            <h3 className="upload-title">📁 Upload Images for Your Ad (Optional)</h3>
-            <p className="upload-subtitle">Drag & drop product photos, dashboards, logos, or any visuals you want in your VEO-3 video</p>
+        /* Main Content */
+        <div className="main-layout">
+          {/* Chat Panel */}
+          <div className="chat-panel">
+            <div className="panel-header">
+              <h2>Chat</h2>
+            </div>
+            
+            <div className="chat-messages" ref={chatRef}>
+              {messages.map((msg, index) => (
+                <div key={index} className={`message ${msg.sender}`}>
+                  <div className="message-bubble">{msg.text}</div>
+                </div>
+              ))}
+              
+              {/* Loading indicator */}
+              {loading && (
+                <div className="message bot">
+                  <div className="message-bubble">
+                    {loadingMessage}
+                    <div className="loading-spinner">⚡</div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Industry options */}
+              {researchDone && !answers.industry && (
+                <div className="message bot">
+                  <div className="message-bubble">
+                    <div className="options-grid">
+                      {industryOptions.map((option, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleOptionClick(option)}
+                          className="option-btn"
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Product selection after industry */}
+              {researchDone && answers.industry && !productAsked && !productSelected && step >= creativeQuestions.length && (
+                <div className="message bot">
+                  <div className="message-bubble">
+                    <div className="options-grid">
+                      {productsList.slice(0, 6).map((product, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleProductSelect(product)}
+                          className="option-btn"
+                        >
+                          {product}
+                        </button>
+                      ))}
+                      <button onClick={handleCustomProduct} className="option-btn custom">
+                        Type your product/service
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Creative question options */}
+              {answers.industry && step < creativeQuestions.length && (
+                <div className="message bot">
+                  <div className="message-bubble">
+                    <div className="options-grid">
+                      {adTypeOptions.map((option, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleOptionClick(option)}
+                          className="option-btn"
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Input form */}
+            {!loading && !scriptGenerated && (
+              <div className="chat-input">
+                {!answers.company_url ? (
+                  <div>
+                    <div className="input-tip">
+                      💡 <strong>Tip:</strong> Just enter the website domain (e.g., "apple.com" or "nike.com"). 
+                      Our AI will research your company automatically.
+                    </div>
+                    <form onSubmit={handleSend} className="input-form">
+                      <input
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder="Enter your company website URL..."
+                        className="text-input"
+                      />
+                      <button type="submit" className="send-btn">Send</button>
+                    </form>
+                  </div>
+                ) : (step <= creativeQuestions.length && !answers.industry) || 
+                     (step <= creativeQuestions.length && creativeQuestions[step - 1] && !creativeQuestions[step - 1].options) ||
+                     (productAsked && !productSelected) ? (
+                  <form onSubmit={handleSend} className="input-form">
+                    <input
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      placeholder={
+                        productAsked && !productSelected ? "Type your product or service..." :
+                        step <= creativeQuestions.length ? 
+                          creativeQuestions[step - 1]?.placeholder || "Type your answer..." : 
+                          "Type your answer..."
+                      }
+                      className="text-input"
+                    />
+                    <button type="submit" className="send-btn">Send</button>
+                  </form>
+                ) : null}
+              </div>
+            )}
+          </div>
+          
+          {/* Image Drop Panel */}
+          <div className="image-panel">
+            <div className="panel-header">
+              <h2>Image drop box</h2>
+            </div>
             
             <div 
-              className={`image-dropzone ${dragActive ? 'drag-active' : ''}`}
+              className={`drop-zone ${dragActive ? 'drag-active' : ''}`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
               onDrop={handleDrop}
-              onClick={() => document.getElementById('image-input').click()}
             >
-              <input
-                type="file"
-                id="image-input"
-                multiple
-                accept="image/*"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files[0]) {
-                    handleImageUpload(e.target.files[0]);
-                  }
-                }}
-                style={{ display: 'none' }}
-              />
-              <div className="dropzone-content">
-                <span className="upload-icon">📷</span>
-                <p>Click here or drag & drop images</p>
-                <small>Supports JPG, PNG, GIF (Max 5 images)</small>
+              <div className="drop-content">
+                <div className="drop-icon">📁</div>
+                <p>Drop images here</p>
+                <button
+                  className="browse-btn"
+                  onClick={() => document.getElementById('file-input').click()}
+                >
+                  Browse Files
+                </button>
+                <input
+                  id="file-input"
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      handleImageUpload(e.target.files[0]);
+                    }
+                  }}
+                />
               </div>
             </div>
 
-            {/* Uploaded Images Grid */}
+            {/* Uploaded Images */}
             {uploadedImages.length > 0 && (
-              <div className="uploaded-images-container">
-                <h4>📸 Uploaded Images ({uploadedImages.length}/5)</h4>
-                <div className="uploaded-images-grid">
-                  {uploadedImages.map((image, index) => (
-                    <div key={index} className="uploaded-image-card">
-                      <img src={image.preview} alt={`Upload ${index + 1}`} />
-                      <div className="image-details">
-                        <select
-                          value={image.context}
-                          onChange={(e) => updateImageContext(index, 'context', e.target.value)}
-                          className="context-select"
+              <div className="uploaded-images">
+                <h3>Uploaded Images ({uploadedImages.length})</h3>
+                <div className="images-list">
+                  {uploadedImages.map((img, index) => (
+                    <div key={index} className="image-item">
+                      <div className="image-preview">
+                        <img src={img.preview} alt={img.filename} />
+                        <button
+                          className="remove-btn"
+                          onClick={() => removeImage(index)}
                         >
-                          <option value="product">Product</option>
-                          <option value="dashboard">Dashboard</option>
-                          <option value="person">Person</option>
-                          <option value="logo">Logo</option>
-                          <option value="text">Text</option>
-                          <option value="technology">Technology</option>
-                          <option value="food">Food</option>
-                          <option value="vehicle">Vehicle</option>
-                        </select>
-                        
-                        <select
-                          value={image.placement}
-                          onChange={(e) => updateImageContext(index, 'placement', e.target.value)}
-                          className="placement-select"
-                        >
-                          <option value="in use">In Use</option>
-                          <option value="on table">On Table</option>
-                          <option value="in hands">In Hands</option>
-                          <option value="floating">Floating</option>
-                          <option value="close-up">Close-up</option>
-                          <option value="background">Background</option>
-                        </select>
-                        
+                          ✕
+                        </button>
+                      </div>
+                      <div className="image-name">{img.filename}</div>
+                      <div className="image-description">
                         <textarea
-                          placeholder="Describe this image..."
-                          value={image.description}
+                          placeholder="Describe this image (e.g., 'Product dashboard showing analytics', 'CEO headshot for testimonial', etc.)"
+                          value={img.description || ''}
                           onChange={(e) => updateImageContext(index, 'description', e.target.value)}
                           className="description-input"
-                          rows="2"
+                          rows="3"
                         />
-                        
-                        <button
-                          onClick={() => removeImage(index)}
-                          className="remove-image-btn"
-                        >
-                          ❌ Remove
-                        </button>
                       </div>
                     </div>
                   ))}
@@ -740,124 +844,7 @@ function Chatbot() {
               </div>
             )}
           </div>
-
-          {/* Chat messages */}
-          <div className="chat-messages" ref={chatRef}>
-            {messages.map((msg, index) => (
-              <div key={index} className={`msg ${msg.sender}`}>
-                <div className="bubble">
-                  {msg.text}
-                </div>
-              </div>
-            ))}
-
-            {/* Loading message */}
-            {loading && (
-              <div className="msg bot">
-                <div className="bubble">
-                  {loadingMessage || 'Processing...'}
-                </div>
-              </div>
-            )}
-
-            {/* Industry options */}
-            {researchDone && !answers.industry && (
-              <div className="options-container">
-                <div className="options-title">Select your industry:</div>
-                <div className="options-grid">
-                  {industryOptions.map((option, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleOptionClick(option)}
-                      className="option-btn"
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Product selection after industry */}
-            {researchDone && answers.industry && !productAsked && !productSelected && step >= creativeQuestions.length && (
-              <div className="options-container">
-                <div className="options-title">Select a product or service to promote:</div>
-                <div className="options-grid">
-                  {productsList.slice(0, 6).map((product, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleProductSelect(product)}
-                      className="option-btn"
-                    >
-                      {product}
-                    </button>
-                  ))}
-                  <button onClick={handleCustomProduct} className="option-btn custom">
-                    Type your product/service
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Creative question options */}
-            {answers.industry && step < creativeQuestions.length && (
-              <div className="options-container">
-                <div className="options-title">Choose your ad style:</div>
-                <div className="options-grid">
-                  {adTypeOptions.map((option, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleOptionClick(option)}
-                      className="option-btn"
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Input form - only show when not loading and script not generated */}
-          {!loading && !scriptGenerated && (
-            <div className="chat-input">
-              {!answers.company_url ? (
-                <div>
-                  <div className="input-tip">
-                    💡 <strong>Tip:</strong> Just enter the website domain (e.g., "apple.com" or "nike.com"). 
-                    Our AI will research your company automatically.
-                  </div>
-                  <form onSubmit={handleSend} className="input-form">
-                    <input
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      placeholder="Enter your company website URL..."
-                      className="text-input"
-                    />
-                    <button type="submit" className="send-btn">Send</button>
-                  </form>
-                </div>
-              ) : (step <= creativeQuestions.length && !answers.industry) || 
-                   (step <= creativeQuestions.length && creativeQuestions[step - 1] && !creativeQuestions[step - 1].options) ||
-                   (productAsked && !productSelected) ? (
-                <form onSubmit={handleSend} className="input-form">
-                  <input
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder={
-                      productAsked && !productSelected ? "Type your product or service..." :
-                      step <= creativeQuestions.length ? 
-                        creativeQuestions[step - 1]?.placeholder || "Type your answer..." : 
-                        "Type your answer..."
-                    }
-                    className="text-input"
-                  />
-                  <button type="submit" className="send-btn">Send</button>
-                </form>
-              ) : null}
-            </div>
-          )}
-        </>
+        </div>
       )}
 
       {/* Show result when video is generated */}
