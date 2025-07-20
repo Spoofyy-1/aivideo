@@ -20,6 +20,7 @@ from flask_cors import CORS
 import replicate
 from openai import OpenAI
 from werkzeug.utils import secure_filename
+import cv2
 
 print("DEBUG: All imports completed successfully")
 
@@ -3905,121 +3906,280 @@ def generate_video_veo3_continuation():
         return jsonify({"success": False, "error": str(e)}), 500
 
 def generate_veo3_segment_with_images(segment_script, uploaded_images, segment_number):
-    """Generate video segment with uploaded image integration"""
+    """Generate video segment with uploaded image integration using real VEO-3 API"""
     try:
         # Check if we have the required script properties
         if not segment_script:
             raise Exception("Segment script is empty or invalid")
         
+        # Check for Replicate API token
+        if not os.getenv("REPLICATE_API_TOKEN"):
+            raise Exception("REPLICATE_API_TOKEN not found in environment variables")
+        
         # Build VEO-3 prompt with image integration
-        image_refs = []
+        image_descriptions = []
+        image_files = []
+        
         for img in uploaded_images:
             context = img.get('context', 'product')
             placement = img.get('placement', 'in use')
-            image_refs.append(f"{context} {placement}")
+            description = img.get('description', '')
+            
+            if description:
+                image_descriptions.append(f"{context} {placement}: {description}")
+            else:
+                image_descriptions.append(f"{context} {placement}")
+            
+            # Collect image file paths for VEO-3 ingredients
+            if img.get('file_path'):
+                image_files.append(img['file_path'])
         
-        image_integration = ", ".join(image_refs) if image_refs else ""
+        image_integration = ". ".join(image_descriptions) if image_descriptions else ""
         
         # Get visual description or scene description
         visual_desc = segment_script.get('visual_description') or segment_script.get('scene_description', 'Professional commercial scene')
-        camera_movement = segment_script.get('camera_movement') or segment_script.get('camera', 'Steady shot')
+        camera_movement = segment_script.get('camera_movement') or segment_script.get('camera', 'Steady cinematic shot')
+        voiceover = segment_script.get('voiceover_script', '')
         
-        veo3_prompt = f"""
-        {visual_desc}
+        # Build comprehensive VEO-3 prompt
+        veo3_prompt = f"""Commercial advertisement, {visual_desc}. {image_integration}. Camera: {camera_movement}. Professional narrator voiceover: "{voiceover}". High quality cinematic commercial lighting, 8 seconds duration."""
         
-        UPLOADED ASSETS: {image_integration}
-        CAMERA: {camera_movement}
-        DURATION: 8 seconds
-        QUALITY: Cinematic, hyper-realistic
-        PHYSICS: Enhanced VEO-3 accuracy
+        # Truncate prompt if too long for VEO-3
+        if len(veo3_prompt) > 500:
+            veo3_prompt = f"Commercial: {visual_desc}. {image_integration[:100]}. {camera_movement}. Narrator: \"{voiceover}\". Cinematic 8s."
         
-        Style: Professional commercial, dramatic lighting, smooth motion
-        """
+        print(f"DEBUG: VEO-3 API call for segment {segment_number}")
+        print(f"DEBUG: Prompt: {veo3_prompt}")
+        print(f"DEBUG: Using {len(image_files)} uploaded images")
         
-        # MOCK VEO-3 API SIMULATION - In real implementation, replace with actual API
-        print(f"DEBUG: [MOCK] VEO-3 API call for segment {segment_number}")
-        print(f"DEBUG: [MOCK] Prompt: {veo3_prompt[:100]}...")
+        # Prepare VEO-3 input parameters
+        veo3_input = {
+            "prompt": veo3_prompt,
+            "duration": 8,
+            "aspect_ratio": "16:9",
+            "resolution": "720p",  # Use 720p for faster generation
+            "quality": "high"
+        }
         
-        # Simulate API delay
-        import time
-        time.sleep(1)  # Simulate processing time
+        # Add image ingredients if available
+        if image_files:
+            # For VEO-3, we can include reference images
+            # Note: This depends on the actual VEO-3 API parameters
+            veo3_input["reference_images"] = image_files[:3]  # Limit to 3 images
         
-        # Instead of fake URL, return error to indicate this is a simulation
-        raise Exception("VEO-3 API is not implemented yet - this is a simulation. Video generation would happen here in production.")
+        # Call actual VEO-3 API via Replicate
+        print(f"DEBUG: Calling VEO-3 API with {len(image_files)} images...")
+        output = replicate.run(
+            "google/veo-3",
+            input=veo3_input
+        )
+        
+        print(f"DEBUG: VEO-3 API returned: {output}")
+        
+        # Download the generated video
+        if isinstance(output, str):
+            video_url = output
+        elif hasattr(output, 'url'):
+            video_url = output.url
+        else:
+            video_url = str(output)
+        
+        print(f"DEBUG: Downloading video from: {video_url}")
+        
+        # Download video to temporary file
+        response = requests.get(video_url, stream=True)
+        response.raise_for_status()
+        
+        # Save to temporary file
+        temp_dir = tempfile.mkdtemp()
+        video_path = os.path.join(temp_dir, f"veo3_segment_{segment_number}.mp4")
+        
+        with open(video_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+        
+        print(f"DEBUG: Video saved to: {video_path}")
+        
+        return {
+            "success": True,
+            "video_path": video_path,
+            "video_url": video_url,
+            "segment": segment_number,
+            "features_used": ["veo3_generation", "image_integration"] + (["reference_images"] if image_files else [])
+        }
         
     except Exception as e:
         print(f"Error in VEO-3 segment generation: {e}")
         return {"success": False, "error": str(e)}
 
 def generate_veo3_segment_with_continuation(segment_script, reference_frame, uploaded_images, segment_number):
-    """Generate video segment using frame-to-video continuation"""
+    """Generate video segment using frame-to-video continuation with real VEO-3 API"""
     try:
+        # Check for Replicate API token
+        if not os.getenv("REPLICATE_API_TOKEN"):
+            raise Exception("REPLICATE_API_TOKEN not found in environment variables")
+        
+        # Build image integration
+        image_descriptions = []
+        image_files = []
+        
+        for img in uploaded_images:
+            context = img.get('context', 'product')
+            placement = img.get('placement', 'in use')
+            description = img.get('description', '')
+            
+            if description:
+                image_descriptions.append(f"{context} {placement}: {description}")
+            else:
+                image_descriptions.append(f"{context} {placement}")
+            
+            if img.get('file_path'):
+                image_files.append(img['file_path'])
+        
+        image_integration = ". ".join(image_descriptions) if image_descriptions else ""
+        
+        # Get script properties
+        visual_desc = segment_script.get('visual_description') or segment_script.get('scene_description', 'Continuation of previous scene')
+        camera_movement = segment_script.get('camera_movement') or segment_script.get('camera', 'Smooth camera continuation')
+        voiceover = segment_script.get('voiceover_script', '')
+        
         # Build continuation prompt
-        continuation_prompt = f"""
-        CONTINUATION FROM REFERENCE FRAME:
-        {segment_script['visual_description']}
+        continuation_prompt = f"""Continue seamlessly from previous frame. {visual_desc}. {image_integration}. Camera: {camera_movement}. Professional narrator voiceover: "{voiceover}". Maintain lighting and perspective continuity, 8 seconds duration."""
         
-        CAMERA: {segment_script['camera_movement']}
-        DURATION: 8 seconds
-        CONTINUATION_METHOD: frames_to_video
+        # Truncate if too long
+        if len(continuation_prompt) > 500:
+            continuation_prompt = f"Continue from previous frame: {visual_desc}. {camera_movement}. Narrator: \"{voiceover}\". Seamless 8s."
         
-        Style: Seamless continuation, maintain lighting and perspective
-        """
+        print(f"DEBUG: VEO-3 frame continuation for segment {segment_number}")
+        print(f"DEBUG: Continuation prompt: {continuation_prompt}")
         
-        # VEO-3 API call with frame continuation
-        veo3_payload = {
-            "mode": "frames_to_video",
-            "reference_frame": reference_frame,  # Last frame from previous segment
+        # Prepare VEO-3 input for frame continuation
+        veo3_input = {
             "prompt": continuation_prompt,
             "duration": 8,
-            "quality": "4K",
-            "features": {
-                "scene_builder": True,
-                "continuous_motion": True,
-                "seamless_transition": True
-            }
+            "aspect_ratio": "16:9",
+            "resolution": "720p",
+            "quality": "high"
         }
         
-        # Add image ingredients if available
-        if uploaded_images:
-            veo3_payload["ingredients"] = [
-                {
-                    "type": "image", 
-                    "path": img["file_path"],
-                    "context": img.get("context", "product")
-                }
-                for img in uploaded_images
-            ]
+        # Add reference frame for continuation
+        if reference_frame:
+            veo3_input["reference_frame"] = reference_frame
+            print(f"DEBUG: Using reference frame for continuation")
         
-        # Simulate VEO-3 frame continuation API
-        video_url = f"https://veo3-api.google.com/continuation/segment{segment_number}_{int(time.time())}.mp4"
+        # Add image ingredients if available
+        if image_files:
+            veo3_input["reference_images"] = image_files[:3]
+        
+        # Call VEO-3 API with frame continuation
+        print(f"DEBUG: Calling VEO-3 frame continuation API...")
+        output = replicate.run(
+            "google/veo-3",
+            input=veo3_input
+        )
+        
+        print(f"DEBUG: VEO-3 continuation API returned: {output}")
+        
+        # Download the generated video
+        if isinstance(output, str):
+            video_url = output
+        elif hasattr(output, 'url'):
+            video_url = output.url
+        else:
+            video_url = str(output)
+        
+        print(f"DEBUG: Downloading continuation video from: {video_url}")
+        
+        # Download video to temporary file
+        response = requests.get(video_url, stream=True)
+        response.raise_for_status()
+        
+        # Save to temporary file
+        temp_dir = tempfile.mkdtemp()
+        video_path = os.path.join(temp_dir, f"veo3_continuation_{segment_number}.mp4")
+        
+        with open(video_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+        
+        print(f"DEBUG: Continuation video saved to: {video_path}")
         
         return {
             "success": True,
+            "video_path": video_path,
             "video_url": video_url,
             "segment": segment_number,
             "continuation_method": "frames_to_video",
-            "features_used": ["frame_continuation", "scene_builder", "continuous_motion"]
+            "features_used": ["frame_continuation", "veo3_generation"] + (["reference_images"] if image_files else [])
         }
         
     except Exception as e:
         print(f"Error generating VEO-3 continuation: {e}")
         return {"success": False, "error": str(e)}
 
-def extract_last_frame(video_url):
-    """Extract the last frame from a video for continuation"""
+def extract_last_frame(video_path):
+    """Extract the last frame from a video for VEO-3 frame continuation"""
     try:
-        # In real implementation, this would:
-        # 1. Download the video from video_url
-        # 2. Extract the final frame using ffmpeg or similar
-        # 3. Return the frame as base64 or upload to storage
+        import cv2
+        import tempfile
         
-        # For now, simulate the frame extraction
-        frame_data = f"last_frame_from_{video_url.split('/')[-1]}"
-        return frame_data
+        print(f"DEBUG: Extracting last frame from: {video_path}")
+        
+        # Handle both local file paths and URLs
+        if video_path.startswith('http'):
+            # Download video first
+            response = requests.get(video_path, stream=True)
+            response.raise_for_status()
+            
+            temp_video = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
+            with open(temp_video.name, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+            video_path = temp_video.name
+        
+        # Open video with OpenCV
+        cap = cv2.VideoCapture(video_path)
+        
+        if not cap.isOpened():
+            raise Exception(f"Could not open video file: {video_path}")
+        
+        # Get total frame count
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        
+        print(f"DEBUG: Video has {total_frames} frames at {fps} FPS")
+        
+        # Jump to the last frame
+        cap.set(cv2.CAP_PROP_POS_FRAMES, total_frames - 1)
+        
+        # Read the last frame
+        ret, frame = cap.read()
+        cap.release()
+        
+        if not ret:
+            raise Exception("Could not read last frame from video")
+        
+        # Save frame as image
+        temp_frame = tempfile.NamedTemporaryFile(delete=False, suffix='.jpg')
+        cv2.imwrite(temp_frame.name, frame)
+        
+        print(f"DEBUG: Last frame extracted to: {temp_frame.name}")
+        
+        # Clean up temporary video file if we downloaded it
+        if video_path.startswith('http'):
+            try:
+                os.unlink(video_path)
+            except:
+                pass
+        
+        return temp_frame.name
         
     except Exception as e:
-        print(f"Error extracting last frame: {e}")
+        print(f"ERROR extracting last frame: {e}")
+        # Return None if extraction fails - VEO-3 will work without frame continuation
         return None
 
 def combine_seamless_segments(segment_urls):
