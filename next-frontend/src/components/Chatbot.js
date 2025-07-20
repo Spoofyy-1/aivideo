@@ -177,6 +177,14 @@ function Chatbot() {
   };
 
   const handleImageUpload = async (file) => {
+    if (uploadedImages.length >= 5) {
+      setMessages(msgs => [...msgs, {
+        sender: 'bot',
+        text: '❌ Maximum 5 images allowed. Please remove an image first.'
+      }]);
+      return;
+    }
+
     const formData = new FormData();
     formData.append('image', file);
     
@@ -197,19 +205,17 @@ function Chatbot() {
           id: Date.now(),
           file_path: result.file_path,
           filename: result.filename,
-          suggested_contexts: result.suggested_contexts,
-          context: result.suggested_contexts[0] || 'product',
-          placement: 'in use', // Default placement
-          description: '', // User can add custom description
+          context: 'product',
+          placement: 'in use',
+          description: '',
           preview: URL.createObjectURL(file)
         };
         
         setUploadedImages(prev => [...prev, newImage]);
-        setImageContextOptions(result.context_options);
         
         setMessages(msgs => [...msgs, {
           sender: 'bot',
-          text: `✅ Uploaded "${file.name}" successfully!`
+          text: `✅ Uploaded "${file.name}" successfully! Describe what this image shows for better AI integration.`
         }]);
       } else {
         setMessages(msgs => [...msgs, {
@@ -229,11 +235,11 @@ function Chatbot() {
     }
   };
 
-  const updateImageContext = (imageId, context, placement) => {
+  const updateImageContext = (imageIndex, field, value) => {
     setUploadedImages(prev => 
-      prev.map(img => 
-        img.id === imageId 
-          ? { ...img, context, placement }
+      prev.map((img, index) => 
+        index === imageIndex 
+          ? { ...img, [field]: value }
           : img
       )
     );
@@ -249,8 +255,8 @@ function Chatbot() {
     );
   };
 
-  const removeImage = (imageId) => {
-    setUploadedImages(prev => prev.filter(img => img.id !== imageId));
+  const removeImage = (imageIndex) => {
+    setUploadedImages(prev => prev.filter((img, index) => index !== imageIndex));
     setMessages(msgs => [...msgs, {
       sender: 'bot',
       text: 'Image removed successfully!'
@@ -591,6 +597,42 @@ function Chatbot() {
     setShowRatingModal(false);
   };
 
+  // Handle option clicks for industry and ad type selection
+  const handleOptionClick = (option) => {
+    setMessages(msgs => [...msgs, { sender: 'user', text: option }]);
+    
+    // Handle industry selection
+    if (!answers.industry) {
+      setAnswers(ans => ({ ...ans, industry: option }));
+      setMessages(msgs => [...msgs, { sender: 'bot', text: creativeQuestions[0].text }]);
+      setStep(1);
+      return;
+    }
+    
+    // Handle creative questions with options (ad_type)
+    if (step <= creativeQuestions.length) {
+      const currentQuestion = creativeQuestions[step - 1];
+      const newAnswers = { ...answers, [currentQuestion.key]: option };
+      setAnswers(newAnswers);
+      
+      if (step < creativeQuestions.length) {
+        setStep(step + 1);
+        const nextQuestion = creativeQuestions[step];
+        setMessages(msgs => [...msgs, { sender: 'bot', text: nextQuestion.text }]);
+      } else {
+        setStep(step + 1);
+        // Show product selection after all questions
+        if (!productAsked && productsList.length > 0) {
+          setMessages(msgs => [...msgs, { sender: 'bot', text: 'Select a product or service to promote:' }]);
+          setProductAsked(true);
+        } else if (!productAsked) {
+          setMessages(msgs => [...msgs, { sender: 'bot', text: 'Type your product or service:' }]);
+          setProductAsked(true);
+        }
+      }
+    }
+  };
+
   return (
     <div className="chat-container">
       {/* Only show script preview when script is generated, hide everything else */}
@@ -626,7 +668,11 @@ function Chatbot() {
                 id="image-input"
                 multiple
                 accept="image/*"
-                onChange={handleImageUpload}
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    handleImageUpload(e.target.files[0]);
+                  }
+                }}
                 style={{ display: 'none' }}
               />
               <div className="dropzone-content">
