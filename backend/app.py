@@ -3854,7 +3854,13 @@ def generate_video_veo3_continuation():
         )
         
         if not segment1_result.get('success'):
-            return jsonify({"success": False, "error": "Failed to generate segment 1"})
+            error_msg = segment1_result.get('error', 'Unknown error')
+            if "not implemented yet" in error_msg:
+                return jsonify({
+                    "success": False, 
+                    "error": "VEO-3 video generation is currently in development. This is a script preview system. The video generation feature will be available soon with Google's VEO-3 API integration."
+                })
+            return jsonify({"success": False, "error": f"Failed to generate segment 1: {error_msg}"})
         
         # Extract last frame from Segment 1
         last_frame = extract_last_frame(segment1_result['video_url'])
@@ -3901,6 +3907,10 @@ def generate_video_veo3_continuation():
 def generate_veo3_segment_with_images(segment_script, uploaded_images, segment_number):
     """Generate video segment with uploaded image integration"""
     try:
+        # Check if we have the required script properties
+        if not segment_script:
+            raise Exception("Segment script is empty or invalid")
+        
         # Build VEO-3 prompt with image integration
         image_refs = []
         for img in uploaded_images:
@@ -3910,11 +3920,15 @@ def generate_veo3_segment_with_images(segment_script, uploaded_images, segment_n
         
         image_integration = ", ".join(image_refs) if image_refs else ""
         
+        # Get visual description or scene description
+        visual_desc = segment_script.get('visual_description') or segment_script.get('scene_description', 'Professional commercial scene')
+        camera_movement = segment_script.get('camera_movement') or segment_script.get('camera', 'Steady shot')
+        
         veo3_prompt = f"""
-        {segment_script['visual_description']}
+        {visual_desc}
         
         UPLOADED ASSETS: {image_integration}
-        CAMERA: {segment_script['camera_movement']}
+        CAMERA: {camera_movement}
         DURATION: 8 seconds
         QUALITY: Cinematic, hyper-realistic
         PHYSICS: Enhanced VEO-3 accuracy
@@ -3922,43 +3936,19 @@ def generate_veo3_segment_with_images(segment_script, uploaded_images, segment_n
         Style: Professional commercial, dramatic lighting, smooth motion
         """
         
-        # VEO-3 API call with new features
-        veo3_payload = {
-            "prompt": veo3_prompt,
-            "duration": 8,
-            "quality": "4K",
-            "features": {
-                "ingredients_to_video": True if uploaded_images else False,
-                "camera_controls": True,
-                "enhanced_physics": True,
-                "cinematic_quality": True
-            }
-        }
+        # MOCK VEO-3 API SIMULATION - In real implementation, replace with actual API
+        print(f"DEBUG: [MOCK] VEO-3 API call for segment {segment_number}")
+        print(f"DEBUG: [MOCK] Prompt: {veo3_prompt[:100]}...")
         
-        # Add uploaded images as ingredients
-        if uploaded_images:
-            veo3_payload["ingredients"] = [
-                {
-                    "type": "image",
-                    "path": img["file_path"],
-                    "context": img.get("context", "product"),
-                    "placement": img.get("placement", "in use")
-                }
-                for img in uploaded_images
-            ]
+        # Simulate API delay
+        import time
+        time.sleep(1)  # Simulate processing time
         
-        # Simulate VEO-3 API call (replace with actual API when available)
-        video_url = f"https://veo3-api.google.com/generated/segment{segment_number}_{int(time.time())}.mp4"
-        
-        return {
-            "success": True,
-            "video_url": video_url,
-            "segment": segment_number,
-            "features_used": ["image_integration", "camera_controls", "enhanced_physics"]
-        }
+        # Instead of fake URL, return error to indicate this is a simulation
+        raise Exception("VEO-3 API is not implemented yet - this is a simulation. Video generation would happen here in production.")
         
     except Exception as e:
-        print(f"Error generating VEO-3 segment: {e}")
+        print(f"Error in VEO-3 segment generation: {e}")
         return {"success": False, "error": str(e)}
 
 def generate_veo3_segment_with_continuation(segment_script, reference_frame, uploaded_images, segment_number):

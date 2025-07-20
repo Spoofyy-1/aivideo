@@ -34,11 +34,11 @@ const ScriptPreview = ({
   };
 
   const getTotalWordCount = () => {
-    if (typeof script === 'object') {
+    if (typeof script === 'object' && script) {
       let totalWords = 0;
       // Count words from all segments dynamically
       Object.keys(script).forEach(key => {
-        if (key.startsWith('segment') && script[key]?.voiceover_script) {
+        if (key.startsWith('segment') && script[key] && script[key].voiceover_script) {
           totalWords += script[key].voiceover_script.split(' ').length;
         }
       });
@@ -48,7 +48,7 @@ const ScriptPreview = ({
   };
 
   const getSegmentCount = () => {
-    if (typeof script === 'object') {
+    if (typeof script === 'object' && script) {
       return Object.keys(script).filter(key => key.startsWith('segment')).length;
     }
     return 0;
@@ -419,11 +419,12 @@ const ScriptPreview = ({
         </h2>
         
         {/* Render all segments dynamically */}
-        {Object.keys(script)
+        {script && typeof script === 'object' && Object.keys(script)
           .filter(key => key.startsWith('segment'))
           .sort()
           .map(segmentKey => {
             const segment = script[segmentKey];
+            if (!segment) return null;
             const segmentNumber = segmentKey.replace('segment', '');
             return renderSegment(`Segment ${segmentNumber}`, segment);
           })
